@@ -1,12 +1,16 @@
-import React from 'react';
-import './App.css';
-import { ToDoList } from './Container/ToDoList';
+import React from 'react'
+import { ToDoList } from './Container/ToDoList'
+import { SiteHeader } from './Container/header'
+import { Layout } from 'antd'
+import 'antd/dist/antd.css'
 
 function App() {
   return (
-    <div className="App">
-      <ToDoList />
-    </div>
+    <Layout>
+        <SiteHeader />
+        <div  className='content'/>
+        <ToDoList />
+    </Layout>
   );
 }
 

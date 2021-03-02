@@ -28,7 +28,6 @@ export const ToDoList: FC = () => {
 
     return (
         <div>
-            <h2>To Do List</h2>
             <ul>
                 {todosItems}
             </ul>

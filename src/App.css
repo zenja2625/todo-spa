@@ -1,4 +1,34 @@
-.App {
+.logo {
+    color: white;
+    float: left;
+    width: 120px;
+    height: 100%;
+    margin: 0px 0px 0px 0;
+    font-size: 20px;
+    
+}
+.menu {
+    float: right;
+    height: 100%;
+}
+
+.header {
+    position: fixed;
+    z-index: 1;
+    width: 100%;
+    height: 64px;
+    padding-left: 30px;
+    padding-right: 30px;
+}
+
+.content {
+    margin-top: 64px;
+}
+
+
+
+
+/*.App {
   text-align: center;
 }
 
@@ -36,3 +66,4 @@
     transform: rotate(360deg);
   }
 }
+*/
