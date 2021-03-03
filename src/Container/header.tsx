@@ -1,20 +1,20 @@
-import { useState, FC } from 'react'
-import { Button, Row, Col, Menu, Layout } from 'antd'
+import React, { FC } from 'react'
+import { Menu, Layout } from 'antd'
 import 'antd/dist/antd.css'
 import '../App.css'
+import { Link } from 'react-router-dom'
 
 
 const { Header } = Layout
 
 export const SiteHeader: FC = () => {
-    const [val, setVal] = useState(0)
-    
+
     return (
         <Header className='header'>
-            <div className='logo'>My To Do</div>
+            <div className='logo'><Link to='/'>My To Do</Link></div>
             <Menu className='menu' theme='dark' mode='horizontal'>
-                <Menu.Item key='1'>Login</Menu.Item>
-                <Menu.Item key='2'>Register</Menu.Item>
+                <Menu.Item key='1'><Link to='/login'>Login</Link></Menu.Item>
+                <Menu.Item key='2'><Link to='/register'>Register</Link></Menu.Item>
             </Menu>
         </Header>
     )
