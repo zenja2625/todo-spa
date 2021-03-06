@@ -1,13 +1,12 @@
 import { FC } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
-import { addToDo, checkToDo, deleteToDo } from '../store/reducer';
-import { ToDoState } from '../store/types';
+import { addToDo, checkToDo, deleteToDo } from '../store/todoReducer';
+import { ApplicationState } from '../store/types';
 
 export const ToDoList: FC = () => {
-    const todos = useSelector(((state: ToDoState) => state.todos))
+    const todos = useSelector(((state: ApplicationState) => state.todos.todos))
 
     const dispatch = useDispatch()
-
 
     const onCheck = (id: number) => {
         dispatch(checkToDo(id))

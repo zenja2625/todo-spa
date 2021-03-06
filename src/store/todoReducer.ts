@@ -29,7 +29,6 @@ export const checkToDo = (todoId: number): ToDoActionTypes => {
     }
 }
 
-
 export const toDoReducer = (state = initialState, action: ToDoActionTypes): ToDoState => {
     switch (action.type) {
         case ADD_TODO:

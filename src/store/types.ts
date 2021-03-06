@@ -28,3 +28,27 @@ interface CheckToDoAction {
 }
 
 export type ToDoActionTypes = AddToDoAction | DeleteToDoAction | CheckToDoAction
+
+export interface AccountState {
+    isAuth: boolean,
+    name: string
+}
+
+export const AUTH_APP = 'AUTH_APP'
+export const LOGOUT_APP = 'LOGOUT_APP'
+
+interface AuthAction {
+    type: typeof AUTH_APP,
+    name: string
+}
+
+interface LogoutAction {
+    type: typeof LOGOUT_APP,
+}
+
+export type AccoutnActionTypes = AuthAction | LogoutAction
+
+export interface ApplicationState {
+    todos: ToDoState,
+    account: AccountState
+}

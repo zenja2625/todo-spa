@@ -1,15 +1,11 @@
 import React from 'react'
-import { ToDoList } from './Container/ToDoList'
+import { BrowserRouter, Route } from 'react-router-dom'
 import { SiteHeader } from './Container/header'
-import { Layout } from 'antd'
-import 'antd/dist/antd.css'
-import { Route, Router, Switch, BrowserRouter } from 'react-router-dom'
-import { createBrowserHistory } from 'history'
+import { ToDoList } from './Container/ToDoList'
 
 function App() {
   return (
     <BrowserRouter>
-      <Layout>
         <SiteHeader />
         <div className='content' />
         <Route exact path="/"  >
@@ -21,7 +17,6 @@ function App() {
         <Route path="/register"  >
           <Register />
         </Route>
-      </Layout>
     </BrowserRouter>
   );
 }
