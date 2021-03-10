@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addToDo, checkToDo, deleteToDo } from '../store/todoReducer';
 import { ApplicationState } from '../store/types';
 
-export const ToDoList: FC = () => {
+export const Main: FC = () => {
     const todos = useSelector(((state: ApplicationState) => state.todos.todos))
 
     const dispatch = useDispatch()

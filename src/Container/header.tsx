@@ -10,7 +10,6 @@ import { ApplicationState } from '../store/types'
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         root: {
-            flexGrow: 1,
         },
         menuButton: {
             marginRight: theme.spacing(2),
@@ -49,7 +48,6 @@ export const SiteHeader = () => {
             isAuth: false,
             value: 'Login',
             link: '/login',
-             event: () => dispatch(authApp('Zenja'))
         },
         {
             isAuth: false,
@@ -83,7 +81,7 @@ export const SiteHeader = () => {
 
     return (
         <div className={classes.root}>
-            <AppBar position="fixed">
+            <AppBar position='static'>
                 <Toolbar>
                     <Typography variant="h6" className={classes.title}>
                         <Link to='/' className='link link_log'>My To Do</Link>

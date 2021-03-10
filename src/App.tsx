@@ -1,39 +1,27 @@
 import React from 'react'
 import { BrowserRouter, Route } from 'react-router-dom'
 import { SiteHeader } from './Container/header'
-import { ToDoList } from './Container/ToDoList'
+import { Main } from './Container/Main'
+import { Login } from './Container/login'
+import { Register } from './Container/register'
 
 function App() {
   return (
     <BrowserRouter>
         <SiteHeader />
-        <div className='content' />
-        <Route exact path="/"  >
-          <ToDoList />
-        </Route>
-        <Route path="/login"  >
-          <Login />
-        </Route>
-        <Route path="/register"  >
-          <Register />
-        </Route>
+        <main>
+            <Route exact path="/"  >
+              <Main />
+            </Route>
+            <Route path="/login"  >
+              <Login />
+            </Route>
+            <Route path="/register"  >
+              <Register />
+            </Route>
+        </main>
     </BrowserRouter>
   );
-}
-
-const Login: React.FC = () => {
-  return (
-    <>
-      Login
-    </>
-  )
-}
-const Register: React.FC = () => {
-  return (
-    <>
-      Register
-    </>
-  )
 }
 
 export default App;
