@@ -10,6 +10,7 @@ import { ApplicationState } from '../store/types'
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         root: {
+            zIndex: 1,
         },
         menuButton: {
             marginRight: theme.spacing(2),
