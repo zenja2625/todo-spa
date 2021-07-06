@@ -1,26 +1,51 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { message } from 'antd'
+import { useEffect } from 'react'
+import { Login } from './containers/account/Login'
+import { Register } from './containers/account/Register'
+import { Categories } from './containers/Categories'
+import { Todos } from './containers/Todos'
+import { logoutThunk, userInfoThunk } from './slices/accountSlice'
+import { clearCategories, getCategoriesThunk } from './slices/categoriesSlice'
+import { useAppDispatch, useAppSelector } from './store'
 
-function App() {
+import 'antd/dist/antd.css'
+
+const App = () => {
+  const account = useAppSelector(state => state.account)
+  const dispatch = useAppDispatch()
+
+  useEffect(() => {
+    dispatch(userInfoThunk())
+  }, [dispatch])
+  
+  useEffect(() => {
+    if (account.isAuth)
+      dispatch(getCategoriesThunk())
+    else
+      dispatch(clearCategories())
+  }, [account.isAuth, dispatch])
+
+  const divStyle: React.CSSProperties = {display: 'flex'}
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+        <div style={divStyle}>
+          <div style={{marginRight: '30px'}}>Username: {account.username}</div>
+          <input type="button" value='Logout' onClick={() => dispatch(logoutThunk())}/>
+          <input type="button" value="Error" onClick={() => message.error('Error')}/>
+        </div>
+        <div style={divStyle}>
+          <Login />
+          <span style={{marginRight: '60px'}}></span>
+          <Register />
+        </div>
+        <div style={divStyle}>
+          <Categories />
+          <span style={{marginRight: '60px'}}></span>
+          <Todos />
+        </div>
     </div>
-  );
+  )
 }
 
 export default App;
