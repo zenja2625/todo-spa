@@ -1,3 +1,5 @@
+import { todoStatusDTO } from '../api/apiTypes'
+
 export type AccountType = {
     username: string,
     isAuth: boolean
@@ -26,6 +28,12 @@ export type TodosType = {
     todos: Array<Todo>
 }
 
+export type UpdateStatusesType = {
+    todoStatusDTOs: Array<todoStatusDTO>,
+    categoryId: number 
+}
+
 export type RejectValueType = {
     rejectValue: string
 }
+

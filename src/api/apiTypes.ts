@@ -18,9 +18,9 @@ export type todoPutDTO = {
     TaskEnd?: Date
 }
 export type todoStatusDTO = {
-    Id: number,
-    IsDone?: boolean,
-    IsHiddenSubTodo?: boolean
+    id: number,
+    isDone?: boolean,
+    isHiddenSubTodo?: boolean
 }
 export type todoPositionDTO = {
     Id: number,
