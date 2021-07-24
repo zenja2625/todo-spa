@@ -1,5 +1,10 @@
 import { todoStatusDTO } from '../api/apiTypes'
 
+export type AppType = {
+    initialized: boolean,
+    requestCount: number
+}
+
 export type AccountType = {
     username: string,
     isAuth: boolean

@@ -32,7 +32,6 @@ export const Todos = () => {
 
     const st = useDebounce(statuses, 1000)
 
-
     useEffect(() => {
         if (st.length) {
             setStatuses([])
@@ -46,18 +45,15 @@ export const Todos = () => {
             dispatch(getTodosThunk(selectedCategoryId))
     }, [selectedCategoryId, dispatch])
 
-
     useEffect(() => {
         setConsol(JSON.stringify(statuses, null, 2))
     }, [statuses])
-
 
 
     const progress = (id: number, isDone: boolean) => {
         dispatch(toggleTodoProgress(id))
         setStatuses(prevStatuses => setStatus(prevStatuses, 'isDone', isDone, id))
     }
-
     
     const hiding = (id: number, isHiddenSubTasks: boolean) => {
         dispatch(toggleTodoHiding(id))
