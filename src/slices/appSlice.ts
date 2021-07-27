@@ -1,4 +1,4 @@
-import { Action, AnyAction, createSlice } from '@reduxjs/toolkit'
+import { AnyAction, createSlice } from '@reduxjs/toolkit'
 import { AppType } from './sliceTypes'
 
 const initialState: AppType = {

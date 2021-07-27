@@ -30,7 +30,8 @@ export type CategoriesType = {
 }
 
 export type TodosType = {
-    todos: Array<Todo>
+    todos: Array<Todo>,
+    todoStatusDTOs: Array<todoStatusDTO>
 }
 
 export type UpdateStatusesType = {
@@ -42,3 +43,7 @@ export type RejectValueType = {
     rejectValue: string
 }
 
+export type ChangeTodoPositionType = {
+    todo: Todo,
+    toParentDoId: number
+}

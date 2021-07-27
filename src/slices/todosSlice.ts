@@ -1,9 +1,11 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { API } from '../api/api'
-import { Todo, TodosType, UpdateStatusesType } from './sliceTypes'
+import { todoStatusDTO } from '../api/apiTypes'
+import { ChangeTodoPositionType, Todo, TodosType, UpdateStatusesType } from './sliceTypes'
 
 const initialState: TodosType = {
-    todos: []
+    todos: [],
+    todoStatusDTOs: []
 }
 
 export const getTodosThunk = createAsyncThunk(
@@ -35,10 +37,25 @@ export const todosSlice = createSlice({
     initialState,
     reducers: {
         toggleTodoProgress: (state, action: PayloadAction<number>) => {
-            state.todos = state.todos.map(todo => todo.id === action.payload ? {...todo, isDone: !todo.isDone} : todo)
+            state.todos = state.todos.map(todo => todo.id === action.payload ? { ...todo, isDone: !todo.isDone } : todo)
         },
         toggleTodoHiding: (state, action: PayloadAction<number>) => {
-            state.todos = state.todos.map(todo => todo.id === action.payload ? {...todo, isHiddenSubTasks: !todo.isHiddenSubTasks} : todo)
+            state.todos = state.todos.map(todo => todo.id === action.payload ? { ...todo, isHiddenSubTasks: !todo.isHiddenSubTasks } : todo)
+        },
+        changeTodoPosition: (state, action: PayloadAction<ChangeTodoPositionType>) => {
+            const todoIndex = state.todos.findIndex(x => x.id === action.payload.todo.id)
+            const todoParentIndex = state.todos.findIndex(x => x.id === action.payload.toParentDoId)
+            state.todos.splice(todoIndex, 1)
+            state.todos.splice(todoParentIndex + 1, 0, action.payload.todo)
+        },
+        toggleTodoStatusDTOs: (state, action: PayloadAction<todoStatusDTO>) => {
+            const todoStatus = state.todoStatusDTOs.find(x => action.payload.id)
+            
+            if (todoStatus) {
+                // if (action.payload.isDone === undefined && todoStatus.isDone !== undefined)
+                   
+
+            }
         }
     },
     extraReducers: builder => {
@@ -48,4 +65,4 @@ export const todosSlice = createSlice({
     }
 })
 
-export const { toggleTodoProgress, toggleTodoHiding } = todosSlice.actions
+export const { toggleTodoProgress, toggleTodoHiding, changeTodoPosition } = todosSlice.actions

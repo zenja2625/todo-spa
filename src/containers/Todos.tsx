@@ -1,8 +1,12 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { todoStatusDTO } from '../api/apiTypes'
 import { useDebounce } from '../hooks/useDebounce'
-import { getTodosThunk, toggleTodoHiding, toggleTodoProgress } from '../slices/todosSlice'
+import { Todo } from '../slices/sliceTypes'
+import { changeTodoPosition, getTodosThunk, toggleTodoHiding, toggleTodoProgress } from '../slices/todosSlice'
 import { useAppDispatch, useAppSelector } from '../store'
+import { MoreOutlined } from '@ant-design/icons'
+import { TodoItem } from './TodoItem'
+
 
 type statusProperties = 'isDone' | 'isHiddenSubTodo'
 
@@ -23,10 +27,21 @@ const setStatus = (statuses: Array<todoStatusDTO>, propertyType: statusPropertie
     }
 }
 
+const useDragAndDrop = () => {
+    const ref = useRef<HTMLDivElement>(null)
+
+
+
+    return { ref }
+}
+
 export const Todos = () => {
+    console.log('Render')
     const dispatch = useAppDispatch()
     const selectedCategoryId = useAppSelector(state => state.categories.selectedCategoryId)
     const todos = useAppSelector(state => state.todos.todos)
+
+    const { ref } = useDragAndDrop()
 
     const [statuses, setStatuses] = useState<Array<todoStatusDTO>>([])
 
@@ -60,24 +75,24 @@ export const Todos = () => {
         setStatuses(prevStatuses => setStatus(prevStatuses, 'isHiddenSubTodo', isHiddenSubTasks, id))
     }
 
-    const todoItems = todos.map((t, i, array) => {
+    let todoItems = todos.map((t, i, array) => {
         const nextIndex = i + 1;
 
-        return (
-            <div style={{ marginLeft: `${30 * t.depth}px` }} key={t.id}>
-                {array.length > nextIndex && t.depth < array[nextIndex].depth ? <input type="button" onClick={() => hiding(t.id, !t.isHiddenSubTasks)} style={{ width: '25px' }} value={t.isHiddenSubTasks ? '>' : 'ᐯ'} /> : <span style={{ marginRight: '25px' }}></span>}
-                <input type='checkbox' onChange={() => progress(t.id, !t.isDone)} checked={t.isDone}></input>
-                {t.value}
-            </div>
-        )
+        return <TodoItem 
+                    todo={t} 
+                    showHideButton={array.length > nextIndex && t.depth < array[nextIndex].depth}
+                />
     })
+
+    todoItems.splice(1, 0, (<div key='Skeleton'>Skeleton</div>))
 
     return (
         <div>
             Todos
-            <div>
+            <div ref={ref}>
                 {todoItems}
             </div>
+            <button onClick={() => dispatch(changeTodoPosition({ todo: todos.find(x => x.id === 4) as Todo, toParentDoId: 2 }))}>Move</button>
             <div >
                 <pre>{consol}</pre>
             </div>
