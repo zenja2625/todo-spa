@@ -31,7 +31,8 @@ export type CategoriesType = {
 
 export type TodosType = {
     todos: Array<Todo>,
-    todoStatusDTOs: Array<todoStatusDTO>
+    todoStatusDTOs: Array<todoStatusDTO>,
+    draggedTodos: Array<Todo>
 }
 
 export type UpdateStatusesType = {
@@ -44,6 +45,7 @@ export type RejectValueType = {
 }
 
 export type ChangeTodoPositionType = {
-    todo: Todo,
-    toParentDoId: number
+    todoId: number,
+    selectedTodoId: number,
+    depth: number
 }

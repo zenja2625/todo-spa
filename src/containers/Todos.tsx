@@ -79,20 +79,20 @@ export const Todos = () => {
         const nextIndex = i + 1;
 
         return <TodoItem 
+                    key={t.id}
                     todo={t} 
                     showHideButton={array.length > nextIndex && t.depth < array[nextIndex].depth}
                 />
     })
 
-    todoItems.splice(1, 0, (<div key='Skeleton'>Skeleton</div>))
+    // todoItems.splice(1, 0, (<div key='Skeleton'>Skeleton</div>))
 
     return (
         <div>
             Todos
-            <div ref={ref}>
+            <div ref={ref} style={{overflow: 'hidden', width: '400px'}}>
                 {todoItems}
             </div>
-            <button onClick={() => dispatch(changeTodoPosition({ todo: todos.find(x => x.id === 4) as Todo, toParentDoId: 2 }))}>Move</button>
             <div >
                 <pre>{consol}</pre>
             </div>
