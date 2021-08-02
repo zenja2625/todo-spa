@@ -1,8 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { string } from 'yup/lib/locale'
 import { API } from '../api/api'
 import { todoStatusDTO } from '../api/apiTypes'
-import { ChangeTodoPositionType, Todo, TodosType, UpdateStatusesType } from './sliceTypes'
+import { ChangeTodoPositionType, TodoDTO, TodosType, UpdateStatusesType } from './sliceTypes'
 
 const initialState: TodosType = {
     todos: [],
@@ -15,7 +14,7 @@ export const getTodosThunk = createAsyncThunk(
     async (categoryId: number, thunkAPI) => {
         try {
             const response = await API.todos.getTodos(categoryId, true)
-            return response.data as Array<Todo>
+            return response.data as Array<TodoDTO>
         } catch (error) {
             return thunkAPI.rejectWithValue(error.response?.status)
         }
@@ -33,7 +32,6 @@ export const updateStatusesThunk = createAsyncThunk(
     }
 )
 
-
 export const todosSlice = createSlice({
     name: 'todos',
     initialState,
@@ -46,7 +44,6 @@ export const todosSlice = createSlice({
         },
         //todo: delete id
         changeTodoPosition: (state, action: PayloadAction<ChangeTodoPositionType>) => {
-            // alert(JSON.stringify(state.draggedTodos, null, 4))
             if (state.draggedTodos.length === 0)
                 return
 
@@ -54,41 +51,78 @@ export const todosSlice = createSlice({
             let maxDepth = 0
             let insertIndex = 0
 
-            if (action.payload.selectedTodoId < 0) {
-                maxDepth = state.todos.length ? state.todos[state.todos.length - 1].depth + 1 : 0
-                insertIndex = state.todos.length
+            const sceletonIndex = state.todos.findIndex(x => x.id === -1)
+            const selectedIndex = state.todos.findIndex(x => x.id === action.payload.selectedTodoId)
+
+            if (selectedIndex === -1 || sceletonIndex === -1)
+                return
+
+            //todo
+            if (sceletonIndex < selectedIndex) {
+                insertIndex = selectedIndex
+                if (selectedIndex + 1 < state.todos.length)
+                    minDepth = state.todos[selectedIndex + 1].depth
+                maxDepth = state.todos[selectedIndex].depth + 1
+            }
+            else if (sceletonIndex > selectedIndex) {
+                insertIndex = selectedIndex
+                minDepth = state.todos[selectedIndex].depth
+                if (selectedIndex - 1 >= 0)
+                    maxDepth = state.todos[selectedIndex - 1].depth + 1
             }
             else {
-                const selectedIndex = state.todos.findIndex(x => x.id === action.payload.selectedTodoId)
-                if (selectedIndex === -1)
-                    return
-
-                minDepth = state.todos[selectedIndex].depth
                 insertIndex = selectedIndex
-
-                const prevIndex = selectedIndex - 1
-
-                if (prevIndex >= 0)
-                    maxDepth = state.todos[prevIndex].depth + 1
+                if (selectedIndex + 1 < state.todos.length)
+                    minDepth = state.todos[selectedIndex + 1].depth
+                if (selectedIndex - 1 >= 0)
+                    maxDepth = state.todos[selectedIndex - 1].depth + 1
             }
-
-
+            
             const depth = action.payload.depth <= minDepth ? minDepth :
                           action.payload.depth >= maxDepth ? maxDepth :
                           action.payload.depth
 
-            const todo = {...state.draggedTodos[0], depth }
+
+            if (selectedIndex === sceletonIndex) {
+                state.todos[selectedIndex].depth = depth
+            }
+            else {
+                const sceleton = {...state.todos[sceletonIndex], depth }
             
-            // state.todos.splice(todoIndex, 1)
-            state.todos.splice(insertIndex, 0, todo)
-            state.draggedTodos = []
+                state.todos.splice(sceletonIndex, 1)
+                state.todos.splice(insertIndex, 0, sceleton)
+            }
         },
         dragTodo: (state, action: PayloadAction<number>) => {
             if (state.draggedTodos.length === 0) {
                 const todoIndex = state.todos.findIndex(x => x.id === action.payload)
-                state.draggedTodos = [...state.draggedTodos, ...state.todos.splice(todoIndex, 1)]
-                state.todos.splice(todoIndex, 0, { id: -1, depth: 0, isDone: false, isHiddenSubTasks: false, value: '' })
+
+                let dragCount = 1
+                for (let i = todoIndex + 1; i < state.todos.length; i++) 
+                    if (state.todos[todoIndex].depth < state.todos[i].depth)
+                        dragCount++
+                    else 
+                        break
+            
+
+                state.draggedTodos = [...state.draggedTodos, ...state.todos.splice(todoIndex, dragCount)]
+                state.todos.splice(todoIndex, 0, { id: -1, depth: state.draggedTodos[0].depth, isDone: false, isHiddenSubTasks: false, value: '' })
             }
+        },
+        dropTodo: state => {
+            const sceletonIndex = state.todos.findIndex(x => x.id === -1)
+            if (sceletonIndex === -1)
+                return
+
+            const depthDifference  = state.todos[sceletonIndex].depth - state.draggedTodos[0].depth
+
+            for (let i = 0; i < state.draggedTodos.length; i++) {
+                state.draggedTodos[i].depth += depthDifference
+            }
+
+            state.todos.splice(sceletonIndex, 1)
+            state.todos.splice(sceletonIndex, 0, ...state.draggedTodos)
+            state.draggedTodos = []
         },
         toggleTodoStatusDTOs: (state, action: PayloadAction<todoStatusDTO>) => {
             const todoStatus = state.todoStatusDTOs.find(x => action.payload.id)
@@ -103,8 +137,9 @@ export const todosSlice = createSlice({
     extraReducers: builder => {
         builder.addCase(getTodosThunk.fulfilled, (state, action) => {
             state.todos = action.payload
+            state.draggedTodos = []
         })
     }
 })
 
-export const { toggleTodoProgress, toggleTodoHiding, changeTodoPosition, dragTodo } = todosSlice.actions
+export const { toggleTodoProgress, toggleTodoHiding, changeTodoPosition, dragTodo, dropTodo } = todosSlice.actions

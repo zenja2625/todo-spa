@@ -1,18 +1,11 @@
 import { FC } from 'react'
 import { Todo } from '../slices/sliceTypes'
 import { MoreOutlined } from '@ant-design/icons'
-import { useDispatch } from 'react-redux'
 import { changeTodoPosition, dragTodo, toggleTodoHiding, toggleTodoProgress } from '../slices/todosSlice'
 import { useAppDispatch, useAppSelector } from '../store'
 import { Skeleton } from 'antd'
 
-
-type TodoItemType = {
-    todo: Todo,
-    showHideButton: boolean
-}
-
-export const TodoItem: FC<TodoItemType> = ({ todo, showHideButton }) => {
+export const TodoItem: FC<Todo> = ({ ...props }) => {
     const dispatch = useAppDispatch()
     const todos = useAppSelector(state => state.todos.todos)
 
@@ -30,8 +23,6 @@ export const TodoItem: FC<TodoItemType> = ({ todo, showHideButton }) => {
         Right
     }
 
-
-
     const move = (todo: Todo, direction: Direction) => {
         let depth = todo.depth
         let selectedTodoId = todo.id
@@ -45,33 +36,31 @@ export const TodoItem: FC<TodoItemType> = ({ todo, showHideButton }) => {
                 break
         }
 
-
-
         dispatch(changeTodoPosition({ todoId: 0, depth, selectedTodoId }))
     }
 
     return (
-        <div style={{ marginLeft: `${30 * todo.depth}px`, height: '30px', width: '100%', position: 'relative', userSelect: 'none' }} key={todo.id}>
-            <Skeleton loading={todo.id === -1} paragraph={false}>
-                <MoreOutlined style={{ cursor: 'move' }} onClick={() => dispatch(dragTodo(todo.id))} />
-                {showHideButton ?
+        <div style={{ display: 'flex', alignItems: 'center', marginLeft: `${30 * props.depth}px`, height: '30px', width: '100%', position: 'relative', userSelect: 'none' }} key={props.id}>
+            <Skeleton loading={props.id === -1} paragraph={false}>
+                <MoreOutlined style={{ cursor: 'move' }} onClick={() => dispatch(dragTodo(props.id))} />
+                {props.showHideButton ?
                     <input
                         type="button"
-                        onClick={() => hiding(todo.id, !todo.isHiddenSubTasks)}
+                        onClick={() => hiding(props.id, !props.isHiddenSubTasks)}
                         style={{ width: '25px' }}
-                        value={todo.isHiddenSubTasks ? '>' : 'ᐯ'} /> :
+                        value={props.isHiddenSubTasks ? '>' : 'ᐯ'} /> :
                     <span style={{ marginRight: '25px' }}></span>
                 }
                 <input
                     type='checkbox'
-                    onChange={() => progress(todo.id, !todo.isDone)}
-                    checked={todo.isDone}></input>
-                {todo.value}
-                <input type="button" value="←" onClick={() => move(todo, Direction.Left)} />
-                <input type="button" value="-" onClick={() => move(todo, Direction.Up)} />
-                <input type="button" value="→" onClick={() => move(todo, Direction.Right)} />
-            </Skeleton>
+                    onChange={() => progress(props.id, !props.isDone)}
+                    checked={props.isDone}></input>
+                {props.value}
 
+            </Skeleton>
+            <input type="button" value="←" onClick={() => move(props, Direction.Left)} />
+            <input type="button" value="-" onClick={() => move(props, Direction.Up)} />
+            <input type="button" value="→" onClick={() => move(props, Direction.Right)} />
         </div>
     )
 }

@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { todoStatusDTO } from '../api/apiTypes'
 import { useDebounce } from '../hooks/useDebounce'
-import { Todo } from '../slices/sliceTypes'
-import { changeTodoPosition, getTodosThunk, toggleTodoHiding, toggleTodoProgress } from '../slices/todosSlice'
+import { TodoDTO } from '../slices/sliceTypes'
+import { changeTodoPosition, dropTodo, getTodosThunk, toggleTodoHiding, toggleTodoProgress } from '../slices/todosSlice'
 import { useAppDispatch, useAppSelector } from '../store'
 import { MoreOutlined } from '@ant-design/icons'
 import { TodoItem } from './TodoItem'
+import { getTodos } from '../selectors/getTodos'
 
 
 type statusProperties = 'isDone' | 'isHiddenSubTodo'
@@ -39,7 +40,8 @@ export const Todos = () => {
     console.log('Render')
     const dispatch = useAppDispatch()
     const selectedCategoryId = useAppSelector(state => state.categories.selectedCategoryId)
-    const todos = useAppSelector(state => state.todos.todos)
+    const todos = useAppSelector(getTodos)
+    // const todos = useAppSelector(state => state.todos.todos)
 
     const { ref } = useDragAndDrop()
 
@@ -75,27 +77,23 @@ export const Todos = () => {
         setStatuses(prevStatuses => setStatus(prevStatuses, 'isHiddenSubTodo', isHiddenSubTasks, id))
     }
 
-    let todoItems = todos.map((t, i, array) => {
-        const nextIndex = i + 1;
-
+    let todoItems = todos.map(todo => {
         return <TodoItem 
-                    key={t.id}
-                    todo={t} 
-                    showHideButton={array.length > nextIndex && t.depth < array[nextIndex].depth}
+                    key={todo.id}
+                    {...todo}
                 />
     })
-
-    // todoItems.splice(1, 0, (<div key='Skeleton'>Skeleton</div>))
 
     return (
         <div>
             Todos
-            <div ref={ref} style={{overflow: 'hidden', width: '400px'}}>
+            <div ref={ref} style={{ width: '400px'}}>
                 {todoItems}
             </div>
             <div >
                 <pre>{consol}</pre>
             </div>
+            <input type="button" value="Drop" onClick={() => dispatch(dropTodo())} />
         </div>
     )
 }

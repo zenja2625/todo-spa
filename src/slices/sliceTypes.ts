@@ -15,7 +15,7 @@ export type Category = {
     name: string
 }
 
-export type Todo = {
+export interface TodoDTO {
     id: number,
     value: string,
     isDone: boolean,
@@ -24,15 +24,19 @@ export type Todo = {
     taskEnd?: string
 }
 
+export interface Todo extends TodoDTO {
+    showHideButton: boolean
+}
+
 export type CategoriesType = {
     categories: Array<Category>,
     selectedCategoryId: number
 }
 
 export type TodosType = {
-    todos: Array<Todo>,
+    todos: Array<TodoDTO>,
     todoStatusDTOs: Array<todoStatusDTO>,
-    draggedTodos: Array<Todo>
+    draggedTodos: Array<TodoDTO>
 }
 
 export type UpdateStatusesType = {
