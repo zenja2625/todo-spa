@@ -1,26 +1,26 @@
 import { todoStatusDTO } from '../api/apiTypes'
 
 export type AppType = {
-    initialized: boolean,
+    initialized: boolean
     requestCount: number
 }
 
 export type AccountType = {
-    username: string,
+    username: string
     isAuth: boolean
 }
 
 export type Category = {
-    id: number,
+    id: number
     name: string
 }
 
 export interface TodoDTO {
-    id: number,
-    value: string,
-    isDone: boolean,
-    isHiddenSubTasks: boolean,
-    depth: number,
+    id: number
+    value: string
+    isDone: boolean
+    isHiddenSubTasks: boolean
+    depth: number
     taskEnd?: string
 }
 
@@ -28,20 +28,26 @@ export interface Todo extends TodoDTO {
     showHideButton: boolean
 }
 
+export type TodoMoveType = {
+    id: string
+    prevTodoId: number | null
+    depth: number
+}
+
 export type CategoriesType = {
-    categories: Array<Category>,
+    categories: Array<Category>
     selectedCategoryId: number
 }
 
 export type TodosType = {
-    todos: Array<TodoDTO>,
-    todoStatusDTOs: Array<todoStatusDTO>,
+    todos: Array<TodoDTO>
+    todoStatusDTOs: Array<todoStatusDTO>
     draggedTodos: Array<TodoDTO>
 }
 
 export type UpdateStatusesType = {
-    todoStatusDTOs: Array<todoStatusDTO>,
-    categoryId: number 
+    todoStatusDTOs: Array<todoStatusDTO>
+    categoryId: number
 }
 
 export type RejectValueType = {
@@ -49,7 +55,7 @@ export type RejectValueType = {
 }
 
 export type ChangeTodoPositionType = {
-    todoId: number,
-    selectedTodoId: number,
+    todoId: number
+    prevTodoId: number | null
     depth: number
 }
