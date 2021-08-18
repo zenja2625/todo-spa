@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { API } from '../api/api'
 import { todoStatusDTO } from '../api/apiTypes'
-import { ChangeTodoPositionType, TodoDTO, TodosType, UpdateStatusesType } from './sliceTypes'
+import { ChangeTodoPositionType, TodoDTO, TodoMoveType, TodosType, UpdateStatusesType } from './sliceTypes'
 
 const initialState: TodosType = {
     todos: [],
@@ -42,6 +42,26 @@ export const todosSlice = createSlice({
         toggleTodoHiding: (state, action: PayloadAction<number>) => {
             state.todos = state.todos.map(todo => todo.id === action.payload ? { ...todo, isHiddenSubTasks: !todo.isHiddenSubTasks } : todo)
         },
+        moveTodo: (state, action: PayloadAction<TodoMoveType>) => {
+            console.log('Move')
+            const todoIndex = state.todos.findIndex(todo => todo.id.toString() === action.payload.id) 
+            
+            let todosCount = 1
+
+            for (let i = todoIndex + 1; i < state.todos.length; i++) {
+                if (state.todos[i].depth > state.todos[todoIndex].depth) {
+                    todosCount++       
+                    state.todos[i].depth += action.payload.depth - state.todos[todoIndex].depth 
+                }
+                else 
+                    break         
+            }
+            state.todos[todoIndex].depth = action.payload.depth
+
+            const todos = state.todos.splice(todoIndex, todosCount)
+            const prevTodoIndex = state.todos.findIndex(todo => todo.id === action.payload.prevTodoId)
+            state.todos.splice(prevTodoIndex + 1, 0, ...todos)
+        },
         //todo: delete id
         changeTodoPosition: (state, action: PayloadAction<ChangeTodoPositionType>) => {
             if (state.draggedTodos.length === 0)
@@ -52,7 +72,7 @@ export const todosSlice = createSlice({
             let insertIndex = 0
 
             const sceletonIndex = state.todos.findIndex(x => x.id === -1)
-            const selectedIndex = state.todos.findIndex(x => x.id === action.payload.selectedTodoId)
+            const selectedIndex = state.todos.findIndex(x => x.id === action.payload.prevTodoId)
 
             if (selectedIndex === -1 || sceletonIndex === -1)
                 return
@@ -142,4 +162,4 @@ export const todosSlice = createSlice({
     }
 })
 
-export const { toggleTodoProgress, toggleTodoHiding, changeTodoPosition, dragTodo, dropTodo } = todosSlice.actions
+export const { toggleTodoProgress, toggleTodoHiding, changeTodoPosition, dragTodo, dropTodo, moveTodo } = todosSlice.actions
