@@ -1,7 +1,7 @@
 import { Todo } from '../slices/sliceTypes'
 import { RootState } from '../store'
 
-export const getTodos = (state: RootState) => {
+export const getTodos = (state: RootState, draggedTodoId: string) => {
     const todos = state.todos.todos
     let newTodos: Array<Todo> = []
 
@@ -15,7 +15,7 @@ export const getTodos = (state: RootState) => {
                 todoIndex = -1
         }
 
-        if (todos[i].isHiddenSubTasks)
+        if (todos[i].isHiddenSubTasks || todos[i].id.toString() === draggedTodoId)
             todoIndex = i
         newTodos.push({...todos[i], showHideButton: i + 1 < todos.length && todos[i].depth < todos[i + 1].depth})
     }
