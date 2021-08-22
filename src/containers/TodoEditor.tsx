@@ -1,25 +1,46 @@
-import { ChangeEvent, FC, useState } from "react"
+import { DatePicker } from 'antd'
+import moment, { Moment } from 'moment'
+import { ChangeEvent, FC, useEffect, useState } from "react"
 import { Todo } from "../slices/sliceTypes"
 
 type TodoEditorPropsType = {
-    initialTodo?: Todo
+    categoryId: number
+    todo?: Todo
 }
 
-export const TodoEditor: FC<TodoEditorPropsType> = ({ initialTodo }) => {
-    const [value, setValue] = useState(initialTodo?.value || '')
-    const [date, setDate] = useState(initialTodo?.taskEnd ||  '2018-07-22')
+const dateFormat = 'DD.MM.YYYY'
 
-    //const date1 = new Date().getDate()
-    console.log(new Date().toLocaleDateString('ru'))
+export const TodoEditor: FC<TodoEditorPropsType> = ({ todo, categoryId }) => {
+    const [value, setValue] = useState('')
+    const [date, setDate] = useState<Moment | null>(null)
+
+    useEffect(() => {
+        if (todo) {
+            setValue(todo.value)
+            setDate(todo.taskEnd ? moment(todo.taskEnd, dateFormat) : null)
+        }
+        else {
+            setValue('')
+            setDate(null)
+        }
+    }, [todo])
+
 
     const onChange = (event: ChangeEvent<HTMLInputElement>) => {
         setValue(event.target.value)
     }
 
+    const onDateChange = (date: moment.Moment | null) => {
+        setDate(date)
+    }
+
     return (
         <div>
-            <input type="text" value={value} onChange={onChange}/>
-            <input type="date" value={date}/>
+            <div>
+                <input type="text" value={value} onChange={onChange}/>
+                <DatePicker value={date} format={dateFormat} onChange={onDateChange}/>
+            </div>
+            <input type="button" value="Добавить задачу" />
         </div>
     )
 }
