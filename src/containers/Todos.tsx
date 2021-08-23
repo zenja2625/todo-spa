@@ -23,6 +23,7 @@ import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { SortableTodo } from './Todo/SortableTodo'
 import { createPortal } from 'react-dom'
 import { TodoEditor } from './TodoEditor'
+import { Modal } from 'antd'
 
 let renderCount = 1
 
@@ -50,10 +51,15 @@ export const Todos = () => {
     const [draggedTodoDepth, setDraggedTodoDepth] = useState<number | null>(null)
     const [prevTodoId, setPrevTodoId] = useState<number | null>(null)
 
+
+
+
+    const [editId, setEditId] = useState<number | null>(null)
+    const [newTaskIndex, setNewTaskIndex] = useState<number | null>(null)
+
     const dispatch = useAppDispatch()
     const selectedCategoryId = useAppSelector(state => state.categories.selectedCategoryId)
     const todos = useAppSelector(getTodos)
-
 
     const [statuses, setStatuses] = useState<Array<todoStatusDTO>>([])
 
@@ -92,7 +98,7 @@ export const Todos = () => {
             : actualDepth > maxDepth
                 ? maxDepth
                 : actualDepth
-        
+
         const prevTodoId = prevIndex >= 0 ? todos[prevIndex].id : null
 
         return { actualDepth, prevTodoId }
@@ -112,7 +118,7 @@ export const Todos = () => {
     const onDragStart = ({ active }: DragStartEvent) => {
         const todo = todos.find(todo => todo.id.toString() === active.id) || null
         setDraggedTodo(todo)
-        if (todo && todo.showHideButton && !todo.isHiddenSubTasks) 
+        if (todo && todo.showHideButton && !todo.isHiddenSubTasks)
             dispatch(toggleTodoHiding(todo.id))
     }
 
@@ -143,7 +149,7 @@ export const Todos = () => {
 
         onDragCancel()
     }
-    
+
 
     const onDragCancel = () => {
         setDraggedTodo(null)
@@ -151,24 +157,34 @@ export const Todos = () => {
         setPrevTodoId(null)
     }
 
-    const todoItems = todos.map((todo) => {
+    const onEditEnd = () => {
+        setEditId(null)
+        setNewTaskIndex(null)
+    }
+
+    let todoItems = todos.map((todo) => {
         return (
-            <SortableTodo
-                key={todo.id}
-                todo={{
-                    ...todo,
-                    depth:
-                        draggedTodo?.id === todo.id &&
+            editId !== todo.id ?
+                <SortableTodo
+                    key={todo.id}
+                    todo={{
+                        ...todo,
+                        depth:
+                            draggedTodo?.id === todo.id &&
 
-                        draggedTodoDepth !== null
-                            ? draggedTodoDepth
-                            : todo.depth,
-                }}
-                active={draggedTodo?.id === todo.id}
-
-            />
+                                draggedTodoDepth !== null
+                                ? draggedTodoDepth
+                                : todo.depth,
+                    }}
+                    active={draggedTodo?.id === todo.id}
+                    edit={(id: number) => setEditId(id)}
+                /> :
+                <TodoEditor todo={todo} onEnd={onEditEnd} categoryId={selectedCategoryId}/>
         )
     })
+
+    if (editId && newTaskIndex !== null)
+        todoItems.splice(newTaskIndex, 0, <TodoEditor onEnd={onEditEnd} categoryId={selectedCategoryId}/>)
 
     return (
         <div>
@@ -197,10 +213,16 @@ export const Todos = () => {
                 </DndContext>
             </div>
             <div>
-                <input type="button" value="Добавить задачу" />
-                {selectedCategoryId && <TodoEditor todo={draggedTodo || undefined} categoryId={selectedCategoryId}/>}
-
+                <input type="button" value="Новая задача" onClick={() => {
+                    setEditId(-1)
+                    setNewTaskIndex(todos.length)
+                }}/>
             </div>
+            {/* <Modal title="Добавить задачу" visible>
+                <p>Some contents...</p>
+                <p>Some contents...</p>
+                <p>Some contents...</p>
+            </Modal> */}
             <div >
                 <pre>{consol}</pre>
             </div>

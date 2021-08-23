@@ -8,6 +8,7 @@ import { logoutThunk, userInfoThunk } from './slices/accountSlice'
 import { clearCategories, getCategoriesThunk } from './slices/categoriesSlice'
 import { useAppDispatch, useAppSelector } from './store'
 import { SyncOutlined } from '@ant-design/icons'
+import './momentLocale'
 
 
 import 'antd/dist/antd.css'

@@ -8,11 +8,12 @@ import { Skeleton } from 'antd'
 type TodoItemPropsType = {
     todo: Todo,
     active?: boolean
+    edit: (id: number) => void
     dragRef?: (element: HTMLElement | null) => void
     handleProps: any
 }
 
-export const TodoItem: FC<TodoItemPropsType> = ({ todo, dragRef, handleProps }) => {
+export const TodoItem: FC<TodoItemPropsType> = ({ todo, dragRef, handleProps, edit }) => {
     const dispatch = useAppDispatch()
 
     const progress = (id: number, isDone: boolean) => {
@@ -29,7 +30,6 @@ export const TodoItem: FC<TodoItemPropsType> = ({ todo, dragRef, handleProps }) 
                 ref={dragRef}
                 {...handleProps}
                 style={{ cursor: 'move' }}
-            // onClick={() => dispatch(dragTodo(props.id))} 
             />
             {todo.showHideButton ?
                 <input
@@ -45,6 +45,7 @@ export const TodoItem: FC<TodoItemPropsType> = ({ todo, dragRef, handleProps }) 
                 checked={todo.isDone}></input>
             {todo.value}
 
+            <input type="button" value='✎' onClick={() => edit(todo.id)}/>
         </div>
     )
 }
