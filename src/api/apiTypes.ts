@@ -7,26 +7,26 @@ export type UserRegisterDTO = {
     Password: string,
     ConfirmPassword: string
 }
-export type todoPostDTO = {
+export type TodoPostDTO = {
     Value: string,
     ParentId: number,
     PrevToDoId: number,
     TaskEnd?: Date
 }
-export type todoPutDTO = {
+export type TodoPutDTO = {
     Value: string,
     TaskEnd?: Date
 }
-export type todoStatusDTO = {
+export type TodoStatusDTO = {
     id: number,
     isDone?: boolean,
     isHiddenSubTodo?: boolean
 }
-export type todoPositionDTO = {
+export type TodoPositionDTO = {
     Id: number,
     ParentId: number,
     PrevToDoId: number
 }
-export type categoryRequestDTO = {
+export type CategoryRequestDTO = {
     Name: string
 }

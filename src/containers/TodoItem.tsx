@@ -1,7 +1,7 @@
 import { FC } from 'react'
 import { Todo } from '../slices/sliceTypes'
 import { MoreOutlined } from '@ant-design/icons'
-import { changeTodoPosition, dragTodo, toggleTodoHiding, toggleTodoProgress } from '../slices/todosSlice'
+import { toggleTodoHiding, toggleTodoProgress } from '../slices/todosSlice'
 import { useAppDispatch, useAppSelector } from '../store'
 import { Skeleton } from 'antd'
 
@@ -44,6 +44,7 @@ export const TodoItem: FC<TodoItemPropsType> = ({ todo, dragRef, handleProps, ed
                 onChange={() => progress(todo.id, !todo.isDone)}
                 checked={todo.isDone}></input>
             {todo.value}
+            <span style={{ marginLeft: '3px', width: '80px' }}>{todo.taskEnd?.substring(0, 10)}</span>
 
             <input type="button" value='✎' onClick={() => edit(todo.id)}/>
         </div>

@@ -1,4 +1,4 @@
-import { todoStatusDTO } from '../api/apiTypes'
+import { TodoStatusDTO } from '../api/apiTypes'
 
 export type AppType = {
     initialized: boolean
@@ -28,6 +28,12 @@ export interface Todo extends TodoDTO {
     showHideButton: boolean
 }
 
+
+export type PutTodoDTO = {
+    value: string
+    taskEnd?: string
+}
+
 export type TodoMoveType = {
     id: string
     prevTodoId: number | null
@@ -41,12 +47,12 @@ export type CategoriesType = {
 
 export type TodosType = {
     todos: Array<TodoDTO>
-    todoStatusDTOs: Array<todoStatusDTO>
+    todoStatusDTOs: Array<TodoStatusDTO>
     draggedTodos: Array<TodoDTO>
 }
 
 export type UpdateStatusesType = {
-    todoStatusDTOs: Array<todoStatusDTO>
+    todoStatusDTOs: Array<TodoStatusDTO>
     categoryId: number
 }
 
