@@ -1,11 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
-import { todoStatusDTO } from '../api/apiTypes'
+import { TodoStatusDTO } from '../api/apiTypes'
 import { useDebounce } from '../hooks/useDebounce'
 import { Todo, TodoDTO } from '../slices/sliceTypes'
-import { changeTodoPosition, dropTodo, getTodosThunk, moveTodo, toggleTodoHiding, toggleTodoProgress } from '../slices/todosSlice'
+import { createTodoThunk, getTodosThunk, moveTodo, toggleTodoHiding, toggleTodoProgress, updateTodoThunk } from '../slices/todosSlice'
 import { useAppDispatch, useAppSelector } from '../store'
 import { MoreOutlined } from '@ant-design/icons'
-import { TodoItem } from './TodoItem'
 import { getTodos } from '../selectors/getTodos'
 import {
     closestCenter,
@@ -26,13 +25,12 @@ import { TodoEditor } from './TodoEditor'
 import { Modal } from 'antd'
 
 let renderCount = 1
-
 type statusProperties = 'isDone' | 'isHiddenSubTodo'
 
-const isEmptyStatus = (status: todoStatusDTO) =>
+const isEmptyStatus = (status: TodoStatusDTO) =>
     status.isDone === undefined && status.isHiddenSubTodo === undefined
 
-const setStatus = (statuses: Array<todoStatusDTO>, propertyType: statusProperties, value: boolean, id: number) => {
+const setStatus = (statuses: Array<TodoStatusDTO>, propertyType: statusProperties, value: boolean, id: number) => {
     const prevStatus = statuses.find(x => x.id === id)
 
     if (prevStatus) {
@@ -46,22 +44,25 @@ const setStatus = (statuses: Array<todoStatusDTO>, propertyType: statusPropertie
     }
 }
 
+type TodoPosition = {
+    parentId: number
+    prevId: number
+}
+
 export const Todos = () => {
     const [draggedTodo, setDraggedTodo] = useState<Todo | null>(null)
     const [draggedTodoDepth, setDraggedTodoDepth] = useState<number | null>(null)
     const [prevTodoId, setPrevTodoId] = useState<number | null>(null)
 
+    const [editTodo, setEditTodo] = useState<Todo | null>(null)
+    const [todoPosition, setTodoPosition] = useState<TodoPosition | null>(null)
 
-
-
-    const [editId, setEditId] = useState<number | null>(null)
-    const [newTaskIndex, setNewTaskIndex] = useState<number | null>(null)
 
     const dispatch = useAppDispatch()
     const selectedCategoryId = useAppSelector(state => state.categories.selectedCategoryId)
     const todos = useAppSelector(getTodos)
 
-    const [statuses, setStatuses] = useState<Array<todoStatusDTO>>([])
+    const [statuses, setStatuses] = useState<Array<TodoStatusDTO>>([])
 
     const st = useDebounce(statuses, 1000)
 
@@ -158,33 +159,29 @@ export const Todos = () => {
     }
 
     const onEditEnd = () => {
-        setEditId(null)
-        setNewTaskIndex(null)
+
     }
 
-    let todoItems = todos.map((todo) => {
+    let todoItems = todos.map(todo => {
         return (
-            editId !== todo.id ?
-                <SortableTodo
-                    key={todo.id}
-                    todo={{
-                        ...todo,
-                        depth:
-                            draggedTodo?.id === todo.id &&
+            <SortableTodo
+                key={todo.id}
+                todo={{
+                    ...todo,
+                    depth:
+                        draggedTodo?.id === todo.id &&
 
-                                draggedTodoDepth !== null
-                                ? draggedTodoDepth
-                                : todo.depth,
-                    }}
-                    active={draggedTodo?.id === todo.id}
-                    edit={(id: number) => setEditId(id)}
-                /> :
-                <TodoEditor todo={todo} onEnd={onEditEnd} categoryId={selectedCategoryId}/>
+                            draggedTodoDepth !== null
+                            ? draggedTodoDepth
+                            : todo.depth,
+                }}
+                active={draggedTodo?.id === todo.id}
+                edit={(id: number) => setEditTodo(todo)}
+            />
         )
     })
 
-    if (editId && newTaskIndex !== null)
-        todoItems.splice(newTaskIndex, 0, <TodoEditor onEnd={onEditEnd} categoryId={selectedCategoryId}/>)
+
 
     return (
         <div>
@@ -214,15 +211,48 @@ export const Todos = () => {
             </div>
             <div>
                 <input type="button" value="Новая задача" onClick={() => {
-                    setEditId(-1)
-                    setNewTaskIndex(todos.length)
-                }}/>
+                    setEditTodo(null)
+                    setTodoPosition({
+                        parentId: 0,
+                        prevId: todos.length > 0 ? todos[todos.length - 1].id : 0
+                    })
+                }} />
             </div>
-            {/* <Modal title="Добавить задачу" visible>
+            <Modal title="Добавить задачу" visible onOk={(d) => { console.log(d)} }>
                 <p>Some contents...</p>
                 <p>Some contents...</p>
                 <p>Some contents...</p>
-            </Modal> */}
+            </Modal>
+            <div>
+                {(editTodo || todoPosition) && <TodoEditor categoryId={1} todo={editTodo || undefined} onEnd={(value, date) => { 
+                    console.log(date)
+
+                    if (editTodo) {
+                        dispatch(updateTodoThunk({ 
+                            categoryId: selectedCategoryId, 
+                            id: editTodo.id, 
+                            todoDTO: { 
+                                Value: value, 
+                                TaskEnd: date
+                            } 
+                        }))
+                    }
+                    else if (todoPosition) {
+                        dispatch(createTodoThunk({
+                            categoryId:  selectedCategoryId,
+                            todoDTO: {
+                                ParentId: todoPosition.parentId,
+                                PrevToDoId: todoPosition.prevId,
+                                Value: value,
+                                TaskEnd: date
+                            }
+                        }))
+                    }
+
+                    setEditTodo(null)
+                    setTodoPosition(null)
+                }} />}
+            </div>
             <div >
                 <pre>{consol}</pre>
             </div>

@@ -1,12 +1,12 @@
 import { instance } from './api';
-import { categoryRequestDTO } from './apiTypes';
+import { CategoryRequestDTO } from './apiTypes';
 
 export const categoriesAPI = {
     getCategories: () => 
         instance.get('categories'),
-    createCategory: (payload: categoryRequestDTO) =>
+    createCategory: (payload: CategoryRequestDTO) =>
         instance.post('categories', payload),
-    updateCategory: (categoryId: number, payload: categoryRequestDTO) =>
+    updateCategory: (categoryId: number, payload: CategoryRequestDTO) =>
         instance.put(`categories/${categoryId}`, payload),
     deleteCategory: (categoryId: number) =>
         instance.delete(`categories/${categoryId}`)
