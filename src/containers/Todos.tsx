@@ -24,6 +24,17 @@ import { createPortal } from 'react-dom'
 import { TodoEditor } from './TodoEditor'
 import { Modal } from 'antd'
 
+import moment, { Moment } from 'moment'
+import { useFormik } from 'formik'
+
+
+import { DatePicker } from 'antd'
+import locale from 'antd/es/date-picker/locale/ru_RU'
+const dateFormat = 'DD.MM.YYYY'
+const serverFormat = 'YYYY-MM-DD'
+
+
+
 let renderCount = 1
 type statusProperties = 'isDone' | 'isHiddenSubTodo'
 
@@ -49,6 +60,13 @@ type TodoPosition = {
     prevId: number
 }
 
+type TodoEditorValues = {
+    value: string
+    taskEnd?: Moment
+}
+
+type TodoModalMode = 'Add' | 'Edit' | 'Close'
+
 export const Todos = () => {
     const [draggedTodo, setDraggedTodo] = useState<Todo | null>(null)
     const [draggedTodoDepth, setDraggedTodoDepth] = useState<number | null>(null)
@@ -57,6 +75,48 @@ export const Todos = () => {
     const [editTodo, setEditTodo] = useState<Todo | null>(null)
     const [todoPosition, setTodoPosition] = useState<TodoPosition | null>(null)
 
+    //const todoModalMode: TodoModalMode = editTodo ? 'Edit' : todoPosition ? 'Add' : 'Close'
+
+    const formik = useFormik<TodoEditorValues>({
+        initialValues: {
+            value: '',
+            taskEnd: undefined
+        },
+        onSubmit: async values => {
+            alert(JSON.stringify(values, null, 2))
+            setEditTodo(null)
+            setTodoPosition(null)
+            formik.setValues({ value: '' })
+
+            // if (editTodo) {
+            //     dispatch(updateTodoThunk({ 
+            //         categoryId: selectedCategoryId, 
+            //         id: editTodo.id, 
+            //         todoDTO: { 
+            //             Value: values.value, 
+            //             TaskEnd: values.taskEnd?.toDate()
+            //         } 
+            //     }))
+            // }
+            // else if (todoPosition) {
+            //     dispatch(createTodoThunk({
+            //         categoryId:  selectedCategoryId,
+            //         todoDTO: {
+            //             ParentId: todoPosition.parentId,
+            //             PrevToDoId: todoPosition.prevId,
+            //             Value: values.value, 
+            //             TaskEnd: values.taskEnd?.toDate()
+            //         }
+            //     }))
+            // }
+        }
+    })
+
+
+    useEffect(() => {
+        if (editTodo)
+            formik.setValues({ value: editTodo.value, taskEnd: editTodo.taskEnd ? moment(editTodo.taskEnd, serverFormat) : undefined})
+    }, [editTodo])
 
     const dispatch = useAppDispatch()
     const selectedCategoryId = useAppSelector(state => state.categories.selectedCategoryId)
@@ -77,6 +137,10 @@ export const Todos = () => {
     useEffect(() => {
         if (selectedCategoryId > 0)
             dispatch(getTodosThunk(selectedCategoryId))
+
+
+        setEditTodo(null)
+        setTodoPosition(null)
     }, [selectedCategoryId, dispatch])
 
     useEffect(() => {
@@ -218,41 +282,25 @@ export const Todos = () => {
                     })
                 }} />
             </div>
-            <Modal title="Добавить задачу" visible onOk={(d) => { console.log(d)} }>
-                <p>Some contents...</p>
-                <p>Some contents...</p>
-                <p>Some contents...</p>
-            </Modal>
-            <div>
-                {(editTodo || todoPosition) && <TodoEditor categoryId={1} todo={editTodo || undefined} onEnd={(value, date) => { 
-                    console.log(date)
-
-                    if (editTodo) {
-                        dispatch(updateTodoThunk({ 
-                            categoryId: selectedCategoryId, 
-                            id: editTodo.id, 
-                            todoDTO: { 
-                                Value: value, 
-                                TaskEnd: date
-                            } 
-                        }))
-                    }
-                    else if (todoPosition) {
-                        dispatch(createTodoThunk({
-                            categoryId:  selectedCategoryId,
-                            todoDTO: {
-                                ParentId: todoPosition.parentId,
-                                PrevToDoId: todoPosition.prevId,
-                                Value: value,
-                                TaskEnd: date
-                            }
-                        }))
-                    }
-
+            <Modal 
+                title={editTodo ? 'Изменить задачу' : "Добавить задачу" }
+                visible={!!editTodo || !!todoPosition} 
+                onOk={d => { formik.handleSubmit() } } 
+                onCancel={() => {
                     setEditTodo(null)
                     setTodoPosition(null)
-                }} />}
-            </div>
+                    formik.setValues({ value: '' })
+                }}
+            >
+                <input name='value' value={formik.values.value} onChange={formik.handleChange}/>
+                <DatePicker 
+                    name='taskEnd' 
+                    disabledDate={date => date < moment().startOf('day')} 
+                    locale={locale} 
+                    value={formik.values.taskEnd} 
+                    format={dateFormat} 
+                    onChange={(date) => formik.setFieldValue('taskEnd', date)}/>
+            </Modal>
             <div >
                 <pre>{consol}</pre>
             </div>
