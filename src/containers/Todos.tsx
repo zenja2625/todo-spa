@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { TodoStatusDTO } from '../api/apiTypes'
 import { useDebounce } from '../hooks/useDebounce'
 import { Todo, TodoDTO } from '../slices/sliceTypes'
-import { createTodoThunk, getTodosThunk, moveTodo, toggleTodoHiding, toggleTodoProgress, updateTodoThunk } from '../slices/todosSlice'
+import { createTodoThunk, deleteTodoThunk, getTodosThunk, moveTodo, toggleTodoHiding, toggleTodoProgress, updateTodoThunk } from '../slices/todosSlice'
 import { useAppDispatch, useAppSelector } from '../store'
 import { MoreOutlined } from '@ant-design/icons'
 import { getTodos } from '../selectors/getTodos'
@@ -83,32 +83,31 @@ export const Todos = () => {
             taskEnd: undefined
         },
         onSubmit: async values => {
-            alert(JSON.stringify(values, null, 2))
             setEditTodo(null)
             setTodoPosition(null)
             formik.setValues({ value: '' })
 
-            // if (editTodo) {
-            //     dispatch(updateTodoThunk({ 
-            //         categoryId: selectedCategoryId, 
-            //         id: editTodo.id, 
-            //         todoDTO: { 
-            //             Value: values.value, 
-            //             TaskEnd: values.taskEnd?.toDate()
-            //         } 
-            //     }))
-            // }
-            // else if (todoPosition) {
-            //     dispatch(createTodoThunk({
-            //         categoryId:  selectedCategoryId,
-            //         todoDTO: {
-            //             ParentId: todoPosition.parentId,
-            //             PrevToDoId: todoPosition.prevId,
-            //             Value: values.value, 
-            //             TaskEnd: values.taskEnd?.toDate()
-            //         }
-            //     }))
-            // }
+            if (editTodo) {
+                dispatch(updateTodoThunk({ 
+                    categoryId: selectedCategoryId, 
+                    id: editTodo.id, 
+                    todoDTO: { 
+                        Value: values.value, 
+                        TaskEnd: values.taskEnd?.toDate()
+                    } 
+                }))
+            }
+            else if (todoPosition) {
+                dispatch(createTodoThunk({
+                    categoryId:  selectedCategoryId,
+                    todoDTO: {
+                        ParentId: todoPosition.parentId,
+                        PrevToDoId: todoPosition.prevId,
+                        Value: values.value, 
+                        TaskEnd: values.taskEnd?.toDate()
+                    }
+                }))
+            }
         }
     })
 
@@ -241,6 +240,7 @@ export const Todos = () => {
                 }}
                 active={draggedTodo?.id === todo.id}
                 edit={(id: number) => setEditTodo(todo)}
+                remove={() => dispatch(deleteTodoThunk({ categoryId: selectedCategoryId, id: todo.id }))}
             />
         )
     })

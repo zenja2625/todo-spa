@@ -11,9 +11,10 @@ type TodoItemPropsType = {
     edit: (id: number) => void
     dragRef?: (element: HTMLElement | null) => void
     handleProps: any
+    remove: () => void
 }
 
-export const TodoItem: FC<TodoItemPropsType> = ({ todo, dragRef, handleProps, edit }) => {
+export const TodoItem: FC<TodoItemPropsType> = ({ todo, dragRef, handleProps, edit, remove }) => {
     const dispatch = useAppDispatch()
 
     const progress = (id: number, isDone: boolean) => {
@@ -47,6 +48,7 @@ export const TodoItem: FC<TodoItemPropsType> = ({ todo, dragRef, handleProps, ed
             <span style={{ marginLeft: '3px', width: '80px' }}>{todo.taskEnd?.substring(0, 10)}</span>
 
             <input type="button" value='✎' onClick={() => edit(todo.id)}/>
+            <input type="button" value="❌" onClick={remove}/>
         </div>
     )
 }

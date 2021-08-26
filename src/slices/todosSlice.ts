@@ -21,6 +21,11 @@ type UpdateTodoProps = {
     todoDTO: TodoPutDTO
 }
 
+type DeleteTodoProps = {
+    id: number
+    categoryId: number
+}
+
 export const getTodosThunk = createAsyncThunk(
     'todos/getTodosThunk',
     async (categoryId: number, thunkAPI) => {
@@ -61,6 +66,19 @@ export const updateTodoThunk = createAsyncThunk(
     async (payload: UpdateTodoProps, thunkAPI) => {
         try {
             await API.todos.updateTodo(payload.categoryId, payload.id, payload.todoDTO)
+            await thunkAPI.dispatch(getTodosThunk(payload.categoryId))
+        } catch (error) {
+            return thunkAPI.rejectWithValue(error.response?.status)
+        }
+    }
+)
+
+export const deleteTodoThunk = createAsyncThunk(
+    'todos/deleteTodoThunk',
+    async (payload: DeleteTodoProps, thunkAPI) => {
+        try {
+            await API.todos.deleteTodo(payload.categoryId, payload.id)
+            await thunkAPI.dispatch(getTodosThunk(payload.categoryId))
         } catch (error) {
             return thunkAPI.rejectWithValue(error.response?.status)
         }
