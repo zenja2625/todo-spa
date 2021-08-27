@@ -8,6 +8,7 @@ import { logoutThunk, userInfoThunk } from './slices/accountSlice'
 import { clearCategories, getCategoriesThunk } from './slices/categoriesSlice'
 import { useAppDispatch, useAppSelector } from './store'
 import { SyncOutlined } from '@ant-design/icons'
+import { Temporarily } from './Temporarily'
 import './momentLocale'
 
 
@@ -34,7 +35,8 @@ const App = () => {
 
   return (
     <div>
-        <div style={divStyle}>
+        <Temporarily />
+        {/* <div style={divStyle}>
           <div style={{marginRight: '30px'}}>Username: {account.username}</div>
           <input type="button" value='Logout' onClick={() => dispatch(logoutThunk())}/>
           <input type="button" value="Error" onClick={() => message.error('Error')}/>
@@ -50,7 +52,7 @@ const App = () => {
           <Categories />
           <span style={{marginRight: '60px'}}></span>
           <Todos />
-        </div>
+        </div> */}
     </div>
   )
 }
