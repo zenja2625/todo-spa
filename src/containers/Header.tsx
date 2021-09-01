@@ -10,7 +10,7 @@ export const AppHeader = () => {
     const { push } = useHistory()
     const { pathname } = useLocation()
 
-    const isAuth = useAppSelector(state => state.account.isAuth)
+    const { isAuth, username } = useAppSelector(state => state.account)
     const dispatch = useAppDispatch()
 
     const logout = () => {
@@ -33,20 +33,31 @@ export const AppHeader = () => {
                     </Link>
                 </Col>
                 <Col flex='auto'>
-                        <Menu
-                            theme="dark"
-                            mode="horizontal"
-                            selectedKeys={[pathname]}
-                            style={{ display: 'flex', justifyContent: 'end' }}
-                        >
-                            {isAuth ? (
-                                <>
-                                    <Menu.Item key="asdasd" onClick={logout}>
-                                        Выход
-                                    </Menu.Item>
-                                </>
-                            ) : (
-                                <>
+                    {
+                        isAuth ?
+                            (
+                                <Row justify='end' wrap={false} gutter={10}>
+                                    <Col>
+                                        {username}
+                                    </Col>
+                                    <Col>
+                                        <Menu
+                                            theme="dark"
+                                            mode="horizontal"
+                                            style={{ width: '85px' }}
+                                        >
+                                            <Menu.Item style={{ width: '85px', textAlign: 'center' }} onClick={logout}>Выход</Menu.Item>
+                                        </Menu>
+                                    </Col>
+                                </Row>
+                            ) :
+                            (
+                                <Menu
+                                    theme="dark"
+                                    mode="horizontal"
+                                    selectedKeys={[pathname]}
+                                    style={{ justifyContent: 'end' }}
+                                >
                                     <Menu.Item
                                         key="/login"
                                         onClick={() => push('/login')}
@@ -59,9 +70,43 @@ export const AppHeader = () => {
                                     >
                                         Регистрация
                                     </Menu.Item>
-                                </>
-                            )}
-                        </Menu>
+                                </Menu>
+                            )
+                    }
+                    {/* <Row justify='end' wrap={false}>
+                        <Col>{username}</Col>
+                        <Col flex='auto'>
+                            <Menu
+                                theme="dark"
+                                mode="horizontal"
+                                selectedKeys={[pathname]}
+                                style={{  }}
+                            >
+                                {isAuth ? (
+                                    <>
+                                        <Menu.Item key="asdasd" onClick={logout}>
+                                            Выход
+                                        </Menu.Item>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Menu.Item
+                                            key="/login"
+                                            onClick={() => push('/login')}
+                                        >
+                                            Вход
+                                        </Menu.Item>
+                                        <Menu.Item
+                                            key="/register"
+                                            onClick={() => push('/register')}
+                                        >
+                                            Регистрация
+                                        </Menu.Item>
+                                    </>
+                                )}
+                            </Menu>
+                        </Col>
+                    </Row> */}
                 </Col>
             </Row>
         </Header>
