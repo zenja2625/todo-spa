@@ -1,4 +1,4 @@
-import { message } from 'antd'
+import { Button, Col, Layout, Menu, message, Row } from 'antd'
 import { useEffect } from 'react'
 import { Login } from './containers/account/Login'
 import { Register } from './containers/account/Register'
@@ -11,50 +11,66 @@ import { SyncOutlined } from '@ant-design/icons'
 import { Temporarily } from './Temporarily'
 import './momentLocale'
 
-
 import 'antd/dist/antd.css'
 import { toggleLoadingStatus } from './slices/appSlice'
+import Title from 'antd/lib/typography/Title'
+import { Link, Redirect, Route, Switch, useHistory } from 'react-router-dom'
+import { AppHeader } from './containers/Header'
+
 
 const App = () => {
-  const { requestCount } = useAppSelector(state => state.app)
-  const account = useAppSelector(state => state.account)
-  const dispatch = useAppDispatch()
+    const { requestCount } = useAppSelector((state) => state.app)
+    const { isAuth } = useAppSelector((state) => state.account)
+    const dispatch = useAppDispatch()
 
-  useEffect(() => {
-    dispatch(userInfoThunk())
-  }, [dispatch])
-  
-  useEffect(() => {
-    if (account.isAuth)
-      dispatch(getCategoriesThunk())
-    else
-      dispatch(clearCategories())
-  }, [account.isAuth, dispatch])
 
-  const divStyle: React.CSSProperties = {display: 'flex'}
+    useEffect(() => {
+        dispatch(userInfoThunk())
+    }, [dispatch])
 
-  return (
-    <div>
-        <Temporarily />
-        {/* <div style={divStyle}>
-          <div style={{marginRight: '30px'}}>Username: {account.username}</div>
-          <input type="button" value='Logout' onClick={() => dispatch(logoutThunk())}/>
-          <input type="button" value="Error" onClick={() => message.error('Error')}/>
-          <input type="button" value="Toggle Loading" onClick={() => dispatch(toggleLoadingStatus())}/>
-          <SyncOutlined style={{fontSize: '30px'}} spin={!!requestCount}/>
-        </div>
-        <div style={divStyle}>
-          <Login />
-          <span style={{marginRight: '60px'}}></span>
-          <Register />
-        </div>
-        <div style={divStyle}>
-          <Categories />
-          <span style={{marginRight: '60px'}}></span>
-          <Todos />
-        </div> */}
-    </div>
-  )
+    useEffect(() => {
+        if (isAuth) dispatch(getCategoriesThunk())
+        else dispatch(clearCategories())
+    }, [isAuth, dispatch])
+
+    const divStyle: React.CSSProperties = { display: 'flex' }
+
+    return (
+        <Layout style={{ height: '100vh' }}>
+            <AppHeader />
+            <Switch>
+                <Route exact path="/">
+                    {isAuth ? 'Home' : <Redirect to="/login" />}
+                </Route>
+                <Route path="/login">
+                    {isAuth ? <Redirect to="/" /> : <Login />}
+                </Route>
+                <Route path="/register">
+                    {isAuth ? <Redirect to="/" /> : <Register />}
+                </Route>
+                <Route>No Exist</Route>
+            </Switch>
+        </Layout>
+        //   <div>
+        //       <div style={divStyle}>
+        //         <div style={{marginRight: '30px'}}>Username: {account.username}</div>
+        //         <input type="button" value='Logout' onClick={() => dispatch(logoutThunk())}/>
+        //         <input type="button" value="Error" onClick={() => message.error('Error')}/>
+        //         <input type="button" value="Toggle Loading" onClick={() => dispatch(toggleLoadingStatus())}/>
+        //         <SyncOutlined style={{fontSize: '30px'}} spin={!!requestCount}/>
+        //       </div>
+        //       <div style={divStyle}>
+        //         <Login />
+        //         <span style={{marginRight: '60px'}}></span>
+        //         <Register />
+        //       </div>
+        //       <div style={divStyle}>
+        //         <Categories />
+        //         <span style={{marginRight: '60px'}}></span>
+        //         <Todos />
+        //       </div>
+        //   </div>
+    )
 }
 
-export default App;
+export default App

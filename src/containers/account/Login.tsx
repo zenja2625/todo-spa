@@ -18,8 +18,8 @@ export const Login = () => {
     const [error, setError] = useState('')
     const formik = useFormik<UserLoginDTO>({
         initialValues: {
-            Name: '',
-            Password: ''
+            Name: 'zenja',
+            Password: 'zenja'
         },
         validationSchema: LoginSchema,
         onSubmit: async values => {
