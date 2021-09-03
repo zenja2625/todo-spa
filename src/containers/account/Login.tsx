@@ -1,12 +1,6 @@
-import {
-    Button,
-    Col,
-    Row
-} from 'antd'
+import { Button, Col, Row } from 'antd'
 import Title from 'antd/lib/typography/Title'
-import {
-    Form as FormWrapper, Formik
-} from 'formik'
+import { Form as FormWrapper, Formik } from 'formik'
 import { useHistory } from 'react-router-dom'
 import * as Yup from 'yup'
 import { UserLoginDTO } from '../../api/apiTypes'
@@ -18,7 +12,7 @@ const LoginSchema = Yup.object().shape({
     Name: Yup.string().required('Это поле обязательно'),
     Password: Yup.string()
         .required('Это поле обязательно')
-        .min(4, 'Не менее 4 символов')
+        .min(4, 'Не менее 4 символов'),
 })
 
 const initialValues: UserLoginDTO = {
@@ -48,8 +42,16 @@ export const Login = () => {
                 >
                     {({ isSubmitting }) => (
                         <FormWrapper style={{ width: '250px' }}>
-                            <FormItem type='login' name='Name' />
-                            <FormItem type='password' name='Password' />
+                            <FormItem
+                                type='login'
+                                name='Name'
+                                placeholder='Логин'
+                            />
+                            <FormItem
+                                type='password'
+                                name='Password'
+                                placeholder='Пароль'
+                            />
                             <Button
                                 type='primary'
                                 htmlType='submit'

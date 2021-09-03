@@ -32,7 +32,7 @@ export const getTodosThunk = createAsyncThunk(
         try {
             const response = await API.todos.getTodos(categoryId, true)
             return response.data as Array<TodoDTO>
-        } catch (error) {
+        } catch (error: any) {
             return thunkAPI.rejectWithValue(error.response?.status)
         }
     }
@@ -43,7 +43,7 @@ export const updateStatusesThunk = createAsyncThunk(
     async (payload: UpdateStatusesType, thunkAPI) => {
         try {
             await API.todos.updateStatuses(payload.categoryId, payload.todoStatusDTOs)
-        } catch (error) {
+        } catch (error: any) {
             return thunkAPI.rejectWithValue(error.response?.status)
         }
     }
@@ -55,7 +55,7 @@ export const createTodoThunk = createAsyncThunk(
         try {
             await API.todos.createTodo(payload.categoryId, payload.todoDTO)
             await thunkAPI.dispatch(getTodosThunk(payload.categoryId))
-        } catch (error) {
+        } catch (error: any) {
             return thunkAPI.rejectWithValue(error.response?.status)
         }
     }
@@ -67,7 +67,7 @@ export const updateTodoThunk = createAsyncThunk(
         try {
             await API.todos.updateTodo(payload.categoryId, payload.id, payload.todoDTO)
             await thunkAPI.dispatch(getTodosThunk(payload.categoryId))
-        } catch (error) {
+        } catch (error: any) {
             return thunkAPI.rejectWithValue(error.response?.status)
         }
     }
@@ -79,7 +79,7 @@ export const deleteTodoThunk = createAsyncThunk(
         try {
             await API.todos.deleteTodo(payload.categoryId, payload.id)
             await thunkAPI.dispatch(getTodosThunk(payload.categoryId))
-        } catch (error) {
+        } catch (error: any) {
             return thunkAPI.rejectWithValue(error.response?.status)
         }
     }
@@ -96,7 +96,6 @@ export const todosSlice = createSlice({
             state.todos = state.todos.map(todo => todo.id === action.payload ? { ...todo, isHiddenSubTasks: !todo.isHiddenSubTasks } : todo)
         },
         moveTodo: (state, action: PayloadAction<TodoMoveType>) => {
-            console.log('Move')
             const todoIndex = state.todos.findIndex(todo => todo.id.toString() === action.payload.id) 
             
             let todosCount = 1

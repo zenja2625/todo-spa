@@ -1,4 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
+import { AxiosError } from 'axios'
 import { API } from '../api/api'
 import { UserLoginDTO, UserRegisterDTO } from '../api/apiTypes'
 import { AccountType, RejectValueType } from './sliceTypes'
@@ -9,7 +10,7 @@ export const userInfoThunk = createAsyncThunk(
         try {
             const response = await API.account.userInfo()
             return response.data
-        } catch (error) {
+        } catch (error: any) {
             return thunkAPI.rejectWithValue(error.response?.status)
         }
     }
@@ -20,9 +21,9 @@ export const loginThunk = createAsyncThunk<void, UserLoginDTO, RejectValueType>(
     async (payload, thunkAPI) => {
         try {
             await API.account.login(payload)
-            thunkAPI.dispatch(userInfoThunk())
+            await thunkAPI.dispatch(userInfoThunk())
         } 
-        catch (error) {
+        catch (error: any) {
             return thunkAPI.rejectWithValue(error.response?.status)
         }
     }
@@ -31,7 +32,7 @@ export const loginThunk = createAsyncThunk<void, UserLoginDTO, RejectValueType>(
 export const logoutThunk = createAsyncThunk('account/logoutThunk', async (_payload, thunkAPI) => {
     try {
         await API.account.logout()
-    } catch (error) {
+    } catch (error: any) {
         return thunkAPI.rejectWithValue(error.response?.status)
     }
     
@@ -42,8 +43,8 @@ export const registerThunk = createAsyncThunk<void, UserRegisterDTO, RejectValue
     async (payload, thunkAPI) => {
         try {
             await API.account.register(payload)
-            thunkAPI.dispatch(userInfoThunk())
-        } catch (error) {
+            await thunkAPI.dispatch(userInfoThunk())
+        } catch (error: any) {
             return thunkAPI.rejectWithValue(error.response?.status)
         }
     }

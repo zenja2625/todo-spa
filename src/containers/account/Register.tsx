@@ -1,58 +1,86 @@
-import {  useFormik } from 'formik'
-import { useState } from 'react'
+import { Row, Col, Button } from 'antd'
+import Title from 'antd/lib/typography/Title'
+import { Formik, Form as FormWrapper } from 'formik'
+import { useHistory } from 'react-router'
 import * as Yup from 'yup'
 import { UserRegisterDTO } from '../../api/apiTypes'
 import { registerThunk } from '../../slices/accountSlice'
 import { useAppDispatch } from '../../store'
+import { FormItem } from '../utility/FormItem'
 
 const LoginSchema = Yup.object().shape({
-    Name: Yup.string()
-        .required('Это поле обязательно'),
+    Name: Yup.string().required('Это поле обязательно'),
     Password: Yup.string()
         .required('Это поле обязательно')
         .min(4, 'Не менее 4 символов'),
     ConfirmPassword: Yup.string()
-        .oneOf([Yup.ref('Password'), null], 'Пароли должны совпадать')
+        .required('Это поле обязательно')
+        .oneOf([Yup.ref('Password'), null], 'Пароли должны совпадать'),
 })
+
+const initialValues: UserRegisterDTO = {
+    Name: '',
+    Password: '',
+    ConfirmPassword: '',
+}
 
 export const Register = () => {
     const dispatch = useAppDispatch()
-    const [error, setError] = useState('')
-    const formik = useFormik<UserRegisterDTO>({
-        initialValues: {
-            Name: '',
-            Password: '',
-            ConfirmPassword: ''
-        },
-        validationSchema: LoginSchema,
-        onSubmit: async values => {
-            const response = await dispatch(registerThunk(values))
-            
-            if (response.meta.requestStatus === 'rejected' && response.payload)
-                setError(response.payload)
-            else
-                setError('')
-        }
-    })
+
+    const { push } = useHistory()
+
+    const onSubmit = async (values: UserRegisterDTO) => {
+        await dispatch(registerThunk(values))
+    }
 
     return (
-        <form onSubmit={formik.handleSubmit}>
-            <div>
-                <input name='Name' placeholder='Логин' onChange={formik.handleChange} value={formik.values.Name}/>
-                {formik.errors.Name}
-            </div>
-            <div>
-                <input name='Password' placeholder='Пароль' onChange={formik.handleChange} value={formik.values.Password}/>
-                {formik.errors.Password}
-            </div>
-            <div>
-                <input name='ConfirmPassword' placeholder='Повторите пароль' onChange={formik.handleChange} value={formik.values.ConfirmPassword}/>
-                {formik.errors.ConfirmPassword}
-            </div>
-            <input type='submit' disabled={formik.isSubmitting}/>
-            <div style={{color: 'red'}}>
-                {error}
-            </div>
-        </form>
+        <Row justify='center' align='middle' style={{ height: '100%' }}>
+            <Col>
+                <Title level={2} style={{ textAlign: 'center' }}>
+                    Регистрация
+                </Title>
+                <Formik
+                    initialValues={initialValues}
+                    onSubmit={onSubmit}
+                    validationSchema={LoginSchema}
+                >
+                    {({ isSubmitting }) => (
+                        <FormWrapper style={{ width: '250px' }}>
+                            <FormItem
+                                type='login'
+                                name='Name'
+                                placeholder='Логин'
+                            />
+                            <FormItem
+                                type='password'
+                                name='Password'
+                                placeholder='Пароль'
+                            />
+                            <FormItem
+                                type='password'
+                                name='ConfirmPassword'
+                                placeholder='Повторите пароль'
+                            />
+                            <Button
+                                type='primary'
+                                htmlType='submit'
+                                style={{ width: '100%' }}
+                                disabled={isSubmitting}
+                            >
+                                Зарегистрироваться
+                            </Button>
+                            Или{' '}
+                            <Button
+                                style={{ padding: 0 }}
+                                type='link'
+                                onClick={() => push('/login')}
+                            >
+                                войдите!
+                            </Button>
+                        </FormWrapper>
+                    )}
+                </Formik>
+            </Col>
+        </Row>
     )
 }

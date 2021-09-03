@@ -4,14 +4,23 @@ import Title from 'antd/lib/typography/Title'
 import { Link, useHistory, useLocation } from 'react-router-dom'
 import { logoutThunk } from '../slices/accountSlice'
 import { useAppDispatch, useAppSelector } from '../store'
+import { Spin } from 'antd'
+import { LoadingOutlined } from '@ant-design/icons'
+import useBreakpoint from 'antd/lib/grid/hooks/useBreakpoint'
 
 const { Header } = Layout
+const antIcon = (
+    <LoadingOutlined style={{ fontSize: 30, color: 'white' }} spin />
+)
 
 export const AppHeader = () => {
+    const { xs } = useBreakpoint()
+
     const { push } = useHistory()
     const { pathname } = useLocation()
 
     const { isAuth, username } = useAppSelector(state => state.account)
+    const isRequest = useAppSelector(state => state.app.requestCount > 0)
     const dispatch = useAppDispatch()
 
     const logout = () => {
@@ -22,27 +31,34 @@ export const AppHeader = () => {
         <Header className={'header'}>
             <Row
                 style={{ height: '64px' }}
-                justify="space-between"
-                align="middle"
+                justify='space-between'
+                align='middle'
                 wrap={false}
             >
                 <Col>
-                    <Link to="/">
-                        <Title
-                            style={{
-                                color: 'white',
-                                margin: 0,
-                                whiteSpace: 'nowrap',
-                            }}
-                            level={2}
-                        >
-                            My Todo
-                        </Title>
-                    </Link>
+                    <Row align='middle' gutter={xs ? 10 : 20}>
+                        <Col>
+                            <Link to='/'>
+                                <Title
+                                    style={{
+                                        color: 'white',
+                                        margin: 0,
+                                        whiteSpace: 'nowrap',
+                                    }}
+                                    level={xs ? 4 : 2}
+                                >
+                                    My Todo
+                                </Title>
+                            </Link>
+                        </Col>
+                        <Col>
+                            <Spin indicator={antIcon} delay={500} spinning={isRequest}/>
+                        </Col>
+                    </Row>
                 </Col>
-                <Col flex="auto">
+                <Col flex='auto'>
                     {isAuth ? (
-                        <Row justify="end" wrap={false} gutter={10}>
+                        <Row justify='end' wrap={false} gutter={10}>
                             <Col>
                                 <Avatar
                                     style={{
@@ -50,19 +66,19 @@ export const AppHeader = () => {
                                         verticalAlign: 'middle',
                                         userSelect: 'none',
                                     }}
-                                    size="large"
+                                    size='large'
                                 >
                                     {username[0].toUpperCase()}
                                 </Avatar>
                             </Col>
                             <Col>
                                 <Menu
-                                    theme="dark"
-                                    mode="horizontal"
+                                    theme='dark'
+                                    mode='horizontal'
                                     style={{ width: '85px', height: '64px' }}
                                 >
                                     <Menu.Item
-                                        key="logout"
+                                        key='logout'
                                         style={{
                                             width: '85px',
                                             textAlign: 'center',
@@ -78,13 +94,13 @@ export const AppHeader = () => {
                         </Row>
                     ) : (
                         <Menu
-                            theme="dark"
-                            mode="horizontal"
+                            theme='dark'
+                            mode='horizontal'
                             selectedKeys={[pathname]}
                             style={{ justifyContent: 'end', height: '64px' }}
                         >
                             <Menu.Item
-                                key="/login"
+                                key='/login'
                                 onClick={() => push('/login')}
                                 style={{
                                     display: 'flex',
@@ -94,7 +110,7 @@ export const AppHeader = () => {
                                 Вход
                             </Menu.Item>
                             <Menu.Item
-                                key="/register"
+                                key='/register'
                                 onClick={() => push('/register')}
                                 style={{
                                     display: 'flex',

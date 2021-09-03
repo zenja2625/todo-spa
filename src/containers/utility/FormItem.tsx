@@ -8,12 +8,14 @@ type InputTypes = 'text' | 'password' | 'login' | 'datepicker'
 type FormItemType = {
     type: InputTypes
     name: string
+    placeholder?: string
 }
 
 const getInput = (
     type: InputTypes,
     props: FieldInputProps<any>,
-    setValue: (value: any) => void
+    setValue: (value: any) => void,
+    placeholder?: string
 ) => {
     switch (type) {
         case 'text':
@@ -23,7 +25,7 @@ const getInput = (
                 <Input.Password
                     {...props}
                     prefix={<LockOutlined />}
-                    placeholder='Пароль'
+                    placeholder={placeholder}
                 />
             )
         case 'login':
@@ -31,7 +33,7 @@ const getInput = (
                 <Input
                     {...props}
                     prefix={<UserOutlined />}
-                    placeholder='Логин'
+                    placeholder={placeholder}
                 />
             )
         case 'datepicker':
@@ -49,7 +51,7 @@ const getInput = (
     }
 }
 
-export const FormItem: FC<FormItemType> = ({ type, name }) => {
+export const FormItem: FC<FormItemType> = ({ type, name, placeholder }) => {
     const [field, { touched, error }, { setValue }] = useField(name)
 
     const showError = touched && error
@@ -59,7 +61,7 @@ export const FormItem: FC<FormItemType> = ({ type, name }) => {
             validateStatus={showError ? 'error' : 'success'}
             help={showError && error}
         >
-            {getInput(type, field, setValue)}
+            {getInput(type, field, setValue, placeholder)}
         </Form.Item>
     )
 }

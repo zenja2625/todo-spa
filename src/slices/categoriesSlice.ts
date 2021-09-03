@@ -13,7 +13,7 @@ export const getCategoriesThunk = createAsyncThunk(
         try {
             const response = await API.categories.getCategories()
             return response.data as Array<Category>
-        } catch (error) {
+        } catch (error: any) {
             return thunkAPI.rejectWithValue(error.response?.status)
         }
     }
@@ -25,7 +25,7 @@ export const createCategoryThunk = createAsyncThunk(
         try {
             await API.categories.createCategory({ Name: payload })
             thunkAPI.dispatch(getCategoriesThunk())
-        } catch (error) {
+        } catch (error: any) {
             return thunkAPI.rejectWithValue(error.response?.status)
         }
     }
@@ -37,7 +37,7 @@ export const deleteCategoryThunk = createAsyncThunk(
         try {
             await API.categories.deleteCategory(payload)
             return payload
-        } catch (error) {
+        } catch (error: any) {
             return thunkAPI.rejectWithValue(error.response?.status)
         }
     }
@@ -49,7 +49,7 @@ export const updateCategoryThunk = createAsyncThunk(
         try {
             await API.categories.updateCategory(payload.id, { Name: payload.name })
             return payload
-        } catch (error) {
+        } catch (error: any) {
             return thunkAPI.rejectWithValue(error.response?.status)
         }
     }

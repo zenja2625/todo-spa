@@ -5,17 +5,21 @@ import { AppType } from './sliceTypes'
 
 const initialState: AppType = {
     initialized: false,
-    requestCount: 0
+    requestCount: 0,
 }
 
-interface RejectedAction extends Action { payload: number, type: string }
-function isRejectedAction(action: AnyAction): action is RejectedAction { return action.type.endsWith('rejected') }
+interface RejectedAction extends Action {
+    payload: number
+    type: string
+}
 
-const isStartLoading = (action: AnyAction) => 
-    action.type.endsWith('pending')
+const isRejectedAction = (action: AnyAction): action is RejectedAction =>
+    action.type.endsWith('rejected')
 
-const isEndLoading = (action: AnyAction) => 
-    action.type.endsWith('fulfilled') || action.type.endsWith('rejected') 
+const isStartLoading = (action: AnyAction) => action.type.endsWith('pending')
+
+const isEndLoading = (action: AnyAction) =>
+    action.type.endsWith('fulfilled') || action.type.endsWith('rejected')
 
 export const appSlice = createSlice({
     name: 'app',
@@ -26,7 +30,7 @@ export const appSlice = createSlice({
         },
         toggleLoadingStatus: state => {
             state.requestCount += state.requestCount ? -1 : 1
-        }
+        },
     },
     extraReducers: builder => {
         builder.addMatcher(isStartLoading, state => {
@@ -36,15 +40,13 @@ export const appSlice = createSlice({
             state.requestCount--
         })
         builder.addMatcher(isRejectedAction, (_state, action) => {
-            if (action.type.startsWith(loginThunk.typePrefix) && action.payload === 404) {
-                message.error('Неверный логин или пароль')
-                return
-            }
-
             switch (action.payload) {
                 case 404:
-                    message.error('Ошибка синхронизации')
-                    break;
+                    if (action.type.startsWith(loginThunk.typePrefix))
+                        message.error('Неверный логин или пароль')
+                    else 
+                        message.error('Ошибка синхронизации')
+                    break
                 case 401:
                     break
                 case 409:
@@ -52,11 +54,10 @@ export const appSlice = createSlice({
                     break
                 default:
                     message.error('Ошибка сервера')
-                    break;
+                    break
             }
         })
-    }
-    
+    },
 })
 
 export const { initialization, toggleLoadingStatus } = appSlice.actions
