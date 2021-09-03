@@ -15,7 +15,7 @@ import 'antd/dist/antd.css'
 import { toggleLoadingStatus } from './slices/appSlice'
 import Title from 'antd/lib/typography/Title'
 import { Link, Redirect, Route, Switch, useHistory } from 'react-router-dom'
-import { AppHeader } from './containers/Header'
+import { AppHeader } from './containers/AppHeader'
 
 
 const App = () => {
