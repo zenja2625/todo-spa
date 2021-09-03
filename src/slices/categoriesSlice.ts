@@ -1,5 +1,4 @@
-import { Action, AnyAction, createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { message } from 'antd'
+import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { API } from '../api/api'
 import { CategoriesType, Category } from './sliceTypes'
 
@@ -10,9 +9,13 @@ const initialState: CategoriesType = {
 
 export const getCategoriesThunk = createAsyncThunk(
     'categories/getCategories',
-    async (_, _thunkAPI) => {
-        const response = await API.categories.getCategories()
-        return response.data as Array<Category>
+    async (_, thunkAPI) => {
+        try {
+            const response = await API.categories.getCategories()
+            return response.data as Array<Category>
+        } catch (error) {
+            return thunkAPI.rejectWithValue(error.response?.status)
+        }
     }
 )
 
@@ -52,9 +55,6 @@ export const updateCategoryThunk = createAsyncThunk(
     }
 )
 
-interface RejectedAction extends Action { payload: number }
-function isRejectedAction(action: AnyAction): action is RejectedAction { return action.type.endsWith('rejected') }
-
 export const categoriesSlice = createSlice({
     name: 'categories',
     initialState,
@@ -75,14 +75,6 @@ export const categoriesSlice = createSlice({
         })
         builder.addCase(updateCategoryThunk.fulfilled, (state, action) => {
             state.categories = state.categories.map(x => x.id === action.payload.id ? action.payload : x)
-        })
-        builder.addMatcher(isRejectedAction, (_state, action) => {
-            if (action.payload === 404) {
-                message.error('Ошибка синхронизации')
-            }
-            else {
-                message.error('Ошибка сервера')
-            }
         })
     }
 })

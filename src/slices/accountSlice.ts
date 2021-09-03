@@ -1,14 +1,17 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
-import { AxiosError } from 'axios'
 import { API } from '../api/api'
 import { UserLoginDTO, UserRegisterDTO } from '../api/apiTypes'
 import { AccountType, RejectValueType } from './sliceTypes'
 
 export const userInfoThunk = createAsyncThunk(
     'account/userInfoThunk',
-    async () => {
-        const response = await API.account.userInfo()
-        return response.data
+    async (_payload, thunkAPI) => {
+        try {
+            const response = await API.account.userInfo()
+            return response.data
+        } catch (error) {
+            return thunkAPI.rejectWithValue(error.response?.status)
+        }
     }
 )
 
@@ -20,16 +23,18 @@ export const loginThunk = createAsyncThunk<void, UserLoginDTO, RejectValueType>(
             thunkAPI.dispatch(userInfoThunk())
         } 
         catch (error) {
-            const err = error as AxiosError
-
-            if (err.response?.status === 404)
-                return thunkAPI.rejectWithValue('Неверный логин или пароль')
+            return thunkAPI.rejectWithValue(error.response?.status)
         }
     }
 )
 
-export const logoutThunk = createAsyncThunk('account/logoutThunk', async () => {
-    await API.account.logout()
+export const logoutThunk = createAsyncThunk('account/logoutThunk', async (_payload, thunkAPI) => {
+    try {
+        await API.account.logout()
+    } catch (error) {
+        return thunkAPI.rejectWithValue(error.response?.status)
+    }
+    
 })
 
 export const registerThunk = createAsyncThunk<void, UserRegisterDTO, RejectValueType>(
@@ -39,10 +44,7 @@ export const registerThunk = createAsyncThunk<void, UserRegisterDTO, RejectValue
             await API.account.register(payload)
             thunkAPI.dispatch(userInfoThunk())
         } catch (error) {
-            const err = error as AxiosError
-
-            if (err.response?.status === 409)
-                return thunkAPI.rejectWithValue('Данное имя занято')
+            return thunkAPI.rejectWithValue(error.response?.status)
         }
     }
 )
