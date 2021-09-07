@@ -1,4 +1,4 @@
-import { Row, Col, Menu, Layout } from 'antd'
+import { Row, Col, Menu, Layout, Tooltip } from 'antd'
 import Avatar from 'antd/lib/avatar/avatar'
 import Title from 'antd/lib/typography/Title'
 import { Link, useHistory, useLocation } from 'react-router-dom'
@@ -52,7 +52,11 @@ export const AppHeader = () => {
                             </Link>
                         </Col>
                         <Col>
-                            <Spin indicator={antIcon} delay={500} spinning={isRequest}/>
+                            <Spin
+                                indicator={antIcon}
+                                delay={500}
+                                spinning={isRequest}
+                            />
                         </Col>
                     </Row>
                 </Col>
@@ -60,16 +64,18 @@ export const AppHeader = () => {
                     {isAuth ? (
                         <Row justify='end' wrap={false} gutter={10}>
                             <Col>
-                                <Avatar
-                                    style={{
-                                        backgroundColor: 'orangered',
-                                        verticalAlign: 'middle',
-                                        userSelect: 'none',
-                                    }}
-                                    size='large'
-                                >
-                                    {username[0].toUpperCase()}
-                                </Avatar>
+                                <Tooltip title={username}>
+                                    <Avatar
+                                        style={{
+                                            backgroundColor: 'orangered',
+                                            verticalAlign: 'middle',
+                                            userSelect: 'none',
+                                        }}
+                                        size='large'
+                                    >
+                                        {username[0].toUpperCase()}
+                                    </Avatar>{' '}
+                                </Tooltip>
                             </Col>
                             <Col>
                                 <Menu

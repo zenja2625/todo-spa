@@ -18,3 +18,14 @@ code {
   }
 }
 
+.ant-popover-inner-content {
+  padding: 12px 0 !important;
+}
+
+.menuItem:active {
+  background-color: transparent !important;
+}
+
+.menuItem {
+  padding: 0 0 0 8px !important;
+}

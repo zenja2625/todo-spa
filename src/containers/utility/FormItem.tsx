@@ -19,7 +19,7 @@ const getInput = (
 ) => {
     switch (type) {
         case 'text':
-            return <Input {...props} />
+            return <Input {...props} placeholder={placeholder}/>
         case 'password':
             return (
                 <Input.Password
