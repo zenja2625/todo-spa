@@ -30,3 +30,9 @@ code {
   padding: 0 0 0 8px !important;
 }
 
+.menuItemPopup {
+  color: #000000d9 !important;
+}
+.menuItemPopup:hover {
+  color: #1890ff !important;
+}

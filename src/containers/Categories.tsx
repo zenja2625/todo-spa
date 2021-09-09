@@ -9,7 +9,7 @@ import { useAppDispatch, useAppSelector } from '../store'
 import { CategoryForm } from './tools/CategoryForm'
 import Title from 'antd/lib/typography/Title'
 import { Button, Col, List, Menu, Modal, Popover, Row } from 'antd'
-import { useHistory, useParams } from 'react-router'
+import { useHistory, useLocation, useParams, useRouteMatch } from 'react-router'
 import { DashOutlined, ExclamationCircleOutlined } from '@ant-design/icons'
 import confirm from 'antd/lib/modal/confirm'
 import useModal from 'antd/lib/modal/useModal'
@@ -17,10 +17,15 @@ import { Category } from '../slices/sliceTypes'
 import { Form, Formik } from 'formik'
 import { FormItem } from './utility/FormItem'
 import { createTodoThunk } from '../slices/todosSlice'
+import * as Yup from 'yup'
 
 const initialValue = {
-    value: ''
+    value: '',
 }
+
+const CategorySchema = Yup.object().shape({
+    value: Yup.string().required('Это поле обязательно')
+})
 
 const useModalEditorControl = <TValue, TData>(
     initialValue: TValue,
@@ -47,20 +52,18 @@ const useModalEditorControl = <TValue, TData>(
 
 export const Categories = () => {
     const { push } = useHistory()
+    const { categoryId } = useParams<{ categoryId?: string }>()
 
     const [popupMenuVisableId, setPopupMenuVisableId] = useState<number | null>(
         null
     )
     const [editModalVisable, setEditModalVisable] = useState(false)
     const [editModalId, setEditModalId] = useState<number | null>(null)
-    const [editModalValue, setEditModalValue] = useState<{ value: string }>(initialValue)
-
-    const [updater, setUpdater] = useState(false)
+    const [editModalValue, setEditModalValue] =
+        useState<{ value: string }>(initialValue)
 
     const dispatch = useAppDispatch()
-    const categories = useAppSelector(state =>
-        state.categories.categories
-    )
+    const categories = useAppSelector(state => state.categories.categories)
 
     const openDeletePopup = (id: number) => {
         setPopupMenuVisableId(null)
@@ -88,8 +91,12 @@ export const Categories = () => {
     const popoverMenu = (category: Category) => {
         return (
             <Menu selectedKeys={[]} style={{ border: 0 }}>
-                <Menu.Item onClick={() => openEditor(category)}>Изменить</Menu.Item>
-                <Menu.Item onClick={() => openDeletePopup(category.id)}>Удалить</Menu.Item>
+                <Menu.Item onClick={() => openEditor(category)}>
+                    Изменить
+                </Menu.Item>
+                <Menu.Item onClick={() => openDeletePopup(category.id)}>
+                    Удалить
+                </Menu.Item>
             </Menu>
         )
     }
@@ -97,20 +104,21 @@ export const Categories = () => {
     const categoryItems = categories.map(item => {
         return (
             <Menu.Item
-                className='menuItem'
+                className={
+                    'menuItem' +
+                    (popupMenuVisableId === item.id &&
+                    categoryId !== item.id.toString()
+                        ? ' menuItemPopup'
+                        : '')
+                }
                 key={item.id}
                 onClick={() => push(`/category/${item.id}`)}
             >
                 <Row justify='space-between'>
                     <Col>{item.name}</Col>
-                    <Col
-                        onClick={event => event.stopPropagation()}
-                    >
+                    <Col onClick={event => event.stopPropagation()}>
                         <Popover
-                            visible={
-                                !!popupMenuVisableId &&
-                                popupMenuVisableId === item.id
-                            }
+                            visible={popupMenuVisableId === item.id}
                             onVisibleChange={visable => {
                                 if (visable) setPopupMenuVisableId(item.id)
                                 else setPopupMenuVisableId(null)
@@ -129,16 +137,28 @@ export const Categories = () => {
         )
     })
 
-
     return (
         <div style={{ margin: '15px' }}>
             {console.log('Category Render')}
             <Title level={4}>Категории</Title>
-            <Menu style={{ border: 0 }}>{categoryItems}</Menu>
-            <Button type='primary' style={{ width: '100%', marginTop: '10px' }} onClick={() => openEditor()}>Новая категория</Button>
+            <Menu
+                selectedKeys={categoryId ? [categoryId] : undefined}
+                style={{ border: 0 }}
+            >
+                {categoryItems}
+            </Menu>
+            <Button
+                type='primary'
+                style={{ width: '100%', marginTop: '10px' }}
+                onClick={() => openEditor()}
+            >
+                Новая категория
+            </Button>
             <Formik
+                validateOnMount
                 initialValues={editModalValue}
                 enableReinitialize
+                validationSchema={CategorySchema}
                 onSubmit={({ value }) => {
                     if (
                         editModalId &&
@@ -155,29 +175,35 @@ export const Categories = () => {
                     setEditModalVisable(false)
                 }}
             >
-                {({ submitForm, resetForm }) => {
+                {({ submitForm, resetForm, isValid,  }) => {
                     console.log('Formik Render')
-
                     return (
                         <Modal
-                            title={editModalId ? 'Изменить категорию' : 'Добавить новую категорию'}
+                            title={
+                                editModalId
+                                    ? 'Изменить категорию'
+                                    : 'Добавить новую категорию'
+                            }
                             visible={editModalVisable}
                             onCancel={() => setEditModalVisable(false)}
                             afterClose={() => resetForm()}
                             onOk={() => submitForm()}
                             okText={editModalId ? 'Изменить' : 'Сохранить'}
                             cancelText='Отмена'
-                            bodyStyle={{ width: '300px' }}
                             destroyOnClose
+                            width={300}
+                            bodyStyle={{ paddingBottom:  0 }}
+                            okButtonProps={{ disabled: !isValid }}
                         >
-                            <Form>
-                                <FormItem
-                                    name='value'
-                                    type='text'
-                                    placeholder='Описание'
-                                />
-                                <Button onClick={() => setUpdater(prev => !prev)}>Update</Button>
-                            </Form>
+                            <Row>
+                                <Form style={{ width: '100%' }}>
+                                    <FormItem
+                                        name='value'
+                                        type='text'
+                                        placeholder='Название категории'
+                                    />
+                                </Form>
+                            </Row>
                         </Modal>
                     )
                 }}
