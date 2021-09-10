@@ -30,14 +30,22 @@ import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { SortableTodo } from './Todo/SortableTodo'
 import { createPortal } from 'react-dom'
 import { TodoEditor } from './TodoEditor'
-import { Modal } from 'antd'
+import { Form, Modal, Row } from 'antd'
 
 import moment, { Moment } from 'moment'
-import { useFormik } from 'formik'
+import { Formik, useFormik } from 'formik'
 
 import { DatePicker } from 'antd'
 import locale from 'antd/es/date-picker/locale/ru_RU'
 import { useParams } from 'react-router'
+import { updateCategoryThunk, createCategoryThunk, deleteCategoryThunk } from '../slices/categoriesSlice'
+import { FormItem } from './utility/FormItem'
+import confirm from 'antd/lib/modal/confirm'
+
+
+
+import { DashOutlined, ExclamationCircleOutlined } from '@ant-design/icons'
+
 const dateFormat = 'DD.MM.YYYY'
 const serverFormat = 'YYYY-MM-DD'
 
@@ -67,13 +75,17 @@ const setStatus = (
 }
 
 type TodoPosition = {
-    parentId: number
-    prevId: number
+    ParentId: number
+    PrevToDoId: number
 }
 
-type TodoEditorValues = {
+type TodoEditorValue = {
     value: string
     taskEnd?: Moment
+}
+
+const initialValue: TodoEditorValue = {
+    value: ''
 }
 
 export const Todos = () => {
@@ -85,16 +97,25 @@ export const Todos = () => {
     )
     const [prevTodoId, setPrevTodoId] = useState<number | null>(null)
 
-    const [editTodo, setEditTodo] = useState<Todo | null>(null)
+
+    const [editModalVisable, setEditModalVisable] = useState(false)
+    const [editModalId, setEditModalId] = useState<number | null>(null)
+    const [editData, setEditData] = useState<TodoPosition | null>(null)
+    const [editModalValue, setEditModalValue] =
+        useState<TodoEditorValue>(initialValue)
+
+
+
+    const [editTodo, setEditTodo_] = useState<Todo | null>(null)
     const [todoPosition, setTodoPosition] = useState<TodoPosition | null>(null)
 
-    const formik = useFormik<TodoEditorValues>({
+    const formik = useFormik<TodoEditorValue>({
         initialValues: {
             value: '',
             taskEnd: undefined,
         },
         onSubmit: async values => {
-            setEditTodo(null)
+            setEditTodo_(null)
             setTodoPosition(null)
             formik.setValues({ value: '' })
 
@@ -114,8 +135,8 @@ export const Todos = () => {
                     createTodoThunk({
                         categoryId: selectedCategoryId,
                         todoDTO: {
-                            ParentId: todoPosition.parentId,
-                            PrevToDoId: todoPosition.prevId,
+                            ParentId: todoPosition.ParentId,
+                            PrevToDoId: todoPosition.PrevToDoId,
                             Value: values.value,
                             TaskEnd: values.taskEnd?.toDate(),
                         },
@@ -157,7 +178,7 @@ export const Todos = () => {
     useEffect(() => {
         if (categoryId) dispatch(getTodosThunk(Number(categoryId)))
 
-        setEditTodo(null)
+        setEditTodo_(null)
         setTodoPosition(null)
     }, [categoryId, dispatch])
 
@@ -180,8 +201,8 @@ export const Todos = () => {
             actualDepth < minDepth
                 ? minDepth
                 : actualDepth > maxDepth
-                ? maxDepth
-                : actualDepth
+                    ? maxDepth
+                    : actualDepth
 
         const prevTodoId = prevIndex >= 0 ? todos[prevIndex].id : null
 
@@ -250,9 +271,29 @@ export const Todos = () => {
         setPrevTodoId(null)
     }
 
-    const onEditEnd = () => {}
+    const openDeletePopup = (id: number) => {
+        //setPopupMenuVisableId(null)
+        confirm({
+            title: 'Are you sure delete this category?',
+            icon: <ExclamationCircleOutlined />,
+            content: 'Some descriptions',
+            okText: 'Yes',
+            okType: 'danger',
+            cancelText: 'No',
+            onOk: () => {
+                if (categoryId)
+                    dispatch(deleteTodoThunk({ categoryId: Number(categoryId), id }))
+            },
+        })
+    }
 
-    let todoItems = todos.map(todo => {
+    const openEditor = (todo: Todo) => {
+        setEditModalId(todo.id)
+        setEditModalValue({ value: todo.value, taskEnd: todo.taskEnd ? moment(todo.taskEnd, serverFormat) : undefined })
+        setEditModalVisable(true)
+    }
+
+    const todoItems = todos.map(todo => {
         return (
             <SortableTodo
                 key={todo.id}
@@ -264,15 +305,8 @@ export const Todos = () => {
                             : todo.depth,
                 }}
                 active={draggedTodo?.id === todo.id}
-                edit={(id: number) => setEditTodo(todo)}
-                remove={() =>
-                    dispatch(
-                        deleteTodoThunk({
-                            categoryId: selectedCategoryId,
-                            id: todo.id,
-                        })
-                    )
-                }
+                edit={(id: number) => openEditor(todo)}
+                remove={() => openDeletePopup(todo.id)}
             />
         )
     })
@@ -308,17 +342,92 @@ export const Todos = () => {
                     type='button'
                     value='Новая задача'
                     onClick={() => {
-                        setEditTodo(null)
-                        setTodoPosition({
-                            parentId: 0,
-                            prevId:
-                                todos.length > 0
-                                    ? todos[todos.length - 1].id
-                                    : 0,
-                        })
+                        setEditModalValue(initialValue)
+                        setEditModalVisable(true)
+                        setEditModalId(null)
                     }}
                 />
             </div>
+            <Formik
+                validateOnMount
+                initialValues={editModalValue}
+                enableReinitialize
+                // validationSchema={CategorySchema}
+                onSubmit={({ value, taskEnd }) => {
+                    const selectedCategoryId = Number(categoryId)
+
+
+                    if (
+                        editModalId &&
+                        todos.find(x => x.id === editModalId)
+                    )
+                        dispatch(
+                            updateTodoThunk({
+                                id: editModalId,
+                                categoryId: selectedCategoryId,
+                                todoDTO: {
+                                    Value: value,
+                                    TaskEnd: taskEnd?.toDate()
+                                },
+                            })
+                        )
+                    else  {
+                        const position = editData ? editData : { ParentId: 0, PrevToDoId: 
+                            todos.length > 0
+                                ? todos[todos.length - 1].id
+                                : 0,}
+
+                        dispatch(createTodoThunk({ 
+                            categoryId: selectedCategoryId,
+                            todoDTO: { 
+                                Value: value,
+                                TaskEnd: taskEnd?.toDate(),
+                                ...position
+                            } 
+                        }))
+                    }
+
+                    setEditModalVisable(false)
+                }}
+            >
+                {({ submitForm, resetForm, isValid, }) => {
+                    console.log('Formik Render')
+                    return (
+                        <Modal
+                            title={
+                                editModalId
+                                    ? 'Изменить задачу'
+                                    : 'Добавить новую задачу'
+                            }
+                            visible={editModalVisable}
+                            onCancel={() => setEditModalVisable(false)}
+                            afterClose={() => resetForm()}
+                            onOk={() => submitForm()}
+                            okText={editModalId ? 'Изменить' : 'Сохранить'}
+                            cancelText='Отмена'
+                            destroyOnClose
+                            width={300}
+                            bodyStyle={{ paddingBottom: 0 }}
+                            okButtonProps={{ disabled: !isValid }}
+                        >
+                            <Row>
+                                <Form style={{ width: '100%' }}>
+                                    <FormItem
+                                        name='value'
+                                        type='text'
+                                        placeholder='Название задачи'
+                                    />
+                                    <FormItem 
+                                        name='taskEnd'
+                                        type='datepicker'
+                                        placeholder='Срок выполнения'
+                                    />
+                                </Form>
+                            </Row>
+                        </Modal>
+                    )
+                }}
+            </Formik>
             <Modal
                 title={editTodo ? 'Изменить задачу' : 'Добавить задачу'}
                 visible={!!editTodo || !!todoPosition}
@@ -326,7 +435,7 @@ export const Todos = () => {
                     formik.handleSubmit()
                 }}
                 onCancel={() => {
-                    setEditTodo(null)
+                    setEditTodo_(null)
                     setTodoPosition(null)
                     formik.setValues({ value: '' })
                 }}

@@ -4,6 +4,8 @@ import { MoreOutlined } from '@ant-design/icons'
 import { toggleTodoHiding, toggleTodoProgress } from '../slices/todosSlice'
 import { useAppDispatch, useAppSelector } from '../store'
 import { Skeleton } from 'antd'
+import moment from 'moment'
+import { appDateFormat, serverDateFormat } from '../dateFormat'
 
 type TodoItemPropsType = {
     todo: Todo,
@@ -45,7 +47,10 @@ export const TodoItem: FC<TodoItemPropsType> = ({ todo, dragRef, handleProps, ed
                 onChange={() => progress(todo.id, !todo.isDone)}
                 checked={todo.isDone}></input>
             {todo.value}
-            <span style={{ marginLeft: '3px', width: '80px' }}>{todo.taskEnd?.substring(0, 10)}</span>
+
+           {<span style={{ marginLeft: '3px', width: '80px' }}>
+                {todo.taskEnd && moment(todo.taskEnd, serverDateFormat).format(appDateFormat)}
+            </span>}
 
             <input type="button" value='✎' onClick={() => edit(todo.id)}/>
             <input type="button" value="❌" onClick={remove}/>

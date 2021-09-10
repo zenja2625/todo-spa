@@ -3,6 +3,8 @@ import { DatePicker, Form, Input } from 'antd'
 import { FieldInputProps, useField } from 'formik'
 import { Moment } from 'moment'
 import { FC } from 'react'
+import locale from 'antd/es/date-picker/locale/ru_RU'
+import { appDateFormat } from '../../dateFormat'
 
 type InputTypes = 'text' | 'password' | 'login' | 'datepicker'
 type FormItemType = {
@@ -46,6 +48,9 @@ const getInput = (
                     onChange={picherChange}
                     {...prop}
                     style={{ width: '100%' }}
+                    placeholder={placeholder}
+                    locale={locale}
+                    format={appDateFormat}
                 />
             )
     }
