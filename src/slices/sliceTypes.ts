@@ -1,4 +1,4 @@
-import { TodoStatusDTO } from '../api/apiTypes'
+import { TodoPositionDTO, TodoStatusDTO } from '../api/apiTypes'
 
 export type AppType = {
     initialized: boolean
@@ -48,7 +48,7 @@ export type CategoriesType = {
 export type TodosType = {
     todos: Array<TodoDTO>
     todoStatusDTOs: { [id: number]: TodoStatusDTO }
-    draggedTodos: Array<TodoDTO>
+    todoPositionDTOs: Array<TodoPositionDTO>
 }
 
 export type UpdateStatusesType = {

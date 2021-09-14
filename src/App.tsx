@@ -15,16 +15,24 @@ import { NotFoundPage } from './containers/NotFoundPage'
 
 const App = () => {
     const { isAuth } = useAppSelector(state => state.account)
+    const initialized = useAppSelector(state => state.app.initialized)
     const dispatch = useAppDispatch()
 
     useEffect(() => {
-        dispatch(userInfoThunk())
+        const initializeApp = async () => {
+            dispatch(userInfoThunk())
+        }
+        
+        initializeApp()
     }, [dispatch])
 
     useEffect(() => {
         if (isAuth) dispatch(getCategoriesThunk())
         else dispatch(clearCategories())
     }, [isAuth, dispatch])
+
+    // if (!initialized)
+    //     return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>Загрузака...</div>
 
     return (
         <Layout style={{ height: '100vh' }}>

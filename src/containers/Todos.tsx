@@ -106,12 +106,16 @@ export const Todos = () => {
     const [editModalValue, setEditModalValue] =
         useState<TodoEditorValue>(initialValue)
 
+        useEffect(() => {
+            console.log('draggedTodo')
+        }, [draggedTodo])
+        useEffect(() => {
+            console.log('editModalVisable')
+        }, [editModalVisable])
     const dispatch = useAppDispatch()
-    const selectedCategoryId = useAppSelector(
-        state => state.categories.selectedCategoryId
-    )
+
     const todos = useAppSelector(getTodos)
-    const todoStatusDTOs = useAppSelector(state => state.todos.todoStatusDTOs)
+    const { todoStatusDTOs, todoPositionDTOs } = useAppSelector(state => state.todos)
     const category = useAppSelector(
         state =>
             state.categories.categories.find(
@@ -120,21 +124,22 @@ export const Todos = () => {
     )
     const isRequest = useAppSelector(state => state.app.requestCount > 0)
 
-    const [statuses, setStatuses] = useState<Array<TodoStatusDTO>>([])
-
-    const st = useDebounce(todoStatusDTOs, 1000)
+    const [statuses, reset] = useDebounce(todoStatusDTOs, 1000)
 
     useEffect(() => {
-        const statuses = Object.values(st)
-        if (statuses.length) {
+        const statusValues = Object.values(statuses)
+        if (statusValues.length) {
             dispatch(
                 updateStatusesThunk({
                     categoryId: Number(categoryId),
-                    todoStatusDTOs: statuses,
+                    todoStatusDTOs: statusValues,
                 })
             )
         }
-    }, [st, categoryId, dispatch])
+    }, [statuses, categoryId, dispatch])
+
+
+
 
     const [consol, setConsol] = useState('')
 
@@ -142,12 +147,12 @@ export const Todos = () => {
         if (categoryId) dispatch(getTodosThunk(Number(categoryId)))
 
         return () => {
-            alert(categoryId)
+            console.log(categoryId)
         }
     }, [categoryId, dispatch])
 
     useEffect(() => {
-        setConsol(JSON.stringify(todoStatusDTOs, null, 2))
+        setConsol(JSON.stringify(todoStatusDTOs, null, 2) + '\n' + JSON.stringify(todoPositionDTOs, null, 2))
     }, [todoStatusDTOs])
 
     if (!Number(categoryId))
@@ -183,6 +188,7 @@ export const Todos = () => {
     }
 
     const onDragStart = ({ active }: DragStartEvent) => {
+        reset()
         const todo =
             todos.find(todo => todo.id.toString() === active.id) || null
         setDraggedTodo(todo)
@@ -216,10 +222,16 @@ export const Todos = () => {
         if (todo && todo.isHiddenSubTasks !== draggedTodo?.isHiddenSubTasks)
             dispatch(toggleTodoHiding(todo.id))
 
-        if (over && draggedTodoDepth !== null)
+        if (over && draggedTodoDepth !== null) {
             dispatch(
                 moveTodo({ id: active.id, prevTodoId, depth: draggedTodoDepth })
             )
+
+            if (prevTodoId) {
+
+            }
+        }
+ 
 
         onDragCancel()
     }
@@ -232,6 +244,7 @@ export const Todos = () => {
 
     const openDeletePopup = (id: number) => {
         //setPopupMenuVisableId(null)
+        reset()
         confirm({
             title: 'Are you sure delete this category?',
             icon: <ExclamationCircleOutlined />,
@@ -248,14 +261,22 @@ export const Todos = () => {
         })
     }
 
-    const openEditor = (todo: Todo) => {
-        setEditModalId(todo.id)
-        setEditModalValue({
-            value: todo.value,
-            taskEnd: todo.taskEnd
-                ? moment(todo.taskEnd, serverFormat)
-                : undefined,
-        })
+    const openEditor = (todo?: Todo) => {
+        reset()
+        if (todo) {
+            setEditModalId(todo.id)
+            setEditModalValue({
+                value: todo.value,
+                taskEnd: todo.taskEnd
+                    ? moment(todo.taskEnd, serverFormat)
+                    : undefined,
+            })
+        }
+        else {
+            setEditModalId(null)
+            setEditModalValue(initialValue)
+        }
+
         setEditModalVisable(true)
     }
 
@@ -307,11 +328,7 @@ export const Todos = () => {
                 <input
                     type='button'
                     value='Новая задача'
-                    onClick={() => {
-                        setEditModalValue(initialValue)
-                        setEditModalVisable(true)
-                        setEditModalId(null)
-                    }}
+                    onClick={() => openEditor()}
                 />
             </div>
             <Formik

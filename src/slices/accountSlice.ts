@@ -21,7 +21,9 @@ export const loginThunk = createAsyncThunk<void, UserLoginDTO, RejectValueType>(
     async (payload, thunkAPI) => {
         try {
             await API.account.login(payload)
-            await thunkAPI.dispatch(userInfoThunk())
+            const response = await thunkAPI.dispatch(userInfoThunk())
+            console.log(response)
+            console.log(thunkAPI.getState())
         } 
         catch (error: any) {
             return thunkAPI.rejectWithValue(error.response?.status)

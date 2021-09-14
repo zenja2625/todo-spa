@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { WritableDraft } from 'immer/dist/internal'
 import { API } from '../api/api'
-import { TodoPostDTO, TodoPutDTO, TodoStatusDTO } from '../api/apiTypes'
+import { TodoPositionDTO, TodoPostDTO, TodoPutDTO, TodoStatusDTO } from '../api/apiTypes'
 import {
     TodoDTO,
     TodoMoveType,
@@ -12,7 +12,7 @@ import {
 const initialState: TodosType = {
     todos: [],
     todoStatusDTOs: {},
-    draggedTodos: [],
+    todoPositionDTOs: [],
 }
 
 type CreateTodoProps = {
@@ -153,6 +153,9 @@ export const todosSlice = createSlice({
                     : todo
             )
         },
+        pushTodoPosition: (state, action: PayloadAction<TodoPositionDTO>) => {
+            state.todoPositionDTOs.push(action.payload)
+        },
         clearStatuses: state => {
             state.todoStatusDTOs = {}
         },
@@ -188,7 +191,7 @@ export const todosSlice = createSlice({
     extraReducers: builder => {
         builder.addCase(getTodosThunk.fulfilled, (state, action) => {
             state.todos = action.payload
-            state.draggedTodos = []
+            // state.todoPositionDTOs = []
         })
     },
 })
