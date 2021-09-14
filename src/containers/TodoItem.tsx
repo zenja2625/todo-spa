@@ -19,14 +19,6 @@ type TodoItemPropsType = {
 export const TodoItem: FC<TodoItemPropsType> = ({ todo, dragRef, handleProps, edit, remove }) => {
     const dispatch = useAppDispatch()
 
-    const progress = (id: number, isDone: boolean) => {
-        dispatch(toggleTodoProgress(id))
-    }
-
-    const hiding = (id: number, isHiddenSubTasks: boolean) => {
-        dispatch(toggleTodoHiding(id))
-    }
-
     return (
         <div style={{ display: 'flex', alignItems: 'center', marginLeft: `${30 * todo.depth}px`, height: '30px', width: '100%', position: 'relative', userSelect: 'none' }} key={todo.id}>
             <MoreOutlined
@@ -37,14 +29,14 @@ export const TodoItem: FC<TodoItemPropsType> = ({ todo, dragRef, handleProps, ed
             {todo.showHideButton ?
                 <input
                     type="button"
-                    onClick={() => hiding(todo.id, !todo.isHiddenSubTasks)}
+                    onClick={() => dispatch(toggleTodoHiding(todo.id))}
                     style={{ width: '25px' }}
                     value={todo.isHiddenSubTasks ? '>' : 'ᐯ'} /> :
                 <span style={{ marginRight: '25px' }}></span>
             }
             <input
                 type='checkbox'
-                onChange={() => progress(todo.id, !todo.isDone)}
+                onChange={() => dispatch(toggleTodoProgress(todo.id))}
                 checked={todo.isDone}></input>
             {todo.value}
 

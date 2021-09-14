@@ -18,6 +18,11 @@ code {
   }
 }
 
+.loading {
+  pointer-events: none;
+  opacity: 0.9;
+}
+
 .ant-popover-inner-content {
   padding: 12px 0 !important;
 }

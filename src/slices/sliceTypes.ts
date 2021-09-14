@@ -47,7 +47,7 @@ export type CategoriesType = {
 
 export type TodosType = {
     todos: Array<TodoDTO>
-    todoStatusDTOs: Array<TodoStatusDTO>
+    todoStatusDTOs: { [id: number]: TodoStatusDTO }
     draggedTodos: Array<TodoDTO>
 }
 

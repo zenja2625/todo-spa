@@ -1,19 +1,24 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { WritableDraft } from 'immer/dist/internal'
 import { API } from '../api/api'
 import { TodoPostDTO, TodoPutDTO, TodoStatusDTO } from '../api/apiTypes'
-import { TodoDTO, TodoMoveType, TodosType, UpdateStatusesType } from './sliceTypes'
+import {
+    TodoDTO,
+    TodoMoveType,
+    TodosType,
+    UpdateStatusesType,
+} from './sliceTypes'
 
 const initialState: TodosType = {
     todos: [],
-    todoStatusDTOs: [],
-    draggedTodos: []
+    todoStatusDTOs: {},
+    draggedTodos: [],
 }
 
 type CreateTodoProps = {
     categoryId: number
     todoDTO: TodoPostDTO
 }
-
 
 type UpdateTodoProps = {
     id: number
@@ -42,12 +47,22 @@ export const updateStatusesThunk = createAsyncThunk(
     'todos/updateStatusesThunk',
     async (payload: UpdateStatusesType, thunkAPI) => {
         try {
-            await API.todos.updateStatuses(payload.categoryId, payload.todoStatusDTOs)
+            await API.todos.updateStatuses(
+                payload.categoryId,
+                payload.todoStatusDTOs
+            )
+
+            await thunkAPI.dispatch(getTodosThunk(payload.categoryId))
+            
+            thunkAPI.dispatch(clearStatuses())
         } catch (error: any) {
+            thunkAPI.dispatch(clearStatuses())
             return thunkAPI.rejectWithValue(error.response?.status)
         }
     }
 )
+
+
 
 export const createTodoThunk = createAsyncThunk(
     'todos/createTodoThunk',
@@ -65,7 +80,11 @@ export const updateTodoThunk = createAsyncThunk(
     'todos/updateTodoThunk',
     async (payload: UpdateTodoProps, thunkAPI) => {
         try {
-            await API.todos.updateTodo(payload.categoryId, payload.id, payload.todoDTO)
+            await API.todos.updateTodo(
+                payload.categoryId,
+                payload.id,
+                payload.todoDTO
+            )
             await thunkAPI.dispatch(getTodosThunk(payload.categoryId))
         } catch (error: any) {
             return thunkAPI.rejectWithValue(error.response?.status)
@@ -85,51 +104,94 @@ export const deleteTodoThunk = createAsyncThunk(
     }
 )
 
+const toggleProperty = (
+    state: WritableDraft<TodosType>,
+    id: number,
+    propName: 'isDone' | 'isHiddenSubTasks'
+) => {
+    if (state.todoStatusDTOs[id])
+        state.todoStatusDTOs[id][propName] =
+            state.todoStatusDTOs[id]?.[propName] === undefined
+                ? !state.todos.find(x => x.id === id)?.[propName]
+                : undefined
+    else
+        state.todoStatusDTOs[id] = {
+            id: id,
+            [propName]:
+                state.todoStatusDTOs[id]?.[propName] === undefined
+                    ? !state.todos.find(x => x.id === id)?.[propName]
+                    : undefined,
+        }
+
+    if (
+        state.todoStatusDTOs[id].isDone === undefined &&
+        state.todoStatusDTOs[id].isHiddenSubTasks === undefined
+    ) {
+        delete state.todoStatusDTOs[id]
+    }
+}
+
 export const todosSlice = createSlice({
     name: 'todos',
     initialState,
     reducers: {
         toggleTodoProgress: (state, action: PayloadAction<number>) => {
-            state.todos = state.todos.map(todo => todo.id === action.payload ? { ...todo, isDone: !todo.isDone } : todo)
+            toggleProperty(state, action.payload, 'isDone')
+
+            // state.todos = state.todos.map(todo =>
+            //     todo.id === action.payload
+            //         ? { ...todo, isDone: !todo.isDone }
+            //         : todo
+            // )
         },
         toggleTodoHiding: (state, action: PayloadAction<number>) => {
-            state.todos = state.todos.map(todo => todo.id === action.payload ? { ...todo, isHiddenSubTasks: !todo.isHiddenSubTasks } : todo)
+            toggleProperty(state, action.payload, 'isHiddenSubTasks')
+
+            state.todos = state.todos.map(todo =>
+                todo.id === action.payload
+                    ? { ...todo, isHiddenSubTasks: !todo.isHiddenSubTasks }
+                    : todo
+            )
+        },
+        clearStatuses: state => {
+            state.todoStatusDTOs = {}
         },
         moveTodo: (state, action: PayloadAction<TodoMoveType>) => {
-            const todoIndex = state.todos.findIndex(todo => todo.id.toString() === action.payload.id) 
-            
+            const todoIndex = state.todos.findIndex(
+                todo => todo.id.toString() === action.payload.id
+            )
+
             let todosCount = 1
 
             for (let i = todoIndex + 1; i < state.todos.length; i++) {
                 if (state.todos[i].depth > state.todos[todoIndex].depth) {
-                    todosCount++       
-                    state.todos[i].depth += action.payload.depth - state.todos[todoIndex].depth 
-                }
-                else 
-                    break         
+                    todosCount++
+                    state.todos[i].depth +=
+                        action.payload.depth - state.todos[todoIndex].depth
+                } else break
             }
             state.todos[todoIndex].depth = action.payload.depth
 
             const todos = state.todos.splice(todoIndex, todosCount)
-            const prevTodoIndex = state.todos.findIndex(todo => todo.id === action.payload.prevTodoId)
+            const prevTodoIndex = state.todos.findIndex(
+                todo => todo.id === action.payload.prevTodoId
+            )
             state.todos.splice(prevTodoIndex + 1, 0, ...todos)
         },
         toggleTodoStatusDTOs: (state, action: PayloadAction<TodoStatusDTO>) => {
-            const todoStatus = state.todoStatusDTOs.find(x => action.payload.id)
-            
-            if (todoStatus) {
-                // if (action.payload.isDone === undefined && todoStatus.isDone !== undefined)
-                   
-
-            }
-        }
+            // const todoStatus = state.todoStatusDTOs.find(x => action.payload.id)
+            // if (todoStatus) {
+            //     // if (action.payload.isDone === undefined && todoStatus.isDone !== undefined)
+            // }
+        },
     },
     extraReducers: builder => {
         builder.addCase(getTodosThunk.fulfilled, (state, action) => {
             state.todos = action.payload
             state.draggedTodos = []
         })
-    }
+    },
 })
 
-export const { toggleTodoProgress, toggleTodoHiding, moveTodo } = todosSlice.actions
+export const { toggleTodoProgress, toggleTodoHiding, moveTodo, clearStatuses } =
+    todosSlice.actions

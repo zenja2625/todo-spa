@@ -118,6 +118,7 @@ export const Categories = () => {
                     <Col>{item.name}</Col>
                     <Col onClick={event => event.stopPropagation()}>
                         <Popover
+                            destroyTooltipOnHide={{ keepParent: false }}
                             visible={popupMenuVisableId === item.id}
                             onVisibleChange={visable => {
                                 if (visable) setPopupMenuVisableId(item.id)
@@ -139,7 +140,6 @@ export const Categories = () => {
 
     return (
         <div style={{ margin: '15px' }}>
-            {console.log('Category Render')}
             <Title level={4}>Категории</Title>
             <Menu
                 selectedKeys={categoryId ? [categoryId] : undefined}
@@ -176,7 +176,6 @@ export const Categories = () => {
                 }}
             >
                 {({ submitForm, resetForm, isValid,  }) => {
-                    console.log('Formik Render')
                     return (
                         <Modal
                             title={
