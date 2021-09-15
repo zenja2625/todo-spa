@@ -1,7 +1,9 @@
-import { Action, AnyAction, createSlice } from '@reduxjs/toolkit'
+import { Action, AnyAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import { message } from 'antd'
-import { loginThunk } from './accountSlice'
-import { AppType } from './sliceTypes'
+import { RootState } from '../store'
+import { loginThunk, userInfoThunk } from './accountSlice'
+import { getCategoriesThunk } from './categoriesSlice'
+import { AppType, IState } from './sliceTypes'
 
 const initialState: AppType = {
     initialized: false,
@@ -21,18 +23,28 @@ const isStartLoading = (action: AnyAction) => action.type.endsWith('pending')
 const isEndLoading = (action: AnyAction) =>
     action.type.endsWith('fulfilled') || action.type.endsWith('rejected')
 
+
+export const initializeApp = createAsyncThunk<void, void, IState>(
+    'app/initializeApp',
+    async (_, { dispatch, getState }) => {
+        await dispatch(userInfoThunk())
+        if (getState().account.isAuth)
+            await dispatch(getCategoriesThunk())
+    }
+)
+
 export const appSlice = createSlice({
     name: 'app',
     initialState,
     reducers: {
-        initialization: state => {
-            state.initialized = true
-        },
-        toggleLoadingStatus: state => {
-            state.requestCount += state.requestCount ? -1 : 1
-        },
+        deinitialization: state => {
+            state.initialized = false
+        }
     },
     extraReducers: builder => {
+        builder.addCase(initializeApp.fulfilled, state => {
+            state.initialized = true
+        })
         builder.addMatcher(isStartLoading, state => {
             state.requestCount++
         })
@@ -60,4 +72,4 @@ export const appSlice = createSlice({
     },
 })
 
-export const { initialization, toggleLoadingStatus } = appSlice.actions
+export const { deinitialization } = appSlice.actions

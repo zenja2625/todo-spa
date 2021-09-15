@@ -2,11 +2,12 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import { AxiosError } from 'axios'
 import { API } from '../api/api'
 import { UserLoginDTO, UserRegisterDTO } from '../api/apiTypes'
+import { deinitialization } from './appSlice'
 import { AccountType, RejectValueType } from './sliceTypes'
 
 export const userInfoThunk = createAsyncThunk(
     'account/userInfoThunk',
-    async (_payload, thunkAPI) => {
+    async (_, thunkAPI) => {
         try {
             const response = await API.account.userInfo()
             return response.data
@@ -21,9 +22,7 @@ export const loginThunk = createAsyncThunk<void, UserLoginDTO, RejectValueType>(
     async (payload, thunkAPI) => {
         try {
             await API.account.login(payload)
-            const response = await thunkAPI.dispatch(userInfoThunk())
-            console.log(response)
-            console.log(thunkAPI.getState())
+            thunkAPI.dispatch(deinitialization())
         } 
         catch (error: any) {
             return thunkAPI.rejectWithValue(error.response?.status)

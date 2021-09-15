@@ -1,4 +1,5 @@
 import { TodoPositionDTO, TodoStatusDTO } from '../api/apiTypes'
+import { RootState } from '../store'
 
 export type AppType = {
     initialized: boolean
@@ -64,4 +65,8 @@ export type ChangeTodoPositionType = {
     todoId: number
     prevTodoId: number | null
     depth: number
+}
+
+export interface IState {
+    state: RootState
 }

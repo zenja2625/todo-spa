@@ -1,9 +1,7 @@
-import { Layout } from 'antd'
+import { Layout, Spin } from 'antd'
 import { useEffect } from 'react'
 import { Login } from './containers/account/Login'
 import { Register } from './containers/account/Register'
-import { userInfoThunk } from './slices/accountSlice'
-import { clearCategories, getCategoriesThunk } from './slices/categoriesSlice'
 import { useAppDispatch, useAppSelector } from './store'
 import './momentLocale'
 
@@ -12,27 +10,21 @@ import { Redirect, Route, Switch } from 'react-router-dom'
 import { AppHeader } from './containers/AppHeader'
 import { Main } from './containers/Main'
 import { NotFoundPage } from './containers/NotFoundPage'
+import { initializeApp } from './slices/appSlice'
 
 const App = () => {
-    const { isAuth } = useAppSelector(state => state.account)
+    const isAuth = useAppSelector(state => state.account.isAuth)
     const initialized = useAppSelector(state => state.app.initialized)
     const dispatch = useAppDispatch()
 
     useEffect(() => {
-        const initializeApp = async () => {
-            dispatch(userInfoThunk())
-        }
-        
-        initializeApp()
-    }, [dispatch])
+        if (!initialized)
+            dispatch(initializeApp())
+    }, [initialized, dispatch])
 
-    useEffect(() => {
-        if (isAuth) dispatch(getCategoriesThunk())
-        else dispatch(clearCategories())
-    }, [isAuth, dispatch])
 
-    // if (!initialized)
-    //     return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>Загрузака...</div>
+    if (!initialized)
+        return <Spin tip='Загрузка...' size='large' style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column', height: '100vh' }}></Spin>
 
     return (
         <Layout style={{ height: '100vh' }}>
