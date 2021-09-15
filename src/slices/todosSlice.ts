@@ -3,6 +3,7 @@ import { WritableDraft } from 'immer/dist/internal'
 import { API } from '../api/api'
 import { TodoPositionDTO, TodoPostDTO, TodoPutDTO, TodoStatusDTO } from '../api/apiTypes'
 import {
+    Todo,
     TodoDTO,
     TodoMoveType,
     TodosType,
@@ -13,6 +14,7 @@ const initialState: TodosType = {
     todos: [],
     todoStatusDTOs: {},
     todoPositionDTOs: [],
+    draggedTodo: null
 }
 
 type CreateTodoProps = {
@@ -187,6 +189,9 @@ export const todosSlice = createSlice({
             //     // if (action.payload.isDone === undefined && todoStatus.isDone !== undefined)
             // }
         },
+        setDraggedTodo: (state, action: PayloadAction<Todo | null>) => {
+            state.draggedTodo = action.payload
+        }
     },
     extraReducers: builder => {
         builder.addCase(getTodosThunk.fulfilled, (state, action) => {
@@ -196,5 +201,5 @@ export const todosSlice = createSlice({
     },
 })
 
-export const { toggleTodoProgress, toggleTodoHiding, moveTodo, clearStatuses } =
+export const { toggleTodoProgress, toggleTodoHiding, moveTodo, clearStatuses, pushTodoPosition, setDraggedTodo } =
     todosSlice.actions

@@ -4,6 +4,7 @@ import { RootState } from '../store'
 export const getTodos = (state: RootState) => {
     const todos = state.todos.todos
     const statuses = state.todos.todoStatusDTOs
+    const draggedTodoId = state.todos.draggedTodo?.id
 
     let newTodos: Array<Todo> = []
 
@@ -17,7 +18,8 @@ export const getTodos = (state: RootState) => {
 
         if (
             todos[i].isHiddenSubTasks ||
-            statuses[todos[i].id]?.isHiddenSubTasks
+            statuses[todos[i].id]?.isHiddenSubTasks ||
+            todos[i].id === draggedTodoId
         )
             todoIndex = i
 

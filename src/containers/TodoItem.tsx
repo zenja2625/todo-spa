@@ -16,8 +16,11 @@ type TodoItemPropsType = {
     remove: () => void
 }
 
-export const TodoItem: FC<TodoItemPropsType> = ({ todo, dragRef, handleProps, edit, remove }) => {
+export const TodoItem: FC<TodoItemPropsType> = ({ todo, dragRef, handleProps, edit, remove, active }) => {
     const dispatch = useAppDispatch()
+
+    if (active)
+        return <div style={{ backgroundColor: 'lightgray', marginLeft: `${30 * todo.depth}px`, height: '30px', width: '100%'}}></div>
 
     return (
         <div style={{ display: 'flex', alignItems: 'center', marginLeft: `${30 * todo.depth}px`, height: '30px', width: '100%', position: 'relative', userSelect: 'none' }} key={todo.id}>

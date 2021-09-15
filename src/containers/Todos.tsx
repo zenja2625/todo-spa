@@ -7,6 +7,8 @@ import {
     deleteTodoThunk,
     getTodosThunk,
     moveTodo,
+    pushTodoPosition,
+    setDraggedTodo,
     toggleTodoHiding,
     toggleTodoProgress,
     updateStatusesThunk,
@@ -55,6 +57,25 @@ const serverFormat = 'YYYY-MM-DD'
 let renderCount = 1
 type statusProperties = 'isDone' | 'isHiddenSubTasks'
 
+const getParentId = (todos: Array<Todo>, prevTodoId: number, actualTodoId: number, actualTodoDepth: number) => {
+    const todoIndex = todos.findIndex(todo => todo.id === prevTodoId)
+    let parentId = -1
+
+    for (let i = todoIndex; i >= 0; i--) {
+        const prevTodo = todos[i]
+
+        if (prevTodo.id === actualTodoId)
+            continue
+
+        if (prevTodo.depth < actualTodoDepth) {
+            parentId = todos[i].id
+            break
+        }
+    }
+
+    return parentId
+}
+
 const isEmptyStatus = (status: TodoStatusDTO) =>
     status.isDone === undefined && status.isHiddenSubTasks === undefined
 
@@ -94,7 +115,7 @@ const initialValue: TodoEditorValue = {
 export const Todos = () => {
     const { categoryId } = useParams<{ categoryId?: string }>()
 
-    const [draggedTodo, setDraggedTodo] = useState<Todo | null>(null)
+    const [draggedTodo, setDraggedTodoState] = useState<Todo | null>(null)
     const [draggedTodoDepth, setDraggedTodoDepth] = useState<number | null>(
         null
     )
@@ -106,16 +127,17 @@ export const Todos = () => {
     const [editModalValue, setEditModalValue] =
         useState<TodoEditorValue>(initialValue)
 
-        useEffect(() => {
-            console.log('draggedTodo')
-        }, [draggedTodo])
-        useEffect(() => {
-            console.log('editModalVisable')
-        }, [editModalVisable])
+    // useEffect(() => {
+    //     console.log('draggedTodo')
+    // }, [draggedTodo])
+    // useEffect(() => {
+    //     console.log('editModalVisable')
+    // }, [editModalVisable])
     const dispatch = useAppDispatch()
 
     const todos = useAppSelector(getTodos)
     const { todoStatusDTOs, todoPositionDTOs } = useAppSelector(state => state.todos)
+
     const category = useAppSelector(
         state =>
             state.categories.categories.find(
@@ -153,7 +175,7 @@ export const Todos = () => {
 
     useEffect(() => {
         setConsol(JSON.stringify(todoStatusDTOs, null, 2) + '\n' + JSON.stringify(todoPositionDTOs, null, 2))
-    }, [todoStatusDTOs])
+    }, [todoStatusDTOs, todoPositionDTOs])
 
     if (!Number(categoryId))
         return (
@@ -179,8 +201,8 @@ export const Todos = () => {
             actualDepth < minDepth
                 ? minDepth
                 : actualDepth > maxDepth
-                ? maxDepth
-                : actualDepth
+                    ? maxDepth
+                    : actualDepth
 
         const prevTodoId = prevIndex >= 0 ? todos[prevIndex].id : null
 
@@ -191,9 +213,9 @@ export const Todos = () => {
         reset()
         const todo =
             todos.find(todo => todo.id.toString() === active.id) || null
-        setDraggedTodo(todo)
+        setDraggedTodoState(todo)
         if (todo && todo.showHideButton && !todo.isHiddenSubTasks)
-            dispatch(toggleTodoHiding(todo.id))
+            dispatch(setDraggedTodo(todo))
     }
 
     const onDragMove = ({ delta, active, over }: DragMoveEvent) => {
@@ -219,25 +241,25 @@ export const Todos = () => {
     const onDragEnd = ({ active, over }: DragEndEvent) => {
         const todo =
             todos.find(todo => todo.id.toString() === active.id) || null
-        if (todo && todo.isHiddenSubTasks !== draggedTodo?.isHiddenSubTasks)
-            dispatch(toggleTodoHiding(todo.id))
+        dispatch(setDraggedTodo(null))
 
         if (over && draggedTodoDepth !== null) {
+
             dispatch(
                 moveTodo({ id: active.id, prevTodoId, depth: draggedTodoDepth })
             )
 
-            if (prevTodoId) {
+            const parentId = prevTodoId && draggedTodoDepth ? getParentId(todos, prevTodoId, Number(active.id), draggedTodoDepth) : 0
+            dispatch(pushTodoPosition({ Id: Number(active.id), PrevToDoId: prevTodoId ? prevTodoId : 0, ParentId: parentId }))
 
-            }
         }
- 
+
 
         onDragCancel()
     }
 
     const onDragCancel = () => {
-        setDraggedTodo(null)
+        setDraggedTodoState(null)
         setDraggedTodoDepth(null)
         setPrevTodoId(null)
     }
@@ -354,12 +376,12 @@ export const Todos = () => {
                         const position = editData
                             ? editData
                             : {
-                                  ParentId: 0,
-                                  PrevToDoId:
-                                      todos.length > 0
-                                          ? todos[todos.length - 1].id
-                                          : 0,
-                              }
+                                ParentId: 0,
+                                PrevToDoId:
+                                    todos.length > 0
+                                        ? todos[todos.length - 1].id
+                                        : 0,
+                            }
 
                         dispatch(
                             createTodoThunk({
