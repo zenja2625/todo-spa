@@ -1,6 +1,6 @@
 import { FC } from 'react'
 import { Todo } from '../slices/sliceTypes'
-import { MoreOutlined } from '@ant-design/icons'
+import { MoreOutlined, RightOutlined, DownOutlined } from '@ant-design/icons'
 import { toggleTodoHiding, toggleTodoProgress } from '../slices/todosSlice'
 import { useAppDispatch, useAppSelector } from '../store'
 import { Skeleton } from 'antd'

@@ -1,5 +1,5 @@
 import { CSSProperties, useEffect, useRef, useState } from 'react'
-import { TodoStatusDTO } from '../api/apiTypes'
+import { TodoPositionDTO, TodoStatusDTO } from '../api/apiTypes'
 import { useDebounce } from '../hooks/useDebounce'
 import { Todo, TodoDTO } from '../slices/sliceTypes'
 import {
@@ -11,6 +11,7 @@ import {
     setDraggedTodo,
     toggleTodoHiding,
     toggleTodoProgress,
+    updatePositionsThunk,
     updateStatusesThunk,
     updateTodoThunk,
 } from '../slices/todosSlice'
@@ -57,23 +58,29 @@ const serverFormat = 'YYYY-MM-DD'
 let renderCount = 1
 type statusProperties = 'isDone' | 'isHiddenSubTasks'
 
-const getParentId = (todos: Array<Todo>, prevTodoId: number, actualTodoId: number, actualTodoDepth: number) => {
+const getTodoPosition = (
+    todos: Array<Todo>,
+    prevTodoId: number,
+    actualTodoId: number,
+    actualTodoDepth: number
+): TodoPositionDTO => {
     const todoIndex = todos.findIndex(todo => todo.id === prevTodoId)
-    let parentId = -1
+    let ParentId = 0
+    let PrevToDoId = 0
 
     for (let i = todoIndex; i >= 0; i--) {
         const prevTodo = todos[i]
 
-        if (prevTodo.id === actualTodoId)
-            continue
+        if (prevTodo.id === actualTodoId) continue
 
         if (prevTodo.depth < actualTodoDepth) {
-            parentId = todos[i].id
+            ParentId = todos[i].id
             break
-        }
+        } else if (prevTodo.depth === actualTodoDepth && !PrevToDoId)
+            PrevToDoId = prevTodo.id
     }
 
-    return parentId
+    return { Id: actualTodoId, ParentId, PrevToDoId }
 }
 
 const isEmptyStatus = (status: TodoStatusDTO) =>
@@ -136,7 +143,9 @@ export const Todos = () => {
     const dispatch = useAppDispatch()
 
     const todos = useAppSelector(getTodos)
-    const { todoStatusDTOs, todoPositionDTOs } = useAppSelector(state => state.todos)
+    const { todoStatusDTOs, todoPositionDTOs } = useAppSelector(
+        state => state.todos
+    )
 
     const category = useAppSelector(
         state =>
@@ -146,7 +155,7 @@ export const Todos = () => {
     )
     const isRequest = useAppSelector(state => state.app.requestCount > 0)
 
-    const [statuses, reset] = useDebounce(todoStatusDTOs, 1000)
+    const [statuses, fetchStatuses] = useDebounce(todoStatusDTOs, 1000)
 
     useEffect(() => {
         const statusValues = Object.values(statuses)
@@ -160,8 +169,18 @@ export const Todos = () => {
         }
     }, [statuses, categoryId, dispatch])
 
+    const [positions, fetchPositions] = useDebounce(todoPositionDTOs, 1000)
 
-
+    useEffect(() => {
+        if (positions.length) {
+            dispatch(
+                updatePositionsThunk({
+                    categoryId: Number(categoryId),
+                    todoPositionDTOs: positions,
+                })
+            )
+        }
+    }, [positions, categoryId, dispatch])
 
     const [consol, setConsol] = useState('')
 
@@ -174,7 +193,11 @@ export const Todos = () => {
     }, [categoryId, dispatch])
 
     useEffect(() => {
-        setConsol(JSON.stringify(todoStatusDTOs, null, 2) + '\n' + JSON.stringify(todoPositionDTOs, null, 2))
+        setConsol(
+            JSON.stringify(todoStatusDTOs, null, 2) +
+                '\n' +
+                JSON.stringify(todoPositionDTOs, null, 2)
+        )
     }, [todoStatusDTOs, todoPositionDTOs])
 
     if (!Number(categoryId))
@@ -201,8 +224,8 @@ export const Todos = () => {
             actualDepth < minDepth
                 ? minDepth
                 : actualDepth > maxDepth
-                    ? maxDepth
-                    : actualDepth
+                ? maxDepth
+                : actualDepth
 
         const prevTodoId = prevIndex >= 0 ? todos[prevIndex].id : null
 
@@ -210,7 +233,7 @@ export const Todos = () => {
     }
 
     const onDragStart = ({ active }: DragStartEvent) => {
-        reset()
+        fetchStatuses()
         const todo =
             todos.find(todo => todo.id.toString() === active.id) || null
         setDraggedTodoState(todo)
@@ -244,16 +267,23 @@ export const Todos = () => {
         dispatch(setDraggedTodo(null))
 
         if (over && draggedTodoDepth !== null) {
-
             dispatch(
                 moveTodo({ id: active.id, prevTodoId, depth: draggedTodoDepth })
             )
 
-            const parentId = prevTodoId && draggedTodoDepth ? getParentId(todos, prevTodoId, Number(active.id), draggedTodoDepth) : 0
-            dispatch(pushTodoPosition({ Id: Number(active.id), PrevToDoId: prevTodoId ? prevTodoId : 0, ParentId: parentId }))
+            const position: TodoPositionDTO = prevTodoId
+                ? getTodoPosition(
+                      todos,
+                      prevTodoId,
+                      Number(active.id),
+                      draggedTodoDepth
+                  )
+                : { Id: Number(active.id), ParentId: 0, PrevToDoId: 0 }
 
+            dispatch(
+                pushTodoPosition(position)
+            )
         }
-
 
         onDragCancel()
     }
@@ -265,8 +295,8 @@ export const Todos = () => {
     }
 
     const openDeletePopup = (id: number) => {
-        //setPopupMenuVisableId(null)
-        reset()
+        fetchStatuses()
+        fetchPositions()
         confirm({
             title: 'Are you sure delete this category?',
             icon: <ExclamationCircleOutlined />,
@@ -284,7 +314,8 @@ export const Todos = () => {
     }
 
     const openEditor = (todo?: Todo) => {
-        reset()
+        fetchStatuses()
+        fetchPositions()
         if (todo) {
             setEditModalId(todo.id)
             setEditModalValue({
@@ -293,8 +324,7 @@ export const Todos = () => {
                     ? moment(todo.taskEnd, serverFormat)
                     : undefined,
             })
-        }
-        else {
+        } else {
             setEditModalId(null)
             setEditModalValue(initialValue)
         }
@@ -321,8 +351,8 @@ export const Todos = () => {
     })
 
     return (
-        <div className={isRequest ? 'loading' : undefined}>
-            <div>Render Count: {renderCount++}</div>
+        <div>
+            <div style={{ position: 'absolute', left: 0 }}>Render Todos Count: {renderCount++}</div>
             <Typography.Title level={3}>{category}</Typography.Title>
             <div style={{ width: '400px' }}>
                 <DndContext
@@ -376,12 +406,12 @@ export const Todos = () => {
                         const position = editData
                             ? editData
                             : {
-                                ParentId: 0,
-                                PrevToDoId:
-                                    todos.length > 0
-                                        ? todos[todos.length - 1].id
-                                        : 0,
-                            }
+                                  ParentId: 0,
+                                  PrevToDoId:
+                                      todos.length > 0
+                                          ? getTodoPosition(todos, todos[todos.length - 1].id, 0, 0).PrevToDoId
+                                          : 0,
+                              }
 
                         dispatch(
                             createTodoThunk({

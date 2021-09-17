@@ -51,13 +51,15 @@ export const appSlice = createSlice({
         builder.addMatcher(isEndLoading, state => {
             state.requestCount--
         })
-        builder.addMatcher(isRejectedAction, (_state, action) => {
+        builder.addMatcher(isRejectedAction, (state, action) => {
             switch (action.payload) {
                 case 404:
                     if (action.type.startsWith(loginThunk.typePrefix))
                         message.error('Неверный логин или пароль')
-                    else 
+                    else {
                         message.error('Ошибка синхронизации')
+                        state.initialized = false
+                    }
                     break
                 case 401:
                     break

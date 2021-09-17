@@ -58,6 +58,11 @@ export type UpdateStatusesType = {
     categoryId: number
 }
 
+export type UpdatePositionsType = {
+    todoPositionDTOs: Array<TodoPositionDTO>
+    categoryId: number
+}
+
 export type RejectValueType = {
     rejectValue: string
 }

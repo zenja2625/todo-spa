@@ -1,12 +1,18 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { WritableDraft } from 'immer/dist/internal'
 import { API } from '../api/api'
-import { TodoPositionDTO, TodoPostDTO, TodoPutDTO, TodoStatusDTO } from '../api/apiTypes'
+import {
+    TodoPositionDTO,
+    TodoPostDTO,
+    TodoPutDTO,
+    TodoStatusDTO,
+} from '../api/apiTypes'
 import {
     Todo,
     TodoDTO,
     TodoMoveType,
     TodosType,
+    UpdatePositionsType,
     UpdateStatusesType,
 } from './sliceTypes'
 
@@ -14,7 +20,7 @@ const initialState: TodosType = {
     todos: [],
     todoStatusDTOs: {},
     todoPositionDTOs: [],
-    draggedTodo: null
+    draggedTodo: null,
 }
 
 type CreateTodoProps = {
@@ -45,6 +51,22 @@ export const getTodosThunk = createAsyncThunk(
     }
 )
 
+export const updatePositionsThunk = createAsyncThunk(
+    'todos/updatePositionsThunk',
+    async (payload: UpdatePositionsType, { dispatch, rejectWithValue }) => {
+        try {
+            await API.todos.updatePositions(
+                payload.categoryId,
+                payload.todoPositionDTOs
+            )
+
+            await dispatch(getTodosThunk(payload.categoryId))
+        } catch (error: any) {
+            return rejectWithValue(error.response?.status)
+        }
+    }
+)
+
 export const updateStatusesThunk = createAsyncThunk(
     'todos/updateStatusesThunk',
     async (payload: UpdateStatusesType, thunkAPI) => {
@@ -55,16 +77,11 @@ export const updateStatusesThunk = createAsyncThunk(
             )
 
             await thunkAPI.dispatch(getTodosThunk(payload.categoryId))
-            
-            thunkAPI.dispatch(clearStatuses())
         } catch (error: any) {
-            thunkAPI.dispatch(clearStatuses())
             return thunkAPI.rejectWithValue(error.response?.status)
         }
     }
 )
-
-
 
 export const createTodoThunk = createAsyncThunk(
     'todos/createTodoThunk',
@@ -158,9 +175,6 @@ export const todosSlice = createSlice({
         pushTodoPosition: (state, action: PayloadAction<TodoPositionDTO>) => {
             state.todoPositionDTOs.push(action.payload)
         },
-        clearStatuses: state => {
-            state.todoStatusDTOs = {}
-        },
         moveTodo: (state, action: PayloadAction<TodoMoveType>) => {
             const todoIndex = state.todos.findIndex(
                 todo => todo.id.toString() === action.payload.id
@@ -183,23 +197,27 @@ export const todosSlice = createSlice({
             )
             state.todos.splice(prevTodoIndex + 1, 0, ...todos)
         },
-        toggleTodoStatusDTOs: (state, action: PayloadAction<TodoStatusDTO>) => {
-            // const todoStatus = state.todoStatusDTOs.find(x => action.payload.id)
-            // if (todoStatus) {
-            //     // if (action.payload.isDone === undefined && todoStatus.isDone !== undefined)
-            // }
-        },
         setDraggedTodo: (state, action: PayloadAction<Todo | null>) => {
             state.draggedTodo = action.payload
-        }
+        },
     },
     extraReducers: builder => {
+        builder.addCase(updateStatusesThunk.pending, state => {
+            state.todoStatusDTOs = {}
+        })
+        builder.addCase(updatePositionsThunk.pending, state => {
+            state.todoPositionDTOs = []
+        })
         builder.addCase(getTodosThunk.fulfilled, (state, action) => {
             state.todos = action.payload
-            // state.todoPositionDTOs = []
         })
     },
 })
 
-export const { toggleTodoProgress, toggleTodoHiding, moveTodo, clearStatuses, pushTodoPosition, setDraggedTodo } =
-    todosSlice.actions
+export const {
+    toggleTodoProgress,
+    toggleTodoHiding,
+    moveTodo,
+    pushTodoPosition,
+    setDraggedTodo,
+} = todosSlice.actions
