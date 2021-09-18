@@ -112,7 +112,7 @@ export const Categories = () => {
                         : '')
                 }
                 key={item.id}
-                onClick={() => push(`/category/${item.id}`)}
+                onClick={() => categoryId !== item.id.toString() && push(`/category/${item.id}`)}
             >
                 <Row justify='space-between'>
                     <Col>{item.name}</Col>

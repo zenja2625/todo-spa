@@ -134,26 +134,18 @@ export const Todos = () => {
     const [editModalValue, setEditModalValue] =
         useState<TodoEditorValue>(initialValue)
 
-    // useEffect(() => {
-    //     console.log('draggedTodo')
-    // }, [draggedTodo])
-    // useEffect(() => {
-    //     console.log('editModalVisable')
-    // }, [editModalVisable])
     const dispatch = useAppDispatch()
 
     const todos = useAppSelector(getTodos)
     const { todoStatusDTOs, todoPositionDTOs } = useAppSelector(
         state => state.todos
     )
-
-    const category = useAppSelector(
+    const categoryName = useAppSelector(
         state =>
             state.categories.categories.find(
                 x => x.id.toString() === categoryId
             )?.name
     )
-    const isRequest = useAppSelector(state => state.app.requestCount > 0)
 
     const [statuses, fetchStatuses] = useDebounce(todoStatusDTOs, 1000)
 
@@ -280,9 +272,7 @@ export const Todos = () => {
                   )
                 : { Id: Number(active.id), ParentId: 0, PrevToDoId: 0 }
 
-            dispatch(
-                pushTodoPosition(position)
-            )
+            dispatch(pushTodoPosition(position))
         }
 
         onDragCancel()
@@ -352,8 +342,10 @@ export const Todos = () => {
 
     return (
         <div>
-            <div style={{ position: 'absolute', left: 0 }}>Render Todos Count: {renderCount++}</div>
-            <Typography.Title level={3}>{category}</Typography.Title>
+            <div style={{ position: 'absolute', left: 0 }}>
+                Render Todos Count: {renderCount++}
+            </div>
+            <Typography.Title level={3}>{categoryName}</Typography.Title>
             <div style={{ width: '400px' }}>
                 <DndContext
                     collisionDetection={closestCenter}
@@ -409,7 +401,12 @@ export const Todos = () => {
                                   ParentId: 0,
                                   PrevToDoId:
                                       todos.length > 0
-                                          ? getTodoPosition(todos, todos[todos.length - 1].id, 0, 0).PrevToDoId
+                                          ? getTodoPosition(
+                                                todos,
+                                                todos[todos.length - 1].id,
+                                                0,
+                                                0
+                                            ).PrevToDoId
                                           : 0,
                               }
 
