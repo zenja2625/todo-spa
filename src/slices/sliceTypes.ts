@@ -46,11 +46,19 @@ export type CategoriesType = {
     selectedCategoryId: number
 }
 
+export type TodoEditorType = {
+    isEditorOpen: boolean
+    editTodoId?: number
+    prevTodoId?: number
+    addBefore?: boolean
+}
+
 export type TodosType = {
     todos: Array<TodoDTO>
     todoStatusDTOs: { [id: number]: TodoStatusDTO }
     todoPositionDTOs: Array<TodoPositionDTO>
     draggedTodo: Todo | null
+    todoEditor: TodoEditorType
 }
 
 export type UpdateStatusesType = {

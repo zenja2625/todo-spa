@@ -1,7 +1,7 @@
-import { CSSProperties, useEffect, useRef, useState } from 'react'
-import { TodoPositionDTO, TodoStatusDTO } from '../api/apiTypes'
-import { useDebounce } from '../hooks/useDebounce'
-import { Todo, TodoDTO } from '../slices/sliceTypes'
+import React, { CSSProperties, useEffect, useRef, useState } from 'react'
+import { TodoPositionDTO, TodoStatusDTO } from '../../api/apiTypes'
+import { useDebounce } from '../../hooks/useDebounce'
+import { Todo, TodoDTO } from '../../slices/sliceTypes'
 import {
     createTodoThunk,
     deleteTodoThunk,
@@ -9,15 +9,16 @@ import {
     moveTodo,
     pushTodoPosition,
     setDraggedTodo,
+    setTodoEditorState,
     toggleTodoHiding,
     toggleTodoProgress,
     updatePositionsThunk,
     updateStatusesThunk,
     updateTodoThunk,
-} from '../slices/todosSlice'
-import { useAppDispatch, useAppSelector } from '../store'
+} from '../../slices/todosSlice'
+import { useAppDispatch, useAppSelector } from '../../store'
 import { MoreOutlined } from '@ant-design/icons'
-import { getTodos } from '../selectors/getTodos'
+import { getTodos } from '../../selectors/getTodos'
 import {
     closestCenter,
     DndContext,
@@ -31,9 +32,9 @@ import {
     useSensors,
 } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
-import { SortableTodo } from './Todo/SortableTodo'
+import { SortableTodo } from '../Todo/SortableTodo'
 import { createPortal } from 'react-dom'
-import { TodoEditor } from './TodoEditor'
+import { TodoEditorOld } from '../TodoEditor'
 import { Col, Form, Modal, Row, Typography } from 'antd'
 
 import moment, { Moment } from 'moment'
@@ -46,11 +47,13 @@ import {
     updateCategoryThunk,
     createCategoryThunk,
     deleteCategoryThunk,
-} from '../slices/categoriesSlice'
-import { FormItem } from './utility/FormItem'
+} from '../../slices/categoriesSlice'
+import { FormItem } from '../utility/FormItem'
 import confirm from 'antd/lib/modal/confirm'
 
 import { DashOutlined, ExclamationCircleOutlined } from '@ant-design/icons'
+import { TodoEditor } from './TodoEditor'
+import { TodoEditorValueType } from '../containerTypes'
 
 const dateFormat = 'DD.MM.YYYY'
 const serverFormat = 'YYYY-MM-DD'
@@ -110,12 +113,9 @@ type TodoPosition = {
     PrevToDoId: number
 }
 
-type TodoEditorValue = {
-    value: string
-    taskEnd?: Moment
-}
 
-const initialValue: TodoEditorValue = {
+
+const initialValue: TodoEditorValueType = {
     value: '',
 }
 
@@ -132,14 +132,14 @@ export const Todos = () => {
     const [editModalId, setEditModalId] = useState<number | null>(null)
     const [editData, setEditData] = useState<TodoPosition | null>(null)
     const [editModalValue, setEditModalValue] =
-        useState<TodoEditorValue>(initialValue)
+        useState<TodoEditorValueType>(initialValue)
 
     const dispatch = useAppDispatch()
 
     const todos = useAppSelector(getTodos)
-    const { todoStatusDTOs, todoPositionDTOs } = useAppSelector(
-        state => state.todos
-    )
+    const todoStatusDTOs = useAppSelector(state => state.todos.todoStatusDTOs)
+    const todoPositionDTOs = useAppSelector(state => state.todos.todoPositionDTOs)
+
     const categoryName = useAppSelector(
         state =>
             state.categories.categories.find(
@@ -334,7 +334,6 @@ export const Todos = () => {
                             : todo.depth,
                 }}
                 active={draggedTodo?.id === todo.id}
-                edit={(id: number) => openEditor(todo)}
                 remove={() => openDeletePopup(todo.id)}
             />
         )
@@ -342,9 +341,11 @@ export const Todos = () => {
 
     return (
         <div>
-            <div style={{ position: 'absolute', left: 0 }}>
-                Render Todos Count: {renderCount++}
-            </div>
+            {document.getElementById('render') && createPortal(
+                <div><span>Todos:</span> {renderCount++}</div>,
+                document.getElementById('render') as HTMLElement
+            )}
+
             <Typography.Title level={3}>{categoryName}</Typography.Title>
             <div style={{ width: '400px' }}>
                 <DndContext
@@ -372,100 +373,10 @@ export const Todos = () => {
                 <input
                     type='button'
                     value='Новая задача'
-                    onClick={() => openEditor()}
+                    onClick={() => dispatch(setTodoEditorState({ isEditorOpen: true }))}
                 />
             </div>
-            <Formik
-                validateOnMount
-                initialValues={editModalValue}
-                enableReinitialize
-                // validationSchema={CategorySchema}
-                onSubmit={({ value, taskEnd }) => {
-                    const selectedCategoryId = Number(categoryId)
-
-                    if (editModalId && todos.find(x => x.id === editModalId))
-                        dispatch(
-                            updateTodoThunk({
-                                id: editModalId,
-                                categoryId: selectedCategoryId,
-                                todoDTO: {
-                                    Value: value,
-                                    TaskEnd: taskEnd?.toDate(),
-                                },
-                            })
-                        )
-                    else {
-                        const position = editData
-                            ? editData
-                            : {
-                                  ParentId: 0,
-                                  PrevToDoId:
-                                      todos.length > 0
-                                          ? getTodoPosition(
-                                                todos,
-                                                todos[todos.length - 1].id,
-                                                0,
-                                                0
-                                            ).PrevToDoId
-                                          : 0,
-                              }
-
-                        dispatch(
-                            createTodoThunk({
-                                categoryId: selectedCategoryId,
-                                todoDTO: {
-                                    Value: value,
-                                    TaskEnd: taskEnd?.toDate(),
-                                    ...position,
-                                },
-                            })
-                        )
-                    }
-
-                    setEditModalVisable(false)
-                }}
-            >
-                {({ submitForm, resetForm, isValid }) => {
-                    return (
-                        <Modal
-                            title={
-                                editModalId
-                                    ? 'Изменить задачу'
-                                    : 'Добавить новую задачу'
-                            }
-                            visible={editModalVisable}
-                            onCancel={() => setEditModalVisable(false)}
-                            afterClose={() => resetForm()}
-                            onOk={() => submitForm()}
-                            okText={editModalId ? 'Изменить' : 'Сохранить'}
-                            cancelText='Отмена'
-                            destroyOnClose
-                            width={350}
-                            bodyStyle={{ paddingBottom: 0 }}
-                            okButtonProps={{ disabled: !isValid }}
-                        >
-                            <Form style={{ width: '100%' }}>
-                                <Row gutter={10}>
-                                    <Col span={14}>
-                                        <FormItem
-                                            name='value'
-                                            type='text'
-                                            placeholder='Название задачи'
-                                        />
-                                    </Col>
-                                    <Col span={10}>
-                                        <FormItem
-                                            name='taskEnd'
-                                            type='datepicker'
-                                            placeholder='Срок'
-                                        />
-                                    </Col>
-                                </Row>
-                            </Form>
-                        </Modal>
-                    )
-                }}
-            </Formik>
+            <TodoEditor />
             <div>
                 <pre>{consol}</pre>
             </div>

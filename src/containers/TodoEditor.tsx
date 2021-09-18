@@ -19,7 +19,7 @@ type TodoEditorPropsType = {
 const dateFormat = 'DD.MM.YYYY'
 const serverFormat = 'YYYY-MM-DD'
 
-export const TodoEditor: FC<TodoEditorPropsType> = ({ todo, categoryId, onEnd }) => {
+export const TodoEditorOld: FC<TodoEditorPropsType> = ({ todo, categoryId, onEnd }) => {
     const [value, setValue] = useState('')
     const [date, setDate] = useState<Moment | null>(null)
 

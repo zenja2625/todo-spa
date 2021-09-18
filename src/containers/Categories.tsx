@@ -18,13 +18,16 @@ import { Form, Formik } from 'formik'
 import { FormItem } from './utility/FormItem'
 import { createTodoThunk } from '../slices/todosSlice'
 import * as Yup from 'yup'
+import { createPortal } from 'react-dom'
+
+let renderCount = 1
 
 const initialValue = {
     value: '',
 }
 
 const CategorySchema = Yup.object().shape({
-    value: Yup.string().required('Это поле обязательно')
+    value: Yup.string().required('Это поле обязательно'),
 })
 
 const useModalEditorControl = <TValue, TData>(
@@ -112,7 +115,10 @@ export const Categories = () => {
                         : '')
                 }
                 key={item.id}
-                onClick={() => categoryId !== item.id.toString() && push(`/category/${item.id}`)}
+                onClick={() =>
+                    categoryId !== item.id.toString() &&
+                    push(`/category/${item.id}`)
+                }
             >
                 <Row justify='space-between'>
                     <Col>{item.name}</Col>
@@ -140,6 +146,13 @@ export const Categories = () => {
 
     return (
         <div style={{ margin: '15px' }}>
+            {document.getElementById('render') &&
+                createPortal(
+                    <div>
+                        <span>Categories:</span> {renderCount++}
+                    </div>,
+                    document.getElementById('render') as HTMLElement
+                )}
             <Title level={4}>Категории</Title>
             <Menu
                 selectedKeys={categoryId ? [categoryId] : undefined}
@@ -175,7 +188,7 @@ export const Categories = () => {
                     setEditModalVisable(false)
                 }}
             >
-                {({ submitForm, resetForm, isValid,  }) => {
+                {({ submitForm, resetForm, isValid }) => {
                     return (
                         <Modal
                             title={
@@ -191,7 +204,7 @@ export const Categories = () => {
                             cancelText='Отмена'
                             destroyOnClose
                             width={300}
-                            bodyStyle={{ paddingBottom:  0 }}
+                            bodyStyle={{ paddingBottom: 0 }}
                             okButtonProps={{ disabled: !isValid }}
                         >
                             <Row>

@@ -7,9 +7,14 @@ import {
     TodoPutDTO,
     TodoStatusDTO,
 } from '../api/apiTypes'
+import { TodoEditorValueType } from '../containers/containerTypes'
+import { serverDateFormat } from '../dateFormat'
 import {
+    IState,
+    RejectValueType,
     Todo,
     TodoDTO,
+    TodoEditorType,
     TodoMoveType,
     TodosType,
     UpdatePositionsType,
@@ -21,11 +26,16 @@ const initialState: TodosType = {
     todoStatusDTOs: {},
     todoPositionDTOs: [],
     draggedTodo: null,
+    todoEditor: {
+        isEditorOpen: false,
+    },
 }
 
 type CreateTodoProps = {
     categoryId: number
-    todoDTO: TodoPostDTO
+    todoValue: TodoEditorValueType
+    prevTodoId?: number
+    addBefore?: boolean
 }
 
 type UpdateTodoProps = {
@@ -37,6 +47,38 @@ type UpdateTodoProps = {
 type DeleteTodoProps = {
     id: number
     categoryId: number
+}
+
+const getTodoPosition = (
+    todos: Array<TodoDTO>,
+    actualPrevTodoId?: number,
+    actualTodoId: number = 0,
+    actualTodoDepth: number = 0
+) => {
+    const todoIndex = actualPrevTodoId
+        ? todos.findIndex(todo => todo.id === actualPrevTodoId)
+        : -1
+    let parentId = 0
+    let prevTodoId = 0
+
+    for (let i = todoIndex; i >= 0; i--) {
+        const todo = todos[i]
+
+        if (todo.id === actualTodoId) continue
+        if (actualTodoDepth === 0 && prevTodoId) break
+        if (todo.depth < actualTodoDepth) {
+            parentId = todos[i].id
+            break
+        } else if (todo.depth === actualTodoDepth && !prevTodoId)
+            prevTodoId = todo.id
+    }
+
+    return { parentId, prevTodoId }
+}
+
+const getPrevTodoId = (todos: Array<TodoDTO>, id: number) => {
+    const index = todos.findIndex(todo => todo.id === id) - 1
+    return index < 0 ? undefined : todos[index].id
 }
 
 export const getTodosThunk = createAsyncThunk(
@@ -83,17 +125,34 @@ export const updateStatusesThunk = createAsyncThunk(
     }
 )
 
-export const createTodoThunk = createAsyncThunk(
-    'todos/createTodoThunk',
-    async (payload: CreateTodoProps, thunkAPI) => {
-        try {
-            await API.todos.createTodo(payload.categoryId, payload.todoDTO)
-            await thunkAPI.dispatch(getTodosThunk(payload.categoryId))
-        } catch (error: any) {
-            return thunkAPI.rejectWithValue(error.response?.status)
-        }
+export const createTodoThunk = createAsyncThunk<
+    void,
+    CreateTodoProps,
+    IState & RejectValueType
+>('todos/createTodoThunk', async (payload, thunkAPI) => {
+    try {
+        const todos = thunkAPI.getState().todos.todos
+
+        const prevTodoId = !payload.prevTodoId
+            ? todos.length
+                ? todos[todos.length - 1].id
+                : undefined
+            : !payload.addBefore
+            ? payload.prevTodoId
+            : getPrevTodoId(todos, payload.prevTodoId)
+
+        const prevTodoDepth = prevTodoId ? todos.find(todo => todo.id === prevTodoId)?.depth : 0
+
+        await API.todos.createTodo(payload.categoryId, {
+            value: payload.todoValue.value,
+            taskEnd: payload.todoValue.taskEnd?.toDate(),
+            ...getTodoPosition(todos, prevTodoId, undefined, prevTodoDepth),
+        })
+        await thunkAPI.dispatch(getTodosThunk(payload.categoryId))
+    } catch (error: any) {
+        return thunkAPI.rejectWithValue(error.response?.status)
     }
-)
+})
 
 export const updateTodoThunk = createAsyncThunk(
     'todos/updateTodoThunk',
@@ -157,11 +216,11 @@ export const todosSlice = createSlice({
         toggleTodoProgress: (state, action: PayloadAction<number>) => {
             toggleProperty(state, action.payload, 'isDone')
 
-            // state.todos = state.todos.map(todo =>
-            //     todo.id === action.payload
-            //         ? { ...todo, isDone: !todo.isDone }
-            //         : todo
-            // )
+            state.todos = state.todos.map(todo =>
+                todo.id === action.payload
+                    ? { ...todo, isDone: !todo.isDone }
+                    : todo
+            )
         },
         toggleTodoHiding: (state, action: PayloadAction<number>) => {
             toggleProperty(state, action.payload, 'isHiddenSubTasks')
@@ -200,6 +259,9 @@ export const todosSlice = createSlice({
         setDraggedTodo: (state, action: PayloadAction<Todo | null>) => {
             state.draggedTodo = action.payload
         },
+        setTodoEditorState: (state, action: PayloadAction<TodoEditorType>) => {
+            state.todoEditor = action.payload
+        },
     },
     extraReducers: builder => {
         builder.addCase(updateStatusesThunk.pending, state => {
@@ -220,4 +282,5 @@ export const {
     moveTodo,
     pushTodoPosition,
     setDraggedTodo,
+    setTodoEditorState,
 } = todosSlice.actions

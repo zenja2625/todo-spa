@@ -1,4 +1,4 @@
-import { Layout, Spin } from 'antd'
+import { Layout, Space, Spin, Typography } from 'antd'
 import { useEffect } from 'react'
 import { Login } from './containers/account/Login'
 import { Register } from './containers/account/Register'
@@ -18,13 +18,28 @@ const App = () => {
     const dispatch = useAppDispatch()
 
     useEffect(() => {
-        if (!initialized)
-            dispatch(initializeApp())
+        if (!initialized) dispatch(initializeApp())
     }, [initialized, dispatch])
 
+    //////
+
+
+    //////
 
     if (!initialized)
-        return <Spin tip='Загрузка...' size='large' style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column', height: '100vh' }}></Spin>
+        return (
+            <Spin
+                tip='Загрузка...'
+                size='large'
+                style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    flexDirection: 'column',
+                    height: '100vh',
+                }}
+            ></Spin>
+        )
 
     return (
         <Layout style={{ height: '100vh' }}>
@@ -46,6 +61,27 @@ const App = () => {
                     <NotFoundPage />
                 </Route>
             </Switch>
+
+            {
+                ////////////////////
+                <Space
+                    id='render'
+                    direction='vertical'
+                    style={{
+                        position: 'absolute',
+                        bottom: 0,
+                        left: 0,
+                        zIndex: 10000,
+                        backgroundColor: '#001529',
+                        color: 'white',
+                        width: '200px',
+                        padding: '10px'
+                    }}
+                >
+                    <Typography.Title style={{ color: 'white' }} level={4}>Render</Typography.Title>
+                </Space>
+                ////////////////////
+            }
         </Layout>
     )
 }

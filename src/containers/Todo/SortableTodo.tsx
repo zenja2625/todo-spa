@@ -7,7 +7,6 @@ import { TodoItem } from '../TodoItem';
 type SortableTodoPropsType = {
     todo: Todo
     active?: boolean
-    edit: (id: number) => void
     remove: () => void
 }
 
@@ -16,7 +15,7 @@ const animateLayoutChanges: AnimateLayoutChanges = ({
     wasSorting
 }) => (isSorting || wasSorting ? false : true);
 
-export const SortableTodo: FC<SortableTodoPropsType> = ({ todo, active, edit, remove }) => {
+export const SortableTodo: FC<SortableTodoPropsType> = ({ todo, active, remove }) => {
     const {
         attributes,
         listeners,
@@ -36,7 +35,6 @@ export const SortableTodo: FC<SortableTodoPropsType> = ({ todo, active, edit, re
             <TodoItem
                 todo={todo}
                 active={active}
-                edit={edit}
                 remove={remove}
                 dragRef={setDraggableNodeRef}
                 handleProps={{

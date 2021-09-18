@@ -8,10 +8,10 @@ export type UserRegisterDTO = {
     ConfirmPassword: string
 }
 export type TodoPostDTO = {
-    Value: string,
-    ParentId: number,
-    PrevToDoId: number,
-    TaskEnd?: Date
+    value: string,
+    parentId: number,
+    prevTodoId: number,
+    taskEnd?: Date
 }
 export type TodoPutDTO = {
     Value: string,
