@@ -1,11 +1,11 @@
 export type UserLoginDTO = {
-    Name: string;
-    Password: string;
+    name: string;
+    password: string;
 }
 export type UserRegisterDTO = {
-    Name: string,
-    Password: string,
-    ConfirmPassword: string
+    name: string,
+    password: string,
+    confirmPassword: string
 }
 export type TodoPostDTO = {
     value: string,
@@ -14,8 +14,8 @@ export type TodoPostDTO = {
     taskEnd?: Date
 }
 export type TodoPutDTO = {
-    Value: string,
-    TaskEnd?: Date
+    value: string,
+    taskEnd?: Date
 }
 export type TodoStatusDTO = {
     id: number,
@@ -23,10 +23,10 @@ export type TodoStatusDTO = {
     isHiddenSubTasks?: boolean
 }
 export type TodoPositionDTO = {
-    Id: number,
-    ParentId: number,
-    PrevToDoId: number
+    id: number,
+    parentId: number,
+    prevTodoId: number
 }
 export type CategoryRequestDTO = {
-    Name: string
+    name: string
 }

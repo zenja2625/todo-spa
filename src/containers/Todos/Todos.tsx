@@ -7,13 +7,13 @@ import {
     deleteTodoThunk,
     getTodosThunk,
     moveTodo,
-    pushTodoPosition,
-    setDraggedTodo,
     setTodoEditorState,
+    startDragTodo,
     toggleTodoHiding,
     toggleTodoProgress,
     updatePositionsThunk,
     updateStatusesThunk,
+    updateTodoDragDepth,
     updateTodoThunk,
 } from '../../slices/todosSlice'
 import { useAppDispatch, useAppSelector } from '../../store'
@@ -27,7 +27,8 @@ import {
     DragOverEvent,
     DragOverlay,
     DragStartEvent,
-    PointerSensor,
+    MouseSensor,
+    TouchSensor,
     useSensor,
     useSensors,
 } from '@dnd-kit/core'
@@ -35,7 +36,7 @@ import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { SortableTodo } from '../Todo/SortableTodo'
 import { createPortal } from 'react-dom'
 import { TodoEditorOld } from '../TodoEditor'
-import { Col, Form, Modal, Row, Typography } from 'antd'
+import { Button, Col, Divider, Form, Modal, Row, Space, Typography } from 'antd'
 
 import moment, { Moment } from 'moment'
 import { Formik, useFormik } from 'formik'
@@ -54,6 +55,7 @@ import confirm from 'antd/lib/modal/confirm'
 import { DashOutlined, ExclamationCircleOutlined } from '@ant-design/icons'
 import { TodoEditor } from './TodoEditor'
 import { TodoEditorValueType } from '../containerTypes'
+import { Data, DataRef } from '@dnd-kit/core/dist/store'
 
 const dateFormat = 'DD.MM.YYYY'
 const serverFormat = 'YYYY-MM-DD'
@@ -79,33 +81,10 @@ const getTodoPosition = (
         if (prevTodo.depth < actualTodoDepth) {
             ParentId = todos[i].id
             break
-        } else if (prevTodo.depth === actualTodoDepth && !PrevToDoId)
-            PrevToDoId = prevTodo.id
+        } else if (prevTodo.depth === actualTodoDepth && !PrevToDoId) PrevToDoId = prevTodo.id
     }
 
-    return { Id: actualTodoId, ParentId, PrevToDoId }
-}
-
-const isEmptyStatus = (status: TodoStatusDTO) =>
-    status.isDone === undefined && status.isHiddenSubTasks === undefined
-
-const setStatus = (
-    statuses: Array<TodoStatusDTO>,
-    propertyType: statusProperties,
-    value: boolean,
-    id: number
-) => {
-    const prevStatus = statuses.find(x => x.id === id)
-
-    if (prevStatus) {
-        prevStatus[propertyType] =
-            prevStatus[propertyType] === undefined ? value : undefined
-        return statuses
-            .map(status => (status.id === id ? prevStatus : status))
-            .filter(status => !isEmptyStatus(status))
-    } else {
-        return [...statuses, { id, [propertyType]: value }]
-    }
+    return { id: actualTodoId, parentId: ParentId, prevTodoId: PrevToDoId }
 }
 
 type TodoPosition = {
@@ -113,41 +92,28 @@ type TodoPosition = {
     PrevToDoId: number
 }
 
-
-
-const initialValue: TodoEditorValueType = {
-    value: '',
-}
-
 export const Todos = () => {
     const { categoryId } = useParams<{ categoryId?: string }>()
 
     const [draggedTodo, setDraggedTodoState] = useState<Todo | null>(null)
-    const [draggedTodoDepth, setDraggedTodoDepth] = useState<number | null>(
-        null
-    )
+    const [draggedTodoDepth, setDraggedTodoDepth] = useState<number | null>(null)
     const [prevTodoId, setPrevTodoId] = useState<number | null>(null)
-
-    const [editModalVisable, setEditModalVisable] = useState(false)
-    const [editModalId, setEditModalId] = useState<number | null>(null)
-    const [editData, setEditData] = useState<TodoPosition | null>(null)
-    const [editModalValue, setEditModalValue] =
-        useState<TodoEditorValueType>(initialValue)
 
     const dispatch = useAppDispatch()
 
-    const todos = useAppSelector(getTodos)
-    const todoStatusDTOs = useAppSelector(state => state.todos.todoStatusDTOs)
-    const todoPositionDTOs = useAppSelector(state => state.todos.todoPositionDTOs)
-
     const categoryName = useAppSelector(
-        state =>
-            state.categories.categories.find(
-                x => x.id.toString() === categoryId
-            )?.name
+        state => state.categories.categories.find(x => x.id.toString() === categoryId)?.name
     )
 
-    const [statuses, fetchStatuses] = useDebounce(todoStatusDTOs, 1000)
+    const todos = useAppSelector(getTodos)
+    const actualStatuses = useAppSelector(state => state.todos.todoStatusDTOs)
+    const actualPosition = useAppSelector(state => state.todos.todoPositionDTOs)
+
+    const dragDepth = useAppSelector(state => state.todos.todoDrag.draggedTodoDepth) //****** */
+    const dragTodo = useAppSelector(state => state.todos.todoDrag.draggedTodo)
+
+    const [statuses, fetchStatuses] = useDebounce(actualStatuses, 1000)
+    const [positions, fetchPositions] = useDebounce(actualPosition, 1000)
 
     useEffect(() => {
         const statusValues = Object.values(statuses)
@@ -160,8 +126,6 @@ export const Todos = () => {
             )
         }
     }, [statuses, categoryId, dispatch])
-
-    const [positions, fetchPositions] = useDebounce(todoPositionDTOs, 1000)
 
     useEffect(() => {
         if (positions.length) {
@@ -186,18 +150,24 @@ export const Todos = () => {
 
     useEffect(() => {
         setConsol(
-            JSON.stringify(todoStatusDTOs, null, 2) +
-                '\n' +
-                JSON.stringify(todoPositionDTOs, null, 2)
+            JSON.stringify(actualStatuses, null, 2) + '\n' + JSON.stringify(actualPosition, null, 2)
         )
-    }, [todoStatusDTOs, todoPositionDTOs])
+    }, [actualStatuses, actualPosition])
+
+
+    const mouseSensor = useSensor(MouseSensor);
+    const touchSensor = useSensor(TouchSensor);
+    
+    const sensors = useSensors(
+      mouseSensor,
+      touchSensor
+    );
+
 
     if (!Number(categoryId))
         return (
             <Row style={{ height: '100%' }} justify='center' align='middle'>
-                <Typography.Title level={2}>
-                    Выберите категорию
-                </Typography.Title>
+                <Typography.Title level={2}>Выберите категорию</Typography.Title>
             </Row>
         )
 
@@ -213,11 +183,7 @@ export const Todos = () => {
 
         let actualDepth = activeItem.depth + Math.floor(offsetLeft / 40)
         actualDepth =
-            actualDepth < minDepth
-                ? minDepth
-                : actualDepth > maxDepth
-                ? maxDepth
-                : actualDepth
+            actualDepth < minDepth ? minDepth : actualDepth > maxDepth ? maxDepth : actualDepth
 
         const prevTodoId = prevIndex >= 0 ? todos[prevIndex].id : null
 
@@ -225,102 +191,64 @@ export const Todos = () => {
     }
 
     const onDragStart = ({ active }: DragStartEvent) => {
-        fetchStatuses()
-        const todo =
-            todos.find(todo => todo.id.toString() === active.id) || null
-        setDraggedTodoState(todo)
-        if (todo && todo.showHideButton && !todo.isHiddenSubTasks)
-            dispatch(setDraggedTodo(todo))
-    }
+        const activeId = Number(active.id)
 
-    const onDragMove = ({ delta, active, over }: DragMoveEvent) => {
-        const activeId = active.id
-        const overId = over?.id || null
-
-        const activeItem = todos.find(todo => todo.id.toString() === activeId)
-
-        if (overId && activeItem) {
-            const { actualDepth, prevTodoId } = getDepth(
-                activeItem,
-                overId,
-                delta.x
-            )
-            setDraggedTodoDepth(actualDepth)
-            setPrevTodoId(prevTodoId)
-        } else {
-            setDraggedTodoDepth(null)
-            setPrevTodoId(null)
+        if (activeId) {
+            fetchStatuses()
+            dispatch(startDragTodo(activeId))
         }
     }
 
-    const onDragEnd = ({ active, over }: DragEndEvent) => {
-        const todo =
-            todos.find(todo => todo.id.toString() === active.id) || null
-        dispatch(setDraggedTodo(null))
+    const getIndexFromDataRef = (data: DataRef) =>
+        data.current?.sortable?.index !== undefined ? (data.current.sortable.index as number) : null
 
-        if (over && draggedTodoDepth !== null) {
-            dispatch(
-                moveTodo({ id: active.id, prevTodoId, depth: draggedTodoDepth })
-            )
+    const onDragMove = ({ delta, active, over }: DragMoveEvent) => {
+        const overIndex = over && getIndexFromDataRef(over.data)
+        const activeIndex = getIndexFromDataRef(active.data)
 
-            const position: TodoPositionDTO = prevTodoId
-                ? getTodoPosition(
-                      todos,
-                      prevTodoId,
-                      Number(active.id),
-                      draggedTodoDepth
-                  )
-                : { Id: Number(active.id), ParentId: 0, PrevToDoId: 0 }
+        if (overIndex !== null && activeIndex !== null /*&& todos[activeIndex]*/) {
+            const prevIndex = activeIndex >= overIndex ? overIndex - 1 : overIndex
+            const nextIndex = activeIndex <= overIndex ? overIndex + 1 : overIndex
 
-            dispatch(pushTodoPosition(position))
+            const maxDepth = prevIndex >= 0 ? todos[prevIndex].depth + 1 : 0
+            const minDepth = nextIndex < todos.length ? todos[nextIndex].depth : 0
+
+            let actualDepth = todos[activeIndex].depth + Math.floor(delta.x / 40)
+            actualDepth =
+                actualDepth < minDepth ? minDepth : actualDepth > maxDepth ? maxDepth : actualDepth
+
+            if (active.data.current) active.data.current.depth = actualDepth
+        }
+    }
+
+    const onDragEnd = ({ over, active }: DragEndEvent) => {
+        const overIndex = over && getIndexFromDataRef(over.data)
+
+        if (over && overIndex !== null && active.data.current?.depth !== undefined) {
+            dispatch(moveTodo({ id: over.id, depth: (active.data.current.depth as number) }))
         }
 
         onDragCancel()
     }
 
-    const onDragCancel = () => {
-        setDraggedTodoState(null)
-        setDraggedTodoDepth(null)
-        setPrevTodoId(null)
-    }
+    const onDragCancel = () => {}
 
     const openDeletePopup = (id: number) => {
         fetchStatuses()
         fetchPositions()
         confirm({
-            title: 'Are you sure delete this category?',
+            title: 'Are you sure delete this todo?',
             icon: <ExclamationCircleOutlined />,
-            content: 'Some descriptions',
             okText: 'Yes',
             okType: 'danger',
             cancelText: 'No',
             onOk: () => {
-                if (categoryId)
-                    dispatch(
-                        deleteTodoThunk({ categoryId: Number(categoryId), id })
-                    )
+                if (categoryId) dispatch(deleteTodoThunk({ categoryId: Number(categoryId), id }))
             },
         })
     }
 
-    const openEditor = (todo?: Todo) => {
-        fetchStatuses()
-        fetchPositions()
-        if (todo) {
-            setEditModalId(todo.id)
-            setEditModalValue({
-                value: todo.value,
-                taskEnd: todo.taskEnd
-                    ? moment(todo.taskEnd, serverFormat)
-                    : undefined,
-            })
-        } else {
-            setEditModalId(null)
-            setEditModalValue(initialValue)
-        }
 
-        setEditModalVisable(true)
-    }
 
     const todoItems = todos.map(todo => {
         return (
@@ -329,57 +257,80 @@ export const Todos = () => {
                 todo={{
                     ...todo,
                     depth:
-                        draggedTodo?.id === todo.id && draggedTodoDepth !== null
-                            ? draggedTodoDepth
+                        dragTodo?.id === todo.id && dragDepth !== undefined
+                            ? dragDepth
                             : todo.depth,
                 }}
-                active={draggedTodo?.id === todo.id}
+                initialDepth={todo.depth}
+                active={dragTodo?.id === todo.id}
                 remove={() => openDeletePopup(todo.id)}
             />
         )
     })
 
     return (
-        <div>
-            {document.getElementById('render') && createPortal(
-                <div><span>Todos:</span> {renderCount++}</div>,
-                document.getElementById('render') as HTMLElement
-            )}
+        <Space
+            style={{
+                padding: '15px',
+                backgroundColor: 'orchid',
+                width: '100%',
+            }}
+            direction='vertical'
+            size='middle'
+        >
+            {document.getElementById('render') &&
+                createPortal(
+                    <div>
+                        <span>Todos:</span> {renderCount++}
+                    </div>,
+                    document.getElementById('render') as HTMLElement
+                )}
 
-            <Typography.Title level={3}>{categoryName}</Typography.Title>
-            <div style={{ width: '400px' }}>
-                <DndContext
-                    collisionDetection={closestCenter}
-                    onDragStart={onDragStart}
-                    onDragMove={onDragMove}
-                    onDragEnd={onDragEnd}
-                    onDragCancel={onDragCancel}
+            <Typography.Title level={3} style={{ margin: 0 }}>
+                {categoryName}
+            </Typography.Title>
+            <DndContext
+                collisionDetection={closestCenter}
+                onDragStart={onDragStart}
+                onDragMove={onDragMove}
+                onDragEnd={onDragEnd}
+                onDragCancel={onDragCancel}
+                sensors={sensors}
+            >
+                <SortableContext
+                    items={todos.map(x => ({ ...x, id: x.id.toString() }))}
+                    strategy={verticalListSortingStrategy}
                 >
-                    <SortableContext
-                        items={todos.map(x => ({ ...x, id: x.id.toString() }))}
-                        strategy={verticalListSortingStrategy}
+                    <Space
+                        style={{
+                            width: '100%',
+                            backgroundColor: 'orangered',
+                            overflow: 'hidden',
+                        }} //****************************** */
+                        direction='vertical'
+                        size={0}
+                        split={<Divider style={{ margin: 0 }} />}
                     >
                         {todoItems}
-                        {createPortal(
-                            <DragOverlay>
-                                <div>asd</div>
-                            </DragOverlay>,
-                            document.body
-                        )}
-                    </SortableContext>
-                </DndContext>
-            </div>
-            <div>
-                <input
-                    type='button'
-                    value='Новая задача'
-                    onClick={() => dispatch(setTodoEditorState({ isEditorOpen: true }))}
-                />
-            </div>
+                    </Space>
+                    {createPortal(
+                        <DragOverlay>
+                            <div>asd</div>
+                        </DragOverlay>,
+                        document.body
+                    )}
+                </SortableContext>
+            </DndContext>
+            <Button
+                type='primary'
+                onClick={() => dispatch(setTodoEditorState({ isEditorOpen: true }))}
+            >
+                Новая задача
+            </Button>
             <TodoEditor />
             <div>
                 <pre>{consol}</pre>
             </div>
-        </div>
+        </Space>
     )
 }

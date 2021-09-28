@@ -8,6 +8,7 @@ type SortableTodoPropsType = {
     todo: Todo
     active?: boolean
     remove: () => void
+    initialDepth: number
 }
 
 const animateLayoutChanges: AnimateLayoutChanges = ({
@@ -15,26 +16,30 @@ const animateLayoutChanges: AnimateLayoutChanges = ({
     wasSorting
 }) => (isSorting || wasSorting ? false : true);
 
-export const SortableTodo: FC<SortableTodoPropsType> = ({ todo, active, remove }) => {
+export const SortableTodo: FC<SortableTodoPropsType> = ({ todo, remove }) => {
     const {
         attributes,
         listeners,
         setDraggableNodeRef,
         setDroppableNodeRef,
         transform,
-        transition
+        transition,
+        active
     } = useSortable({ id: todo.id.toString(), animateLayoutChanges })
 
     const style: CSSProperties = {
         transform: CSS.Transform.toString(transform),
-        transition: transition || undefined
+        // transition: transition || undefined
     };
+
+    const isActive = !!active && active.id === todo.id.toString()
+    const activeDepth = isActive && active?.data?.current?.depth ? active.data.current.depth as number : 0
 
     return (
         <div ref={setDroppableNodeRef} style={style} >
             <TodoItem
-                todo={todo}
-                active={active}
+                todo={isActive ? {...todo, depth: activeDepth} : todo}
+                active={isActive}
                 remove={remove}
                 dragRef={setDraggableNodeRef}
                 handleProps={{

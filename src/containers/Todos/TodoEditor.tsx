@@ -42,8 +42,8 @@ export const TodoEditor = () => {
                                 id: editTodoId,
                                 categoryId: selectedCategoryId,
                                 todoDTO: {
-                                    Value: value,
-                                    TaskEnd: taskEnd?.toDate(),
+                                    value: value,
+                                    taskEnd: taskEnd?.toDate(),
                                 },
                             })
                         )

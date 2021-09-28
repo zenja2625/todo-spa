@@ -1,4 +1,5 @@
 import { TodoPositionDTO, TodoStatusDTO } from '../api/apiTypes'
+import { TodoEditorValueType } from '../containers/containerTypes'
 import { RootState } from '../store'
 
 export type AppType = {
@@ -35,11 +36,11 @@ export type PutTodoDTO = {
     taskEnd?: string
 }
 
-export type TodoMoveType = {
-    id: string
-    prevTodoId: number | null
-    depth: number
-}
+// export type TodoMoveType = {
+//     id: string
+//     overTodoId: number
+//     depth: number
+// }
 
 export type CategoriesType = {
     categories: Array<Category>
@@ -53,12 +54,18 @@ export type TodoEditorType = {
     addBefore?: boolean
 }
 
+export type TodoDragType = {
+    draggedTodo?: TodoDTO
+    draggedTodoDepth?: number
+}
+
 export type TodosType = {
     todos: Array<TodoDTO>
     todoStatusDTOs: { [id: number]: TodoStatusDTO }
     todoPositionDTOs: Array<TodoPositionDTO>
     draggedTodo: Todo | null
     todoEditor: TodoEditorType
+    todoDrag: TodoDragType
 }
 
 export type UpdateStatusesType = {
@@ -69,6 +76,18 @@ export type UpdateStatusesType = {
 export type UpdatePositionsType = {
     todoPositionDTOs: Array<TodoPositionDTO>
     categoryId: number
+}
+
+export type CreateTodoProps = {
+    categoryId: number
+    todoValue: TodoEditorValueType
+    prevTodoId?: number
+    addBefore?: boolean
+}
+
+export type updateTodoDragDepthProps = {
+    overTodoId: number
+    offsetLeft: number
 }
 
 export type RejectValueType = {

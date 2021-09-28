@@ -1,24 +1,20 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { WritableDraft } from 'immer/dist/internal'
 import { API } from '../api/api'
-import {
-    TodoPositionDTO,
-    TodoPostDTO,
-    TodoPutDTO,
-    TodoStatusDTO,
-} from '../api/apiTypes'
+import { TodoPositionDTO, TodoPostDTO, TodoPutDTO, TodoStatusDTO } from '../api/apiTypes'
 import { TodoEditorValueType } from '../containers/containerTypes'
 import { serverDateFormat } from '../dateFormat'
 import {
+    CreateTodoProps,
     IState,
     RejectValueType,
     Todo,
     TodoDTO,
     TodoEditorType,
-    TodoMoveType,
     TodosType,
     UpdatePositionsType,
     UpdateStatusesType,
+    updateTodoDragDepthProps,
 } from './sliceTypes'
 
 const initialState: TodosType = {
@@ -29,13 +25,7 @@ const initialState: TodosType = {
     todoEditor: {
         isEditorOpen: false,
     },
-}
-
-type CreateTodoProps = {
-    categoryId: number
-    todoValue: TodoEditorValueType
-    prevTodoId?: number
-    addBefore?: boolean
+    todoDrag: {},
 }
 
 type UpdateTodoProps = {
@@ -55,9 +45,7 @@ const getTodoPosition = (
     actualTodoId: number = 0,
     actualTodoDepth: number = 0
 ) => {
-    const todoIndex = actualPrevTodoId
-        ? todos.findIndex(todo => todo.id === actualPrevTodoId)
-        : -1
+    const todoIndex = actualPrevTodoId ? todos.findIndex(todo => todo.id === actualPrevTodoId) : -1
     let parentId = 0
     let prevTodoId = 0
 
@@ -69,8 +57,7 @@ const getTodoPosition = (
         if (todo.depth < actualTodoDepth) {
             parentId = todos[i].id
             break
-        } else if (todo.depth === actualTodoDepth && !prevTodoId)
-            prevTodoId = todo.id
+        } else if (todo.depth === actualTodoDepth && !prevTodoId) prevTodoId = todo.id
     }
 
     return { parentId, prevTodoId }
@@ -97,12 +84,9 @@ export const updatePositionsThunk = createAsyncThunk(
     'todos/updatePositionsThunk',
     async (payload: UpdatePositionsType, { dispatch, rejectWithValue }) => {
         try {
-            await API.todos.updatePositions(
-                payload.categoryId,
-                payload.todoPositionDTOs
-            )
+            await API.todos.updatePositions(payload.categoryId, payload.todoPositionDTOs)
 
-            await dispatch(getTodosThunk(payload.categoryId))
+            // await dispatch(getTodosThunk(payload.categoryId))
         } catch (error: any) {
             return rejectWithValue(error.response?.status)
         }
@@ -113,10 +97,7 @@ export const updateStatusesThunk = createAsyncThunk(
     'todos/updateStatusesThunk',
     async (payload: UpdateStatusesType, thunkAPI) => {
         try {
-            await API.todos.updateStatuses(
-                payload.categoryId,
-                payload.todoStatusDTOs
-            )
+            await API.todos.updateStatuses(payload.categoryId, payload.todoStatusDTOs)
 
             await thunkAPI.dispatch(getTodosThunk(payload.categoryId))
         } catch (error: any) {
@@ -125,44 +106,39 @@ export const updateStatusesThunk = createAsyncThunk(
     }
 )
 
-export const createTodoThunk = createAsyncThunk<
-    void,
-    CreateTodoProps,
-    IState & RejectValueType
->('todos/createTodoThunk', async (payload, thunkAPI) => {
-    try {
-        const todos = thunkAPI.getState().todos.todos
+export const createTodoThunk = createAsyncThunk<void, CreateTodoProps, IState & RejectValueType>(
+    'todos/createTodoThunk',
+    async (payload, thunkAPI) => {
+        try {
+            const todos = thunkAPI.getState().todos.todos
 
-        const prevTodoId = !payload.prevTodoId
-            ? todos.length
-                ? todos[todos.length - 1].id
-                : undefined
-            : !payload.addBefore
-            ? payload.prevTodoId
-            : getPrevTodoId(todos, payload.prevTodoId)
+            const prevTodoId = !payload.prevTodoId
+                ? todos.length
+                    ? todos[todos.length - 1].id
+                    : undefined
+                : !payload.addBefore
+                ? payload.prevTodoId
+                : getPrevTodoId(todos, payload.prevTodoId)
 
-        const prevTodoDepth = prevTodoId ? todos.find(todo => todo.id === prevTodoId)?.depth : 0
+            const prevTodoDepth = prevTodoId ? todos.find(todo => todo.id === prevTodoId)?.depth : 0
 
-        await API.todos.createTodo(payload.categoryId, {
-            value: payload.todoValue.value,
-            taskEnd: payload.todoValue.taskEnd?.toDate(),
-            ...getTodoPosition(todos, prevTodoId, undefined, prevTodoDepth),
-        })
-        await thunkAPI.dispatch(getTodosThunk(payload.categoryId))
-    } catch (error: any) {
-        return thunkAPI.rejectWithValue(error.response?.status)
+            await API.todos.createTodo(payload.categoryId, {
+                value: payload.todoValue.value,
+                taskEnd: payload.todoValue.taskEnd?.toDate(),
+                ...getTodoPosition(todos, prevTodoId, undefined, prevTodoDepth),
+            })
+            await thunkAPI.dispatch(getTodosThunk(payload.categoryId))
+        } catch (error: any) {
+            return thunkAPI.rejectWithValue(error.response?.status)
+        }
     }
-})
+)
 
 export const updateTodoThunk = createAsyncThunk(
     'todos/updateTodoThunk',
     async (payload: UpdateTodoProps, thunkAPI) => {
         try {
-            await API.todos.updateTodo(
-                payload.categoryId,
-                payload.id,
-                payload.todoDTO
-            )
+            await API.todos.updateTodo(payload.categoryId, payload.id, payload.todoDTO)
             await thunkAPI.dispatch(getTodosThunk(payload.categoryId))
         } catch (error: any) {
             return thunkAPI.rejectWithValue(error.response?.status)
@@ -217,9 +193,7 @@ export const todosSlice = createSlice({
             toggleProperty(state, action.payload, 'isDone')
 
             state.todos = state.todos.map(todo =>
-                todo.id === action.payload
-                    ? { ...todo, isDone: !todo.isDone }
-                    : todo
+                todo.id === action.payload ? { ...todo, isDone: !todo.isDone } : todo
             )
         },
         toggleTodoHiding: (state, action: PayloadAction<number>) => {
@@ -231,33 +205,79 @@ export const todosSlice = createSlice({
                     : todo
             )
         },
-        pushTodoPosition: (state, action: PayloadAction<TodoPositionDTO>) => {
-            state.todoPositionDTOs.push(action.payload)
-        },
-        moveTodo: (state, action: PayloadAction<TodoMoveType>) => {
-            const todoIndex = state.todos.findIndex(
-                todo => todo.id.toString() === action.payload.id
-            )
+        startDragTodo: (state, action: PayloadAction<number>) => {
+            const todo = state.todos.find(todo => todo.id === action.payload)
 
-            let todosCount = 1
-
-            for (let i = todoIndex + 1; i < state.todos.length; i++) {
-                if (state.todos[i].depth > state.todos[todoIndex].depth) {
-                    todosCount++
-                    state.todos[i].depth +=
-                        action.payload.depth - state.todos[todoIndex].depth
-                } else break
+            if (todo) {
+                state.todoDrag = {
+                    draggedTodo: todo,
+                    draggedTodoDepth: todo.depth,
+                }
             }
-            state.todos[todoIndex].depth = action.payload.depth
-
-            const todos = state.todos.splice(todoIndex, todosCount)
-            const prevTodoIndex = state.todos.findIndex(
-                todo => todo.id === action.payload.prevTodoId
-            )
-            state.todos.splice(prevTodoIndex + 1, 0, ...todos)
         },
-        setDraggedTodo: (state, action: PayloadAction<Todo | null>) => {
-            state.draggedTodo = action.payload
+        updateTodoDragDepth: (state, action: PayloadAction<updateTodoDragDepthProps>) => {
+            const dragId = state.todoDrag.draggedTodo?.id
+
+            if (dragId) {
+                const todos = state.todos
+                const overId = action.payload.overTodoId
+
+                const activeIndex = todos.findIndex(x => x.id === dragId)
+                const overIndex = todos.findIndex(x => x.id === overId)
+
+                const prevIndex = activeIndex >= overIndex ? overIndex - 1 : overIndex
+                const nextIndex = activeIndex <= overIndex ? overIndex + 1 : overIndex
+
+                const maxDepth = prevIndex >= 0 ? todos[prevIndex].depth + 1 : 0
+                const minDepth = nextIndex < todos.length ? todos[nextIndex].depth : 0
+
+                const depth = todos[activeIndex].depth + Math.floor(action.payload.offsetLeft / 40)
+                const actualDepth =
+                    depth < minDepth
+                        ? minDepth
+                        : depth > maxDepth
+                        ? maxDepth
+                        : depth
+
+                if (actualDepth !== state.todoDrag.draggedTodoDepth)
+                    state.todoDrag.draggedTodoDepth = actualDepth
+            }
+        },
+        moveTodo: (state, action: PayloadAction<{ id: string, depth: number }>) => {
+            const dragId = state.todoDrag.draggedTodo?.id
+            const depth = action.payload.depth
+
+            if (dragId) {
+                const todos = state.todos
+                const activeIndex = todos.findIndex(todo => todo.id === dragId)
+                const overIndex = todos.findIndex(todo => todo.id.toString() === action.payload.id)//check  -1
+                let prevIndex = activeIndex >= overIndex ? overIndex - 1 : overIndex
+                const prevId = prevIndex >= 0 ? todos[prevIndex].id : -1
+
+
+                state.todoPositionDTOs.push({
+                    id: dragId,
+                    ...getTodoPosition(todos, prevId, todos[activeIndex].id, depth),
+                })
+
+                let todosCount = 1
+
+                for (let i = activeIndex + 1; i < todos.length; i++) {
+                    if (todos[i].depth > todos[activeIndex].depth) {
+                        todosCount++
+                        todos[i].depth += depth - todos[activeIndex].depth
+                    } else break
+                }
+                
+                todos[activeIndex].depth = depth
+
+                const spliceTodos = todos.splice(activeIndex, todosCount)
+                // console.log(spliceTodos)
+                prevIndex = todos.findIndex(todo => todo.id === prevId)
+                todos.splice(prevIndex + 1, 0, ...spliceTodos)
+
+                state.todoDrag = {}
+            }
         },
         setTodoEditorState: (state, action: PayloadAction<TodoEditorType>) => {
             state.todoEditor = action.payload
@@ -280,7 +300,7 @@ export const {
     toggleTodoProgress,
     toggleTodoHiding,
     moveTodo,
-    pushTodoPosition,
-    setDraggedTodo,
     setTodoEditorState,
+    startDragTodo,
+    updateTodoDragDepth,
 } = todosSlice.actions

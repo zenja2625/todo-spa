@@ -19,9 +19,9 @@ const LoginSchema = Yup.object().shape({
 })
 
 const initialValues: UserRegisterDTO = {
-    Name: '',
-    Password: '',
-    ConfirmPassword: '',
+    name: '',
+    password: '',
+    confirmPassword: '',
 }
 
 export const Register = () => {

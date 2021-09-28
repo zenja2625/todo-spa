@@ -23,7 +23,7 @@ export const createCategoryThunk = createAsyncThunk(
     'categories/createCategory',
     async (payload: string, thunkAPI) => {
         try {
-            await API.categories.createCategory({ Name: payload })
+            await API.categories.createCategory({ name: payload })
             thunkAPI.dispatch(getCategoriesThunk())
         } catch (error: any) {
             return thunkAPI.rejectWithValue(error.response?.status)
@@ -47,7 +47,7 @@ export const updateCategoryThunk = createAsyncThunk(
     'categories/updateCategoryThunk',
     async (payload: Category, thunkAPI) => {
         try {
-            await API.categories.updateCategory(payload.id, { Name: payload.name })
+            await API.categories.updateCategory(payload.id, { name: payload.name })
             return payload
         } catch (error: any) {
             return thunkAPI.rejectWithValue(error.response?.status)
