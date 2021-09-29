@@ -171,25 +171,6 @@ export const Todos = () => {
             </Row>
         )
 
-    const getDepth = (activeItem: Todo, overId: string, offsetLeft: number) => {
-        const activeIndex = todos.findIndex(x => x.id === activeItem.id)
-        const overIndex = todos.findIndex(x => x.id.toString() === overId)
-
-        const prevIndex = activeIndex >= overIndex ? overIndex - 1 : overIndex
-        const nextIndex = activeIndex <= overIndex ? overIndex + 1 : overIndex
-
-        const maxDepth = prevIndex >= 0 ? todos[prevIndex].depth + 1 : 0
-        const minDepth = nextIndex < todos.length ? todos[nextIndex].depth : 0
-
-        let actualDepth = activeItem.depth + Math.floor(offsetLeft / 40)
-        actualDepth =
-            actualDepth < minDepth ? minDepth : actualDepth > maxDepth ? maxDepth : actualDepth
-
-        const prevTodoId = prevIndex >= 0 ? todos[prevIndex].id : null
-
-        return { actualDepth, prevTodoId }
-    }
-
     const onDragStart = ({ active }: DragStartEvent) => {
         const activeId = Number(active.id)
 
@@ -202,32 +183,20 @@ export const Todos = () => {
     const getIndexFromDataRef = (data: DataRef) =>
         data.current?.sortable?.index !== undefined ? (data.current.sortable.index as number) : null
 
-    const onDragMove = ({ delta, active, over }: DragMoveEvent) => {
-        const overIndex = over && getIndexFromDataRef(over.data)
-        const activeIndex = getIndexFromDataRef(active.data)
+    
 
-        if (overIndex !== null && activeIndex !== null /*&& todos[activeIndex]*/) {
-            const prevIndex = activeIndex >= overIndex ? overIndex - 1 : overIndex
-            const nextIndex = activeIndex <= overIndex ? overIndex + 1 : overIndex
-
-            const maxDepth = prevIndex >= 0 ? todos[prevIndex].depth + 1 : 0
-            const minDepth = nextIndex < todos.length ? todos[nextIndex].depth : 0
-
-            let actualDepth = todos[activeIndex].depth + Math.floor(delta.x / 40)
-            actualDepth =
-                actualDepth < minDepth ? minDepth : actualDepth > maxDepth ? maxDepth : actualDepth
-
-            if (active.data.current) active.data.current.depth = actualDepth
-        }
+    const onDragMove = ({ delta, active }: DragMoveEvent) => {
+        if (active.data.current) active.data.current.deltaX = delta.x
     }
 
-    const onDragEnd = ({ over, active }: DragEndEvent) => {
+    const onDragEnd = ({ over, active, delta }: DragEndEvent) => {
         const overIndex = over && getIndexFromDataRef(over.data)
 
-        if (over && overIndex !== null && active.data.current?.depth !== undefined) {
-            dispatch(moveTodo({ id: over.id, depth: (active.data.current.depth as number) }))
+        if (over) {
+            dispatch(moveTodo({ id: active.id, overId: over.id, deltaX: delta.x}))
         }
 
+        if (active.data.current) active.data.current.deltaX = 0
         onDragCancel()
     }
 
@@ -254,15 +223,8 @@ export const Todos = () => {
         return (
             <SortableTodo
                 key={todo.id}
-                todo={{
-                    ...todo,
-                    depth:
-                        dragTodo?.id === todo.id && dragDepth !== undefined
-                            ? dragDepth
-                            : todo.depth,
-                }}
-                initialDepth={todo.depth}
-                active={dragTodo?.id === todo.id}
+                todos={todos}
+                todo={todo}
                 remove={() => openDeletePopup(todo.id)}
             />
         )

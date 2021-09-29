@@ -4,6 +4,7 @@ import { API } from '../api/api'
 import { TodoPositionDTO, TodoPostDTO, TodoPutDTO, TodoStatusDTO } from '../api/apiTypes'
 import { TodoEditorValueType } from '../containers/containerTypes'
 import { serverDateFormat } from '../dateFormat'
+import { getTodoDepth } from '../utility/getTodoDepth'
 import {
     CreateTodoProps,
     IState,
@@ -38,6 +39,8 @@ type DeleteTodoProps = {
     id: number
     categoryId: number
 }
+
+export const depthIndent = 40
 
 const getTodoPosition = (
     todos: Array<TodoDTO>,
@@ -243,41 +246,38 @@ export const todosSlice = createSlice({
                     state.todoDrag.draggedTodoDepth = actualDepth
             }
         },
-        moveTodo: (state, action: PayloadAction<{ id: string, depth: number }>) => {
-            const dragId = state.todoDrag.draggedTodo?.id
-            const depth = action.payload.depth
+        moveTodo: (state, action: PayloadAction<{ id: string, overId: string, deltaX: number }>) => {
+            const todos = state.todos
+            const { id, overId, deltaX } = action.payload
 
-            if (dragId) {
-                const todos = state.todos
-                const activeIndex = todos.findIndex(todo => todo.id === dragId)
-                const overIndex = todos.findIndex(todo => todo.id.toString() === action.payload.id)//check  -1
-                let prevIndex = activeIndex >= overIndex ? overIndex - 1 : overIndex
-                const prevId = prevIndex >= 0 ? todos[prevIndex].id : -1
+            const activeIndex = todos.findIndex(todo => todo.id.toString() === id)
+            const overIndex = todos.findIndex(todo => todo.id.toString() === overId)
 
+            const depth = getTodoDepth(todos, activeIndex, overIndex, deltaX, depthIndent)
+            const prevId = activeIndex >= overIndex ? todos[overIndex - 1].id : todos[overIndex].id
 
-                state.todoPositionDTOs.push({
-                    id: dragId,
-                    ...getTodoPosition(todos, prevId, todos[activeIndex].id, depth),
-                })
+            state.todoPositionDTOs.push({
+                id: todos[activeIndex].id,
+                ...getTodoPosition(todos, prevId, todos[activeIndex].id, depth)
+            })
 
-                let todosCount = 1
+            let todosCount = 1
 
-                for (let i = activeIndex + 1; i < todos.length; i++) {
-                    if (todos[i].depth > todos[activeIndex].depth) {
-                        todosCount++
-                        todos[i].depth += depth - todos[activeIndex].depth
-                    } else break
-                }
-                
-                todos[activeIndex].depth = depth
-
-                const spliceTodos = todos.splice(activeIndex, todosCount)
-                // console.log(spliceTodos)
-                prevIndex = todos.findIndex(todo => todo.id === prevId)
-                todos.splice(prevIndex + 1, 0, ...spliceTodos)
-
-                state.todoDrag = {}
+            for (let i = activeIndex + 1; i < todos.length; i++) {
+                if (todos[i].depth > todos[activeIndex].depth) {
+                    todosCount++
+                    todos[i].depth += depth - todos[activeIndex].depth
+                } else break
             }
+            
+            todos[activeIndex].depth = depth
+
+            const spliceTodos = todos.splice(activeIndex, todosCount)
+            // console.log(spliceTodos)
+            const prevIndex = todos.findIndex(todo => todo.id === prevId)
+            todos.splice(prevIndex + 1, 0, ...spliceTodos)
+
+            state.todoDrag = {}
         },
         setTodoEditorState: (state, action: PayloadAction<TodoEditorType>) => {
             state.todoEditor = action.payload

@@ -69,7 +69,7 @@ const App = () => {
                     direction='vertical'
                     style={{
                         position: 'absolute',
-                        bottom: 0,
+                        bottom: '60px',
                         left: 0,
                         zIndex: 10000,
                         backgroundColor: '#001529',
