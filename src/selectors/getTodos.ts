@@ -4,34 +4,26 @@ import { RootState } from '../store'
 
 export const getTodos = createDraftSafeSelector(
     (state: RootState) => state.todos.todos,
-    state => state.todos.todoStatusDTOs,//?
-    state => state.todos.todoDrag.draggedTodo?.id,
-    (todos, statuses, draggedTodoId) => {
+    state => state.todos.draggedTodoId,
+    (todos, draggedTodoId) => {
         let newTodos: Array<Todo> = []
 
         let todoIndex = -1
-    
+
         for (let i = 0; i < todos.length; i++) {
             if (todoIndex !== -1) {
                 if (todos[todoIndex].depth < todos[i].depth) continue
                 else todoIndex = -1
             }
-    
-            if (
-                todos[i].isHiddenSubTasks ||
-                statuses[todos[i].id]?.isHiddenSubTasks ||
-                todos[i].id === draggedTodoId
-            )
-                todoIndex = i
-    
+
+            if (todos[i].isHiddenSubTasks || todos[i].id === draggedTodoId) todoIndex = i
+
             newTodos.push({
                 ...todos[i],
-                ...statuses[todos[i].id],
-                showHideButton:
-                    i + 1 < todos.length && todos[i].depth < todos[i + 1].depth,
+                showHideButton: i + 1 < todos.length && todos[i].depth < todos[i + 1].depth,
             })
         }
-    
+
         return newTodos
     }
 )

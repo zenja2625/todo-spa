@@ -22,11 +22,10 @@ const initialState: TodosType = {
     todos: [],
     todoStatusDTOs: {},
     todoPositionDTOs: [],
-    draggedTodo: null,
     todoEditor: {
         isEditorOpen: false,
     },
-    todoDrag: {},
+    draggedTodoId: null,
 }
 
 type UpdateTodoProps = {
@@ -208,45 +207,14 @@ export const todosSlice = createSlice({
                     : todo
             )
         },
-        startDragTodo: (state, action: PayloadAction<number>) => {
-            const todo = state.todos.find(todo => todo.id === action.payload)
-
-            if (todo) {
-                state.todoDrag = {
-                    draggedTodo: todo,
-                    draggedTodoDepth: todo.depth,
-                }
-            }
+        startDragTodo: (state, action: PayloadAction<string>) => {
+            state.draggedTodoId =
+                state.todos.find(todo => todo.id.toString() === action.payload)?.id || null
         },
-        updateTodoDragDepth: (state, action: PayloadAction<updateTodoDragDepthProps>) => {
-            const dragId = state.todoDrag.draggedTodo?.id
-
-            if (dragId) {
-                const todos = state.todos
-                const overId = action.payload.overTodoId
-
-                const activeIndex = todos.findIndex(x => x.id === dragId)
-                const overIndex = todos.findIndex(x => x.id === overId)
-
-                const prevIndex = activeIndex >= overIndex ? overIndex - 1 : overIndex
-                const nextIndex = activeIndex <= overIndex ? overIndex + 1 : overIndex
-
-                const maxDepth = prevIndex >= 0 ? todos[prevIndex].depth + 1 : 0
-                const minDepth = nextIndex < todos.length ? todos[nextIndex].depth : 0
-
-                const depth = todos[activeIndex].depth + Math.floor(action.payload.offsetLeft / 40)
-                const actualDepth =
-                    depth < minDepth
-                        ? minDepth
-                        : depth > maxDepth
-                        ? maxDepth
-                        : depth
-
-                if (actualDepth !== state.todoDrag.draggedTodoDepth)
-                    state.todoDrag.draggedTodoDepth = actualDepth
-            }
-        },
-        moveTodo: (state, action: PayloadAction<{ id: string, overId: string, deltaX: number }>) => {
+        moveTodo: (
+            state,
+            action: PayloadAction<{ id: string; overId: string; deltaX: number }>
+        ) => {
             const todos = state.todos
             const { id, overId, deltaX } = action.payload
 
@@ -254,11 +222,13 @@ export const todosSlice = createSlice({
             const overIndex = todos.findIndex(todo => todo.id.toString() === overId)
 
             const depth = getTodoDepth(todos, activeIndex, overIndex, deltaX, depthIndent)
-            const prevId = activeIndex >= overIndex ? todos[overIndex - 1].id : todos[overIndex].id
+            const prevId = activeIndex >= overIndex ? todos[overIndex - 1]?.id : todos[overIndex].id
+
+            if (prevId === todos[activeIndex - 1]?.id && todos[activeIndex].depth === depth) return
 
             state.todoPositionDTOs.push({
                 id: todos[activeIndex].id,
-                ...getTodoPosition(todos, prevId, todos[activeIndex].id, depth)
+                ...getTodoPosition(todos, prevId, todos[activeIndex].id, depth),
             })
 
             let todosCount = 1
@@ -269,15 +239,15 @@ export const todosSlice = createSlice({
                     todos[i].depth += depth - todos[activeIndex].depth
                 } else break
             }
-            
+
             todos[activeIndex].depth = depth
 
             const spliceTodos = todos.splice(activeIndex, todosCount)
-            // console.log(spliceTodos)
             const prevIndex = todos.findIndex(todo => todo.id === prevId)
             todos.splice(prevIndex + 1, 0, ...spliceTodos)
-
-            state.todoDrag = {}
+        },
+        stopDragTodo: state => {
+            state.draggedTodoId = null
         },
         setTodoEditorState: (state, action: PayloadAction<TodoEditorType>) => {
             state.todoEditor = action.payload
@@ -289,6 +259,9 @@ export const todosSlice = createSlice({
         })
         builder.addCase(updatePositionsThunk.pending, state => {
             state.todoPositionDTOs = []
+        })
+        builder.addCase(getTodosThunk.pending, state => {
+            state.todos = []
         })
         builder.addCase(getTodosThunk.fulfilled, (state, action) => {
             state.todos = action.payload
@@ -302,5 +275,5 @@ export const {
     moveTodo,
     setTodoEditorState,
     startDragTodo,
-    updateTodoDragDepth,
+    stopDragTodo,
 } = todosSlice.actions

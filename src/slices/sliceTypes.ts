@@ -63,9 +63,8 @@ export type TodosType = {
     todos: Array<TodoDTO>
     todoStatusDTOs: { [id: number]: TodoStatusDTO }
     todoPositionDTOs: Array<TodoPositionDTO>
-    draggedTodo: Todo | null
     todoEditor: TodoEditorType
-    todoDrag: TodoDragType
+    draggedTodoId: number | null
 }
 
 export type UpdateStatusesType = {

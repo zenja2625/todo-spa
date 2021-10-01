@@ -9,11 +9,11 @@ import {
     moveTodo,
     setTodoEditorState,
     startDragTodo,
+    stopDragTodo,
     toggleTodoHiding,
     toggleTodoProgress,
     updatePositionsThunk,
     updateStatusesThunk,
-    updateTodoDragDepth,
     updateTodoThunk,
 } from '../../slices/todosSlice'
 import { useAppDispatch, useAppSelector } from '../../store'
@@ -61,31 +61,6 @@ const dateFormat = 'DD.MM.YYYY'
 const serverFormat = 'YYYY-MM-DD'
 
 let renderCount = 1
-type statusProperties = 'isDone' | 'isHiddenSubTasks'
-
-const getTodoPosition = (
-    todos: Array<Todo>,
-    prevTodoId: number,
-    actualTodoId: number,
-    actualTodoDepth: number
-): TodoPositionDTO => {
-    const todoIndex = todos.findIndex(todo => todo.id === prevTodoId)
-    let ParentId = 0
-    let PrevToDoId = 0
-
-    for (let i = todoIndex; i >= 0; i--) {
-        const prevTodo = todos[i]
-
-        if (prevTodo.id === actualTodoId) continue
-
-        if (prevTodo.depth < actualTodoDepth) {
-            ParentId = todos[i].id
-            break
-        } else if (prevTodo.depth === actualTodoDepth && !PrevToDoId) PrevToDoId = prevTodo.id
-    }
-
-    return { id: actualTodoId, parentId: ParentId, prevTodoId: PrevToDoId }
-}
 
 type TodoPosition = {
     ParentId: number
@@ -94,10 +69,6 @@ type TodoPosition = {
 
 export const Todos = () => {
     const { categoryId } = useParams<{ categoryId?: string }>()
-
-    const [draggedTodo, setDraggedTodoState] = useState<Todo | null>(null)
-    const [draggedTodoDepth, setDraggedTodoDepth] = useState<number | null>(null)
-    const [prevTodoId, setPrevTodoId] = useState<number | null>(null)
 
     const dispatch = useAppDispatch()
 
@@ -108,9 +79,6 @@ export const Todos = () => {
     const todos = useAppSelector(getTodos)
     const actualStatuses = useAppSelector(state => state.todos.todoStatusDTOs)
     const actualPosition = useAppSelector(state => state.todos.todoPositionDTOs)
-
-    const dragDepth = useAppSelector(state => state.todos.todoDrag.draggedTodoDepth) //****** */
-    const dragTodo = useAppSelector(state => state.todos.todoDrag.draggedTodo)
 
     const [statuses, fetchStatuses] = useDebounce(actualStatuses, 1000)
     const [positions, fetchPositions] = useDebounce(actualPosition, 1000)
@@ -154,15 +122,10 @@ export const Todos = () => {
         )
     }, [actualStatuses, actualPosition])
 
+    const mouseSensor = useSensor(MouseSensor)
+    const touchSensor = useSensor(TouchSensor)
 
-    const mouseSensor = useSensor(MouseSensor);
-    const touchSensor = useSensor(TouchSensor);
-    
-    const sensors = useSensors(
-      mouseSensor,
-      touchSensor
-    );
-
+    const sensors = useSensors(mouseSensor, touchSensor)
 
     if (!Number(categoryId))
         return (
@@ -172,35 +135,23 @@ export const Todos = () => {
         )
 
     const onDragStart = ({ active }: DragStartEvent) => {
-        const activeId = Number(active.id)
-
-        if (activeId) {
-            fetchStatuses()
-            dispatch(startDragTodo(activeId))
-        }
+        fetchStatuses()
+        dispatch(startDragTodo(active.id))
     }
 
-    const getIndexFromDataRef = (data: DataRef) =>
-        data.current?.sortable?.index !== undefined ? (data.current.sortable.index as number) : null
-
-    
 
     const onDragMove = ({ delta, active }: DragMoveEvent) => {
         if (active.data.current) active.data.current.deltaX = delta.x
     }
 
     const onDragEnd = ({ over, active, delta }: DragEndEvent) => {
-        const overIndex = over && getIndexFromDataRef(over.data)
-
-        if (over) {
-            dispatch(moveTodo({ id: active.id, overId: over.id, deltaX: delta.x}))
-        }
+        if (over) dispatch(moveTodo({ id: active.id, overId: over.id, deltaX: delta.x }))
 
         if (active.data.current) active.data.current.deltaX = 0
-        onDragCancel()
+        dispatch(stopDragTodo())
     }
 
-    const onDragCancel = () => {}
+    const onDragCancel = () => dispatch(stopDragTodo())
 
     const openDeletePopup = (id: number) => {
         fetchStatuses()
@@ -216,8 +167,6 @@ export const Todos = () => {
             },
         })
     }
-
-
 
     const todoItems = todos.map(todo => {
         return (
@@ -260,7 +209,7 @@ export const Todos = () => {
                 sensors={sensors}
             >
                 <SortableContext
-                    items={todos.map(x => ({ ...x, id: x.id.toString() }))}
+                    items={todos.map(x => ({ id: x.id.toString() }))}
                     strategy={verticalListSortingStrategy}
                 >
                     <Space
