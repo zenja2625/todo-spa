@@ -80,17 +80,14 @@ export const Todos = () => {
     const actualStatuses = useAppSelector(state => state.todos.todoStatusDTOs)
     const actualPosition = useAppSelector(state => state.todos.todoPositionDTOs)
 
-    const [statuses, fetchStatuses] = useDebounce(actualStatuses, 1000)
-    const [positions, fetchPositions] = useDebounce(actualPosition, 1000)
+    const statuses = useDebounce(actualStatuses, 1000)
+    const positions = useDebounce(actualPosition, 1000)
 
     useEffect(() => {
         const statusValues = Object.values(statuses)
         if (statusValues.length) {
             dispatch(
-                updateStatusesThunk({
-                    categoryId: Number(categoryId),
-                    todoStatusDTOs: statusValues,
-                })
+                updateStatusesThunk(Number(categoryId))
             )
         }
     }, [statuses, categoryId, dispatch])
@@ -98,10 +95,7 @@ export const Todos = () => {
     useEffect(() => {
         if (positions.length) {
             dispatch(
-                updatePositionsThunk({
-                    categoryId: Number(categoryId),
-                    todoPositionDTOs: positions,
-                })
+                updatePositionsThunk(Number(categoryId))
             )
         }
     }, [positions, categoryId, dispatch])
@@ -112,7 +106,10 @@ export const Todos = () => {
         if (categoryId) dispatch(getTodosThunk(Number(categoryId)))
 
         return () => {
-            console.log(categoryId)
+            if (categoryId !== undefined) {
+                dispatch(updateStatusesThunk(Number(categoryId)))
+                dispatch(updatePositionsThunk(Number(categoryId)))
+            }
         }
     }, [categoryId, dispatch])
 
@@ -135,7 +132,7 @@ export const Todos = () => {
         )
 
     const onDragStart = ({ active }: DragStartEvent) => {
-        fetchStatuses()
+        dispatch(updateStatusesThunk(Number(categoryId)))
         dispatch(startDragTodo(active.id))
     }
 
@@ -154,8 +151,8 @@ export const Todos = () => {
     const onDragCancel = () => dispatch(stopDragTodo())
 
     const openDeletePopup = (id: number) => {
-        fetchStatuses()
-        fetchPositions()
+        dispatch(updateStatusesThunk(Number(categoryId)))
+        dispatch(updatePositionsThunk(Number(categoryId)))
         confirm({
             title: 'Are you sure delete this todo?',
             icon: <ExclamationCircleOutlined />,

@@ -1,9 +1,10 @@
 import { Modal, Form, Row, Col } from 'antd'
 import { Formik } from 'formik'
+import { useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { useParams } from 'react-router'
 import { getEditTodoValue } from '../../selectors/getEditTodoValue'
-import { updateTodoThunk, createTodoThunk, setTodoEditorState } from '../../slices/todosSlice'
+import { updateTodoThunk, createTodoThunk, setTodoEditorState, updatePositionsThunk, updateStatusesThunk } from '../../slices/todosSlice'
 import { useAppDispatch, useAppSelector } from '../../store'
 import { FormItem } from '../utility/FormItem'
 
@@ -16,6 +17,13 @@ export const TodoEditor = () => {
     const { editTodoId, isEditorOpen, prevTodoId, addBefore } = useAppSelector(state => state.todos.todoEditor)
 
     const dispatch = useAppDispatch()
+
+    useEffect(() => {
+        if (isEditorOpen) {
+            dispatch(updateStatusesThunk(Number(categoryId)))
+            dispatch(updatePositionsThunk(Number(categoryId)))
+        }
+    }, [isEditorOpen, dispatch])
 
     return (
         <div>

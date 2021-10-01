@@ -82,28 +82,36 @@ export const getTodosThunk = createAsyncThunk(
     }
 )
 
-export const updatePositionsThunk = createAsyncThunk(
+export const updatePositionsThunk = createAsyncThunk<void, number, IState & RejectValueType>(
     'todos/updatePositionsThunk',
-    async (payload: UpdatePositionsType, { dispatch, rejectWithValue }) => {
+    async (payload, { getState, dispatch, rejectWithValue }) => {
         try {
-            await API.todos.updatePositions(payload.categoryId, payload.todoPositionDTOs)
+            const state = getState()
+            const positions = state.todos.todoPositionDTOs
 
-            // await dispatch(getTodosThunk(payload.categoryId))
+            if (positions.length) {
+                dispatch(clearTodoPositions())
+                await API.todos.updatePositions(payload, positions)
+            }
         } catch (error: any) {
             return rejectWithValue(error.response?.status)
         }
     }
 )
 
-export const updateStatusesThunk = createAsyncThunk(
+export const updateStatusesThunk = createAsyncThunk<void, number, IState & RejectValueType>(
     'todos/updateStatusesThunk',
-    async (payload: UpdateStatusesType, thunkAPI) => {
+    async (payload, { getState, dispatch, rejectWithValue }) => {
         try {
-            await API.todos.updateStatuses(payload.categoryId, payload.todoStatusDTOs)
+            const state = getState()
+            const statuses = Object.values(state.todos.todoStatusDTOs)
 
-            await thunkAPI.dispatch(getTodosThunk(payload.categoryId))
+            if (statuses.length) {
+                dispatch(clearTodoStatuses())
+                await API.todos.updateStatuses(payload, statuses)
+            }
         } catch (error: any) {
-            return thunkAPI.rejectWithValue(error.response?.status)
+            return rejectWithValue(error.response?.status)
         }
     }
 )
@@ -191,9 +199,16 @@ export const todosSlice = createSlice({
     name: 'todos',
     initialState,
     reducers: {
+        clearTodoStatuses: state => {
+            state.todoStatusDTOs = {}
+        },
+        clearTodoPositions: state => {
+            state.todoPositionDTOs = []
+        },
         toggleTodoProgress: (state, action: PayloadAction<number>) => {
             toggleProperty(state, action.payload, 'isDone')
 
+            
             state.todos = state.todos.map(todo =>
                 todo.id === action.payload ? { ...todo, isDone: !todo.isDone } : todo
             )
@@ -254,12 +269,6 @@ export const todosSlice = createSlice({
         },
     },
     extraReducers: builder => {
-        builder.addCase(updateStatusesThunk.pending, state => {
-            state.todoStatusDTOs = {}
-        })
-        builder.addCase(updatePositionsThunk.pending, state => {
-            state.todoPositionDTOs = []
-        })
         builder.addCase(getTodosThunk.pending, state => {
             state.todos = []
         })
@@ -276,4 +285,6 @@ export const {
     setTodoEditorState,
     startDragTodo,
     stopDragTodo,
+    clearTodoPositions,
+    clearTodoStatuses
 } = todosSlice.actions
