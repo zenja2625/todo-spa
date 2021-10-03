@@ -1,4 +1,3 @@
-import { useAppDispatch } from '../store'
 import { Layout } from 'antd'
 import { Categories } from './Categories'
 import { Todos } from './Todos/Todos'
@@ -6,8 +5,6 @@ import { Todos } from './Todos/Todos'
 const { Sider, Content } = Layout
 
 export const Main = () => {
-    const dispatch = useAppDispatch()
-
     return (
         <Layout>
             <Sider collapsible theme='light'>

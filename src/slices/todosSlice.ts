@@ -4,7 +4,9 @@ import { API } from '../api/api'
 import { TodoPositionDTO, TodoPostDTO, TodoPutDTO, TodoStatusDTO } from '../api/apiTypes'
 import { TodoEditorValueType } from '../containers/containerTypes'
 import { serverDateFormat } from '../dateFormat'
-import { getTodoDepth } from '../utility/getTodoDepth'
+import { getTodoChildCount, getTodoDepth, ITodo } from '../utility/getTodoDepth'
+import { getTodoPosition } from '../utility/getTodoPosition'
+import { deinitialization } from './appSlice'
 import {
     CreateTodoProps,
     IState,
@@ -20,12 +22,19 @@ import {
 
 const initialState: TodosType = {
     todos: [],
-    todoStatusDTOs: {},
+    todoStatusDTOs: [],
     todoPositionDTOs: [],
     todoEditor: {
         isEditorOpen: false,
     },
     draggedTodoId: null,
+    todosRequestId: null,
+}
+
+let isDelay = true
+
+function delay(ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms))
 }
 
 type UpdateTodoProps = {
@@ -41,43 +50,14 @@ type DeleteTodoProps = {
 
 export const depthIndent = 40
 
-const getTodoPosition = (
-    todos: Array<TodoDTO>,
-    actualPrevTodoId?: number,
-    actualTodoId: number = 0,
-    actualTodoDepth: number = 0
-) => {
-    const todoIndex = actualPrevTodoId ? todos.findIndex(todo => todo.id === actualPrevTodoId) : -1
-    let parentId = 0
-    let prevTodoId = 0
-
-    for (let i = todoIndex; i >= 0; i--) {
-        const todo = todos[i]
-
-        if (todo.id === actualTodoId) continue
-        if (actualTodoDepth === 0 && prevTodoId) break
-        if (todo.depth < actualTodoDepth) {
-            parentId = todos[i].id
-            break
-        } else if (todo.depth === actualTodoDepth && !prevTodoId) prevTodoId = todo.id
-    }
-
-    return { parentId, prevTodoId }
-}
-
-const getPrevTodoId = (todos: Array<TodoDTO>, id: number) => {
-    const index = todos.findIndex(todo => todo.id === id) - 1
-    return index < 0 ? undefined : todos[index].id
-}
-
 export const getTodosThunk = createAsyncThunk(
     'todos/getTodosThunk',
-    async (categoryId: number, thunkAPI) => {
+    async (categoryId: number, { rejectWithValue }) => {
         try {
             const response = await API.todos.getTodos(categoryId, true)
             return response.data as Array<TodoDTO>
         } catch (error: any) {
-            return thunkAPI.rejectWithValue(error.response?.status)
+            return rejectWithValue(error.response?.status)
         }
     }
 )
@@ -104,7 +84,7 @@ export const updateStatusesThunk = createAsyncThunk<void, number, IState & Rejec
     async (payload, { getState, dispatch, rejectWithValue }) => {
         try {
             const state = getState()
-            const statuses = Object.values(state.todos.todoStatusDTOs)
+            const statuses = state.todos.todoStatusDTOs
 
             if (statuses.length) {
                 dispatch(clearTodoStatuses())
@@ -118,28 +98,38 @@ export const updateStatusesThunk = createAsyncThunk<void, number, IState & Rejec
 
 export const createTodoThunk = createAsyncThunk<void, CreateTodoProps, IState & RejectValueType>(
     'todos/createTodoThunk',
-    async (payload, thunkAPI) => {
+    async (payload, { getState, rejectWithValue, dispatch }) => {
         try {
-            const todos = thunkAPI.getState().todos.todos
+            const todos = getState().todos.todos
 
-            const prevTodoId = !payload.prevTodoId
-                ? todos.length
-                    ? todos[todos.length - 1].id
-                    : undefined
-                : !payload.addBefore
-                ? payload.prevTodoId
-                : getPrevTodoId(todos, payload.prevTodoId)
+            let depth = 0
+            let prevIndex: number
 
-            const prevTodoDepth = prevTodoId ? todos.find(todo => todo.id === prevTodoId)?.depth : 0
+            if (payload.overTodoId) {
+                const overIndex = todos.findIndex(todo => todo.id === payload.overTodoId)
+
+                if (overIndex === -1) {
+                    dispatch(deinitialization())
+                    return
+                }
+
+                prevIndex = payload.addBefore ? overIndex - 1 : overIndex
+
+                if (prevIndex !== -1) {
+                    depth = todos[overIndex].depth
+                }
+            } else {
+                prevIndex = todos.length - 1
+            }
 
             await API.todos.createTodo(payload.categoryId, {
                 value: payload.todoValue.value,
                 taskEnd: payload.todoValue.taskEnd?.toDate(),
-                ...getTodoPosition(todos, prevTodoId, undefined, prevTodoDepth),
+                ...getTodoPosition(todos, prevIndex, depth),
             })
-            await thunkAPI.dispatch(getTodosThunk(payload.categoryId))
+            await dispatch(getTodosThunk(payload.categoryId))
         } catch (error: any) {
-            return thunkAPI.rejectWithValue(error.response?.status)
+            return rejectWithValue(error.response?.status)
         }
     }
 )
@@ -168,31 +158,14 @@ export const deleteTodoThunk = createAsyncThunk(
     }
 )
 
-const toggleProperty = (
-    state: WritableDraft<TodosType>,
-    id: number,
-    propName: 'isDone' | 'isHiddenSubTasks'
-) => {
-    if (state.todoStatusDTOs[id])
-        state.todoStatusDTOs[id][propName] =
-            state.todoStatusDTOs[id]?.[propName] === undefined
-                ? !state.todos.find(x => x.id === id)?.[propName]
-                : undefined
-    else
-        state.todoStatusDTOs[id] = {
-            id: id,
-            [propName]:
-                state.todoStatusDTOs[id]?.[propName] === undefined
-                    ? !state.todos.find(x => x.id === id)?.[propName]
-                    : undefined,
+const getParentIndex = (todos: Array<ITodo>, index: number) => {
+    for (let i = index - 1; i >= 0; i--) {
+        if (todos[index].depth > todos[i].depth) {
+            return i
         }
-
-    if (
-        state.todoStatusDTOs[id].isDone === undefined &&
-        state.todoStatusDTOs[id].isHiddenSubTasks === undefined
-    ) {
-        delete state.todoStatusDTOs[id]
     }
+
+    return -1
 }
 
 export const todosSlice = createSlice({
@@ -200,27 +173,53 @@ export const todosSlice = createSlice({
     initialState,
     reducers: {
         clearTodoStatuses: state => {
-            state.todoStatusDTOs = {}
+            state.todoStatusDTOs = []
         },
         clearTodoPositions: state => {
             state.todoPositionDTOs = []
         },
         toggleTodoProgress: (state, action: PayloadAction<number>) => {
-            toggleProperty(state, action.payload, 'isDone')
+            const todos = state.todos
+            const index = todos.findIndex(todo => todo.id === action.payload)
 
-            
-            state.todos = state.todos.map(todo =>
-                todo.id === action.payload ? { ...todo, isDone: !todo.isDone } : todo
-            )
+            if (index !== -1) {
+                const isDone = !todos[index].isDone
+
+                if (isDone) {
+                    const childrenCount = getTodoChildCount(todos, index)
+
+                    for (let i = index + 1; i < todos.length && i <= index + childrenCount; i++) {
+                        todos[i].isDone = true
+                    }
+                } else {
+                    let parentIndex = getParentIndex(todos, index)
+
+                    while (parentIndex !== -1) {
+                        todos[parentIndex].isDone = false
+                        parentIndex = getParentIndex(todos, parentIndex)
+                    }
+                }
+
+                todos[index].isDone = isDone
+                state.todoStatusDTOs.push({
+                    id: todos[index].id,
+                    isDone,
+                })
+            }
         },
         toggleTodoHiding: (state, action: PayloadAction<number>) => {
-            toggleProperty(state, action.payload, 'isHiddenSubTasks')
+            const todos = state.todos
+            const index = todos.findIndex(todo => todo.id === action.payload)
 
-            state.todos = state.todos.map(todo =>
-                todo.id === action.payload
-                    ? { ...todo, isHiddenSubTasks: !todo.isHiddenSubTasks }
-                    : todo
-            )
+            if (index !== -1) {
+                const isHiddenSubTasks = !todos[index].isHiddenSubTasks
+
+                todos[index].isHiddenSubTasks = isHiddenSubTasks
+                state.todoStatusDTOs.push({
+                    id: todos[index].id,
+                    isHiddenSubTasks,
+                })
+            }
         },
         startDragTodo: (state, action: PayloadAction<string>) => {
             state.draggedTodoId =
@@ -237,29 +236,38 @@ export const todosSlice = createSlice({
             const overIndex = todos.findIndex(todo => todo.id.toString() === overId)
 
             const depth = getTodoDepth(todos, activeIndex, overIndex, deltaX, depthIndent)
-            const prevId = activeIndex >= overIndex ? todos[overIndex - 1]?.id : todos[overIndex].id
+            const prevIndex = activeIndex >= overIndex ? overIndex - 1 : overIndex
 
-            if (prevId === todos[activeIndex - 1]?.id && todos[activeIndex].depth === depth) return
+            if (
+                todos[prevIndex]?.id === todos[activeIndex - 1]?.id &&
+                todos[activeIndex].depth === depth
+            )
+                return
 
             state.todoPositionDTOs.push({
                 id: todos[activeIndex].id,
-                ...getTodoPosition(todos, prevId, todos[activeIndex].id, depth),
+                ...getTodoPosition(todos, prevIndex, depth, activeIndex),
             })
 
-            let todosCount = 1
+            let todoChildrenCount = 0
 
             for (let i = activeIndex + 1; i < todos.length; i++) {
                 if (todos[i].depth > todos[activeIndex].depth) {
-                    todosCount++
+                    todoChildrenCount++
                     todos[i].depth += depth - todos[activeIndex].depth
                 } else break
             }
 
             todos[activeIndex].depth = depth
 
-            const spliceTodos = todos.splice(activeIndex, todosCount)
-            const prevIndex = todos.findIndex(todo => todo.id === prevId)
-            todos.splice(prevIndex + 1, 0, ...spliceTodos)
+            const spliceTodos = todos.splice(activeIndex, todoChildrenCount + 1)
+
+            if (activeIndex < overIndex) {
+                const toIndex = overIndex - todoChildrenCount
+                todos.splice(toIndex < 0 ? -1 : toIndex, 0, ...spliceTodos)
+            } else {
+                todos.splice(overIndex, 0, ...spliceTodos)
+            }
         },
         stopDragTodo: state => {
             state.draggedTodoId = null
@@ -269,12 +277,19 @@ export const todosSlice = createSlice({
         },
     },
     extraReducers: builder => {
-        builder.addCase(getTodosThunk.pending, state => {
-            state.todos = []
-        })
-        builder.addCase(getTodosThunk.fulfilled, (state, action) => {
-            state.todos = action.payload
-        })
+        builder
+            .addCase(getTodosThunk.pending, (state, action) => {
+                state.todosRequestId = action.meta.requestId
+            })
+            .addCase(getTodosThunk.rejected, state => {
+                state.todosRequestId = null
+            })
+            .addCase(getTodosThunk.fulfilled, (state, action) => {
+                if (state.todosRequestId === action.meta.requestId) {
+                    state.todos = action.payload
+                    state.todosRequestId = null
+                }
+            })
     },
 })
 
@@ -286,5 +301,5 @@ export const {
     startDragTodo,
     stopDragTodo,
     clearTodoPositions,
-    clearTodoStatuses
+    clearTodoStatuses,
 } = todosSlice.actions

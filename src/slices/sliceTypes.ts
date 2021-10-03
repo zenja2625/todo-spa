@@ -61,10 +61,11 @@ export type TodoDragType = {
 
 export type TodosType = {
     todos: Array<TodoDTO>
-    todoStatusDTOs: { [id: number]: TodoStatusDTO }
+    todoStatusDTOs: Array<TodoStatusDTO>
     todoPositionDTOs: Array<TodoPositionDTO>
     todoEditor: TodoEditorType
-    draggedTodoId: number | null
+    draggedTodoId: number | null//?
+    todosRequestId: string | null
 }
 
 export type UpdateStatusesType = {
@@ -80,7 +81,7 @@ export type UpdatePositionsType = {
 export type CreateTodoProps = {
     categoryId: number
     todoValue: TodoEditorValueType
-    prevTodoId?: number
+    overTodoId?: number
     addBefore?: boolean
 }
 

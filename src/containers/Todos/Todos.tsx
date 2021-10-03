@@ -79,13 +79,13 @@ export const Todos = () => {
     const todos = useAppSelector(getTodos)
     const actualStatuses = useAppSelector(state => state.todos.todoStatusDTOs)
     const actualPosition = useAppSelector(state => state.todos.todoPositionDTOs)
+    const todosRequestId = useAppSelector(state => state.todos.todosRequestId)
 
     const statuses = useDebounce(actualStatuses, 1000)
     const positions = useDebounce(actualPosition, 1000)
 
     useEffect(() => {
-        const statusValues = Object.values(statuses)
-        if (statusValues.length) {
+        if (statuses.length) {
             dispatch(
                 updateStatusesThunk(Number(categoryId))
             )
@@ -175,6 +175,10 @@ export const Todos = () => {
             />
         )
     })
+
+    if (todosRequestId)
+        return <div>Загрузка...</div>
+
 
     return (
         <Space

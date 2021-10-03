@@ -48,13 +48,13 @@ const App = () => {
                 <Route exact path='/'>
                     {isAuth ? <Main /> : <Redirect to='/login' />}
                 </Route>
-                <Route path='/category/:categoryId'>
+                <Route path='/category/:categoryId' >
                     {isAuth ? <Main /> : <Redirect to='/login' />}
                 </Route>
                 <Route path='/login'>
                     {isAuth ? <Redirect to='/' /> : <Login />}
                 </Route>
-                <Route path='/register'>
+                <Route path='/register' >
                     {isAuth ? <Redirect to='/' /> : <Register />}
                 </Route>
                 <Route>
