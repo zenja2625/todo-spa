@@ -26,6 +26,7 @@ const initialState: TodosType = {
     todoPositionDTOs: [],
     todoEditor: {
         isEditorOpen: false,
+        value: { value: '' },
     },
     draggedTodoId: null,
     todosRequestId: null,

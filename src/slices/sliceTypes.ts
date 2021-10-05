@@ -30,17 +30,10 @@ export interface Todo extends TodoDTO {
     showHideButton: boolean
 }
 
-
 export type PutTodoDTO = {
     value: string
     taskEnd?: string
 }
-
-// export type TodoMoveType = {
-//     id: string
-//     overTodoId: number
-//     depth: number
-// }
 
 export type CategoriesType = {
     categories: Array<Category>
@@ -49,6 +42,7 @@ export type CategoriesType = {
 
 export type TodoEditorType = {
     isEditorOpen: boolean
+    value: TodoEditorValueType
     editTodoId?: number
     prevTodoId?: number
     addBefore?: boolean
@@ -64,7 +58,7 @@ export type TodosType = {
     todoStatusDTOs: Array<TodoStatusDTO>
     todoPositionDTOs: Array<TodoPositionDTO>
     todoEditor: TodoEditorType
-    draggedTodoId: number | null//?
+    draggedTodoId: number | null////////////////////////////?
     todosRequestId: string | null
 }
 

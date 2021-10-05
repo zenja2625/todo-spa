@@ -1,27 +1,40 @@
 import { Modal, Form, Row, Col } from 'antd'
 import { Formik } from 'formik'
-import { useEffect } from 'react'
+import { FC, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { useParams } from 'react-router'
 import { getEditTodoValue } from '../../selectors/getEditTodoValue'
-import { updateTodoThunk, createTodoThunk, setTodoEditorState, updatePositionsThunk, updateStatusesThunk } from '../../slices/todosSlice'
+import {
+    updateTodoThunk,
+    createTodoThunk,
+    setTodoEditorState,
+    updatePositionsThunk,
+    updateStatusesThunk,
+} from '../../slices/todosSlice'
 import { useAppDispatch, useAppSelector } from '../../store'
 import { FormItem } from '../utility/FormItem'
+import * as Yup from 'yup'
+import { ITodosProps } from './types'
 
 let renderCount = 1
 
-export const TodoEditor = () => {
-    const { categoryId } = useParams<{ categoryId?: string }>()
+const TodosSchema = Yup.object().shape({
+    value: Yup.string().required('Это поле обязательно'),
+    taskEnd: Yup.object().nullable().notRequired(),
+})
 
+export const TodoEditor: FC<ITodosProps> = ({ categoryId }) => {
     const editValue = useAppSelector(getEditTodoValue)
-    const { editTodoId, isEditorOpen, prevTodoId, addBefore } = useAppSelector(state => state.todos.todoEditor)
+    const { editTodoId, isEditorOpen, prevTodoId, addBefore } = useAppSelector(
+        state => state.todos.todoEditor
+    )
 
     const dispatch = useAppDispatch()
 
     useEffect(() => {
         if (isEditorOpen) {
-            dispatch(updateStatusesThunk(Number(categoryId)))
-            dispatch(updatePositionsThunk(Number(categoryId)))
+            dispatch(updateStatusesThunk(categoryId))
+            dispatch(updatePositionsThunk(categoryId))
         }
     }, [isEditorOpen, dispatch])
 
@@ -40,12 +53,12 @@ export const TodoEditor = () => {
                 validateOnMount
                 initialValues={editValue}
                 enableReinitialize
-                // validationSchema={CategorySchema}
-                onSubmit={({ value, taskEnd }) => {
-                    const selectedCategoryId = Number(categoryId)
+                validationSchema={TodosSchema}
+                onSubmit={async ({ value, taskEnd }) => {
+                    const selectedCategoryId = categoryId
 
                     if (editTodoId)
-                        dispatch(
+                        await dispatch(
                             updateTodoThunk({
                                 id: editTodoId,
                                 categoryId: selectedCategoryId,
@@ -56,37 +69,40 @@ export const TodoEditor = () => {
                             })
                         )
                     else {
-                        dispatch(
+                        await dispatch(
                             createTodoThunk({
                                 categoryId: selectedCategoryId,
                                 todoValue: {
                                     value: value,
-                                    taskEnd: taskEnd
+                                    taskEnd: taskEnd,
                                 },
                                 overTodoId: prevTodoId,
-                                addBefore
+                                addBefore,
                             })
                         )
                     }
 
-                    dispatch(setTodoEditorState({ isEditorOpen: false }))
+                    dispatch(setTodoEditorState({ isEditorOpen: false, editTodoId, value: { value: value } }))
                 }}
             >
-                {({ submitForm, resetForm, isValid }) => {
+                {({ submitForm, isValid, validateForm, isSubmitting, resetForm }) => {
                     return (
                         <Modal
-                            title={
-                                editTodoId
-                                    ? 'Изменить задачу'
-                                    : 'Добавить новую задачу'
-                            }
+                            title={editTodoId ? 'Изменить задачу' : 'Добавить новую задачу'}
                             visible={isEditorOpen}
-                            onCancel={() => dispatch(setTodoEditorState({ isEditorOpen: false }))}
-                            afterClose={() => resetForm()}
+                            onCancel={() =>
+                                dispatch(setTodoEditorState({ isEditorOpen: false, editTodoId, value: { value: '' } }))
+                            }
+                            afterClose={() => {
+                                dispatch(setTodoEditorState({ isEditorOpen: false, value: { value: '' } }))
+                                resetForm()
+                                validateForm()
+                            }}
                             onOk={() => submitForm()}
                             okText={editTodoId ? 'Изменить' : 'Сохранить'}
                             cancelText='Отмена'
                             destroyOnClose
+                            confirmLoading={isSubmitting}
                             width={350}
                             bodyStyle={{ paddingBottom: 0 }}
                             okButtonProps={{ disabled: !isValid }}

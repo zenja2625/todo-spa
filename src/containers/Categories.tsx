@@ -1,22 +1,18 @@
-import { CSSProperties, useCallback, useEffect, useState } from 'react'
+import { useState } from 'react'
 import {
     createCategoryThunk,
     deleteCategoryThunk,
-    selectCategory,
     updateCategoryThunk,
 } from '../slices/categoriesSlice'
 import { useAppDispatch, useAppSelector } from '../store'
-import { CategoryForm } from './tools/CategoryForm'
 import Title from 'antd/lib/typography/Title'
-import { Button, Col, List, Menu, Modal, Popover, Row } from 'antd'
-import { useHistory, useLocation, useParams, useRouteMatch } from 'react-router'
+import { Button, Col, Menu, Modal, Popover, Row } from 'antd'
+import { useHistory, useParams } from 'react-router'
 import { DashOutlined, ExclamationCircleOutlined } from '@ant-design/icons'
 import confirm from 'antd/lib/modal/confirm'
-import useModal from 'antd/lib/modal/useModal'
 import { Category } from '../slices/sliceTypes'
 import { Form, Formik } from 'formik'
 import { FormItem } from './utility/FormItem'
-import { createTodoThunk } from '../slices/todosSlice'
 import * as Yup from 'yup'
 import { createPortal } from 'react-dom'
 
@@ -57,13 +53,10 @@ export const Categories = () => {
     const { push } = useHistory()
     const { categoryId } = useParams<{ categoryId?: string }>()
 
-    const [popupMenuVisableId, setPopupMenuVisableId] = useState<number | null>(
-        null
-    )
+    const [popupMenuVisableId, setPopupMenuVisableId] = useState<number | null>(null)
     const [editModalVisable, setEditModalVisable] = useState(false)
     const [editModalId, setEditModalId] = useState<number | null>(null)
-    const [editModalValue, setEditModalValue] =
-        useState<{ value: string }>(initialValue)
+    const [editModalValue, setEditModalValue] = useState<{ value: string }>(initialValue)
 
     const dispatch = useAppDispatch()
     const categories = useAppSelector(state => state.categories.categories)
@@ -94,12 +87,8 @@ export const Categories = () => {
     const popoverMenu = (category: Category) => {
         return (
             <Menu selectedKeys={[]} style={{ border: 0 }}>
-                <Menu.Item onClick={() => openEditor(category)}>
-                    Изменить
-                </Menu.Item>
-                <Menu.Item onClick={() => openDeletePopup(category.id)}>
-                    Удалить
-                </Menu.Item>
+                <Menu.Item onClick={() => openEditor(category)}>Изменить</Menu.Item>
+                <Menu.Item onClick={() => openDeletePopup(category.id)}>Удалить</Menu.Item>
             </Menu>
         )
     }
@@ -109,16 +98,12 @@ export const Categories = () => {
             <Menu.Item
                 className={
                     'menuItem' +
-                    (popupMenuVisableId === item.id &&
-                    categoryId !== item.id.toString()
+                    (popupMenuVisableId === item.id && categoryId !== item.id.toString()
                         ? ' menuItemPopup'
                         : '')
                 }
                 key={item.id}
-                onClick={() =>
-                    categoryId !== item.id.toString() &&
-                    push(`/category/${item.id}`)
-                }
+                onClick={() => categoryId !== item.id.toString() && push(`/category/${item.id}`)}
             >
                 <Row justify='space-between'>
                     <Col>{item.name}</Col>
@@ -154,10 +139,7 @@ export const Categories = () => {
                     document.getElementById('render') as HTMLElement
                 )}
             <Title level={4}>Категории</Title>
-            <Menu
-                selectedKeys={categoryId ? [categoryId] : undefined}
-                style={{ border: 0 }}
-            >
+            <Menu selectedKeys={categoryId ? [categoryId] : undefined} style={{ border: 0 }}>
                 {categoryItems}
             </Menu>
             <Button
@@ -172,33 +154,30 @@ export const Categories = () => {
                 initialValues={editModalValue}
                 enableReinitialize
                 validationSchema={CategorySchema}
-                onSubmit={({ value }) => {
-                    if (
-                        editModalId &&
-                        categories.find(x => x.id === editModalId)
-                    )
-                        dispatch(
+                onSubmit={async ({ value }) => {
+                    if (editModalId && categories.find(x => x.id === editModalId))
+                        await dispatch(
                             updateCategoryThunk({
                                 id: editModalId,
                                 name: value,
                             })
                         )
-                    else dispatch(createCategoryThunk(value))
+                    else await dispatch(createCategoryThunk(value))
 
                     setEditModalVisable(false)
                 }}
             >
-                {({ submitForm, resetForm, isValid }) => {
+                {({ submitForm, isValid, validateForm, resetForm }) => {
                     return (
                         <Modal
-                            title={
-                                editModalId
-                                    ? 'Изменить категорию'
-                                    : 'Добавить новую категорию'
-                            }
+                            title={editModalId ? 'Изменить категорию' : 'Добавить новую категорию'}
                             visible={editModalVisable}
                             onCancel={() => setEditModalVisable(false)}
-                            afterClose={() => resetForm()}
+                            afterClose={() => {
+                                setEditModalValue(initialValue)
+                                resetForm()
+                                validateForm()
+                            }}
                             onOk={() => submitForm()}
                             okText={editModalId ? 'Изменить' : 'Сохранить'}
                             cancelText='Отмена'
