@@ -68,7 +68,7 @@ export const TodosList: FC<ITodosProps> = ({ categoryId }) => {
         )
     })
 
-    if (categoryId === NaN) {
+    if (Number.isNaN(categoryId)) {
         return (
             <Row style={{ height: '100%' }} justify='center' align='middle'>
                 <Typography.Title level={2}>Выберите категорию</Typography.Title>

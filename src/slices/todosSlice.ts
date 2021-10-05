@@ -273,9 +273,26 @@ export const todosSlice = createSlice({
         stopDragTodo: state => {
             state.draggedTodoId = null
         },
-        setTodoEditorState: (state, action: PayloadAction<TodoEditorType>) => {
-            state.todoEditor = action.payload
+        openTodoEditor: (state, action: PayloadAction<{ 
+                                                value?: TodoEditorValueType,    
+                                                editTodoId?: number,
+                                                prevTodoId?: number,
+                                                addBefore?: boolean } | undefined>) => 
+        {
+            const { value, ...payload } = action.payload || {}
+            
+            state.todoEditor = {
+                isEditorOpen: true,
+                value: value ? value : { value: '' },
+                ...payload
+            }
         },
+        closeTodoEditor: state => {
+            state.todoEditor = {
+                isEditorOpen: false,
+                value: state.todoEditor.value
+            }
+        }
     },
     extraReducers: builder => {
         builder
@@ -298,7 +315,8 @@ export const {
     toggleTodoProgress,
     toggleTodoHiding,
     moveTodo,
-    setTodoEditorState,
+    openTodoEditor,
+    closeTodoEditor,
     startDragTodo,
     stopDragTodo,
     clearTodoPositions,

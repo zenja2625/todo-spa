@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import {
     getTodosThunk,
     moveTodo,
-    setTodoEditorState,
+    openTodoEditor,
     startDragTodo,
     stopDragTodo,
     updatePositionsThunk,
@@ -105,7 +105,7 @@ export const Todos = () => {
             </DndContext>
             <Button
                 type='primary'
-                onClick={() => dispatch(setTodoEditorState({ isEditorOpen: true }))}
+                onClick={() => dispatch(openTodoEditor())}
             >
                 Новая задача
             </Button>

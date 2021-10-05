@@ -3,13 +3,12 @@ import { Formik } from 'formik'
 import { FC, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { useParams } from 'react-router'
-import { getEditTodoValue } from '../../selectors/getEditTodoValue'
 import {
     updateTodoThunk,
     createTodoThunk,
-    setTodoEditorState,
     updatePositionsThunk,
     updateStatusesThunk,
+    closeTodoEditor,
 } from '../../slices/todosSlice'
 import { useAppDispatch, useAppSelector } from '../../store'
 import { FormItem } from '../utility/FormItem'
@@ -24,8 +23,7 @@ const TodosSchema = Yup.object().shape({
 })
 
 export const TodoEditor: FC<ITodosProps> = ({ categoryId }) => {
-    const editValue = useAppSelector(getEditTodoValue)
-    const { editTodoId, isEditorOpen, prevTodoId, addBefore } = useAppSelector(
+    const { editTodoId, isEditorOpen, prevTodoId, addBefore, value: editValue } = useAppSelector(
         state => state.todos.todoEditor
     )
 
@@ -82,21 +80,22 @@ export const TodoEditor: FC<ITodosProps> = ({ categoryId }) => {
                         )
                     }
 
-                    dispatch(setTodoEditorState({ isEditorOpen: false, editTodoId, value: { value: value } }))
+                    dispatch(closeTodoEditor())
                 }}
             >
-                {({ submitForm, isValid, validateForm, isSubmitting, resetForm }) => {
+                {({ submitForm, isValid, validateForm, isSubmitting, resetForm, isValidating }) => {
+                    console.log(isValidating);
+                    
                     return (
                         <Modal
                             title={editTodoId ? 'Изменить задачу' : 'Добавить новую задачу'}
                             visible={isEditorOpen}
-                            onCancel={() =>
-                                dispatch(setTodoEditorState({ isEditorOpen: false, editTodoId, value: { value: '' } }))
+                            onCancel={() => 
+                                dispatch(closeTodoEditor())
                             }
                             afterClose={() => {
-                                dispatch(setTodoEditorState({ isEditorOpen: false, value: { value: '' } }))
                                 resetForm()
-                                validateForm()
+                                validateForm(editValue)
                             }}
                             onOk={() => submitForm()}
                             okText={editTodoId ? 'Изменить' : 'Сохранить'}

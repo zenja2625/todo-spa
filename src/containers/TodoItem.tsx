@@ -2,7 +2,7 @@ import { FC } from 'react'
 import { Todo } from '../slices/sliceTypes'
 import { MoreOutlined, RightOutlined, DownOutlined } from '@ant-design/icons'
 import {
-    setTodoEditorState,
+    openTodoEditor,
     toggleTodoHiding,
     toggleTodoProgress,
 } from '../slices/todosSlice'
@@ -27,6 +27,8 @@ export const TodoItem: FC<TodoItemPropsType> = ({
     active,
 }) => {
     const dispatch = useAppDispatch()
+
+    const taskEnd = todo.taskEnd ? moment(todo.taskEnd, serverDateFormat): undefined
 
     if (active)
         return (
@@ -89,9 +91,12 @@ export const TodoItem: FC<TodoItemPropsType> = ({
                 value='✎'
                 onClick={() =>
                     dispatch(
-                        setTodoEditorState({
-                            isEditorOpen: true,
+                        openTodoEditor({
                             editTodoId: todo.id,
+                            value: {
+                                value: todo.value,
+                                taskEnd: taskEnd
+                            }
                         })
                     )
                 }
@@ -102,8 +107,7 @@ export const TodoItem: FC<TodoItemPropsType> = ({
                 value='↑'
                 onClick={() =>
                     dispatch(
-                        setTodoEditorState({
-                            isEditorOpen: true,
+                        openTodoEditor({
                             prevTodoId: todo.id,
                             addBefore: true,
                         })
@@ -115,9 +119,8 @@ export const TodoItem: FC<TodoItemPropsType> = ({
                 value='↓'
                 onClick={() =>
                     dispatch(
-                        setTodoEditorState({
-                            isEditorOpen: true,
-                            prevTodoId: todo.id,
+                        openTodoEditor({
+                            prevTodoId: todo.id
                         })
                     )
                 }
