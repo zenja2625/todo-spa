@@ -1,33 +1,27 @@
 import { Modal, ModalProps } from "antd"
-import { useFormikContext } from "formik"
-import { FC, PropsWithChildren, useCallback, useEffect } from "react"
+import { useFormikContext, Form } from "formik"
+import { FC } from "react"
 
-
-interface EditableModalProps<T> extends ModalProps {
-    onModalOpen?: () => void
-    data?: T
-}
-
-
-export const EditableModal = <T,>({ children, onModalOpen, data, ...props }: PropsWithChildren<EditableModalProps<T>>) => {
-    const { setValues } = useFormikContext<T>()
-
-    useEffect(() => {
-        if (data)
-            setValues(data)
-    }, [data])
-
-    // useEffect(() => {
-    //     if (props.visible && data)
-    //         setValues(data)
-    //     console.log('EditableModal Render')
-    // }, [props.visible])
+export const FormikModal: FC<ModalProps> = ({ children, ...props }) => {
+    const { submitForm, isValid, isSubmitting, resetForm } = useFormikContext()
 
     return (
         <Modal
+            afterClose={() => {
+                resetForm()
+            }}
+            onOk={() => submitForm()}
+            cancelText='Отмена'
+            destroyOnClose
+            confirmLoading={isSubmitting}
+            width={350}
+            bodyStyle={{ paddingBottom: 0 }}
+            okButtonProps={{ disabled: !isValid }}
             {...props}
         >
-            {children}
+            <Form style={{ width: '100%' }} onKeyDown={e => e.key === 'Enter' && submitForm()}>
+                {children}
+            </Form>
         </Modal>
     )
 }

@@ -1,8 +1,7 @@
-import { Modal, Form, Row, Col } from 'antd'
+import { Row, Col } from 'antd'
 import { Formik } from 'formik'
 import { FC, useEffect } from 'react'
 import { createPortal } from 'react-dom'
-import { useParams } from 'react-router'
 import {
     updateTodoThunk,
     createTodoThunk,
@@ -14,6 +13,7 @@ import { useAppDispatch, useAppSelector } from '../../store'
 import { FormItem } from '../utility/FormItem'
 import * as Yup from 'yup'
 import { ITodosProps } from './types'
+import { FormikModal } from '../utility/EditableModal'
 
 let renderCount = 1
 
@@ -48,8 +48,8 @@ export const TodoEditor: FC<ITodosProps> = ({ categoryId }) => {
                     )}
             </div>
             <Formik
-                validateOnMount
                 initialValues={editValue}
+                isInitialValid={() => TodosSchema.isValidSync(editValue)}
                 enableReinitialize
                 validationSchema={TodosSchema}
                 onSubmit={async ({ value, taskEnd }) => {
@@ -79,54 +79,36 @@ export const TodoEditor: FC<ITodosProps> = ({ categoryId }) => {
                             })
                         )
                     }
-
+                    
                     dispatch(closeTodoEditor())
                 }}
             >
-                {({ submitForm, isValid, validateForm, isSubmitting, resetForm, isValidating }) => {
-                    console.log(isValidating);
-                    
-                    return (
-                        <Modal
-                            title={editTodoId ? 'Изменить задачу' : 'Добавить новую задачу'}
-                            visible={isEditorOpen}
-                            onCancel={() => 
-                                dispatch(closeTodoEditor())
-                            }
-                            afterClose={() => {
-                                resetForm()
-                                validateForm(editValue)
-                            }}
-                            onOk={() => submitForm()}
-                            okText={editTodoId ? 'Изменить' : 'Сохранить'}
-                            cancelText='Отмена'
-                            destroyOnClose
-                            confirmLoading={isSubmitting}
-                            width={350}
-                            bodyStyle={{ paddingBottom: 0 }}
-                            okButtonProps={{ disabled: !isValid }}
-                        >
-                            <Form style={{ width: '100%' }}>
-                                <Row gutter={10}>
-                                    <Col span={14}>
-                                        <FormItem
-                                            name='value'
-                                            type='text'
-                                            placeholder='Название задачи'
-                                        />
-                                    </Col>
-                                    <Col span={10}>
-                                        <FormItem
-                                            name='taskEnd'
-                                            type='datepicker'
-                                            placeholder='Срок'
-                                        />
-                                    </Col>
-                                </Row>
-                            </Form>
-                        </Modal>
-                    )
-                }}
+                <FormikModal
+                    title={editTodoId ? 'Изменить задачу' : 'Добавить новую задачу'}
+                    visible={isEditorOpen}
+                    onCancel={() => 
+                        dispatch(closeTodoEditor())
+                    }
+                    okText={editTodoId ? 'Изменить' : 'Сохранить'}
+                >
+                        <Row gutter={10}>
+                            <Col span={14}>
+                                <FormItem
+                                    name='value'
+                                    type='text'
+                                    placeholder='Название задачи'
+                                    autoFocus
+                                />
+                            </Col>
+                            <Col span={10}>
+                                <FormItem
+                                    name='taskEnd'
+                                    type='datepicker'
+                                    placeholder='Срок'
+                                />
+                            </Col>
+                        </Row>
+                </FormikModal>
             </Formik>
         </div>
     )

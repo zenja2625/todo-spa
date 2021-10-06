@@ -5,29 +5,33 @@ import { Moment } from 'moment'
 import { FC } from 'react'
 import locale from 'antd/es/date-picker/locale/ru_RU'
 import { appDateFormat } from '../../dateFormat'
+import { JsxAttribute } from 'typescript'
 
 type InputTypes = 'text' | 'password' | 'login' | 'datepicker'
 type FormItemType = {
     type: InputTypes
     name: string
     placeholder?: string
+    autoFocus?: boolean
 }
 
 const getInput = (
     type: InputTypes,
     props: FieldInputProps<any>,
     setValue: (value: any) => void,
-    placeholder?: string
+    placeholder?: string,
+    autoFocus?: boolean
 ) => {
     switch (type) {
         case 'text':
-            return <Input {...props} placeholder={placeholder}/>
+            return <Input {...props} placeholder={placeholder} autoFocus={autoFocus}/>
         case 'password':
             return (
                 <Input.Password
                     {...props}
                     prefix={<LockOutlined />}
                     placeholder={placeholder}
+                    autoFocus={autoFocus}
                 />
             )
         case 'login':
@@ -36,6 +40,7 @@ const getInput = (
                     {...props}
                     prefix={<UserOutlined />}
                     placeholder={placeholder}
+                    autoFocus={autoFocus}
                 />
             )
         case 'datepicker':
@@ -51,12 +56,13 @@ const getInput = (
                     placeholder={placeholder}
                     locale={locale}
                     format={appDateFormat}
+                    autoFocus={autoFocus}
                 />
             )
     }
 }
 
-export const FormItem: FC<FormItemType> = ({ type, name, placeholder }) => {
+export const FormItem: FC<FormItemType> = ({ type, name, placeholder, autoFocus }) => {
     const [field, { touched, error }, { setValue }] = useField(name)
 
     const showError = touched && error
@@ -66,7 +72,7 @@ export const FormItem: FC<FormItemType> = ({ type, name, placeholder }) => {
             validateStatus={showError ? 'error' : 'success'}
             help={showError && error}
         >
-            {getInput(type, field, setValue, placeholder)}
+            {getInput(type, field, setValue, placeholder, autoFocus)}
         </Form.Item>
     )
 }
