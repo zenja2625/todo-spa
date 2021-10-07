@@ -7,7 +7,7 @@ import {
     toggleTodoProgress,
 } from '../slices/todosSlice'
 import { useAppDispatch, useAppSelector } from '../store'
-import { Skeleton } from 'antd'
+import { Button, Popover, Skeleton } from 'antd'
 import moment from 'moment'
 import { appDateFormat, serverDateFormat } from '../dateFormat'
 
@@ -92,7 +92,7 @@ export const TodoItem: FC<TodoItemPropsType> = ({
                 onClick={() =>
                     dispatch(
                         openTodoEditor({
-                            editTodoId: todo.id,
+                            editId: todo.id,
                             value: {
                                 value: todo.value,
                                 taskEnd: taskEnd
@@ -108,7 +108,7 @@ export const TodoItem: FC<TodoItemPropsType> = ({
                 onClick={() =>
                     dispatch(
                         openTodoEditor({
-                            prevTodoId: todo.id,
+                            prevId: todo.id,
                             addBefore: true,
                         })
                     )
@@ -120,7 +120,7 @@ export const TodoItem: FC<TodoItemPropsType> = ({
                 onClick={() =>
                     dispatch(
                         openTodoEditor({
-                            prevTodoId: todo.id
+                            prevId: todo.id
                         })
                     )
                 }

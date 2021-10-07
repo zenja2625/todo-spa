@@ -13,11 +13,12 @@ import {
     RejectValueType,
     Todo,
     TodoDTO,
-    TodoEditorType,
+    ITodoEditor,
     TodosType,
     UpdatePositionsType,
     UpdateStatusesType,
     updateTodoDragDepthProps,
+    openTodoEditorProps,
 } from './sliceTypes'
 
 const initialState: TodosType = {
@@ -25,7 +26,7 @@ const initialState: TodosType = {
     todoStatusDTOs: [],
     todoPositionDTOs: [],
     todoEditor: {
-        isEditorOpen: false,
+        isOpen: false,
         value: { value: '' },
     },
     draggedTodoId: null,
@@ -273,26 +274,21 @@ export const todosSlice = createSlice({
         stopDragTodo: state => {
             state.draggedTodoId = null
         },
-        openTodoEditor: (state, action: PayloadAction<{ 
-                                                value?: TodoEditorValueType,    
-                                                editTodoId?: number,
-                                                prevTodoId?: number,
-                                                addBefore?: boolean } | undefined>) => 
-        {
+        openTodoEditor: (state, action: PayloadAction<openTodoEditorProps | undefined>) => {
             const { value, ...payload } = action.payload || {}
-            
+
             state.todoEditor = {
-                isEditorOpen: true,
+                isOpen: true,
                 value: value ? value : { value: '' },
-                ...payload
+                ...payload,
             }
         },
         closeTodoEditor: state => {
             state.todoEditor = {
-                isEditorOpen: false,
-                value: state.todoEditor.value
+                isOpen: false,
+                value: state.todoEditor.value,
             }
-        }
+        },
     },
     extraReducers: builder => {
         builder

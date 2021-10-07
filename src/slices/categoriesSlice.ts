@@ -1,10 +1,14 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { API } from '../api/api'
-import { CategoriesType, Category } from './sliceTypes'
+import { CategoriesType, Category, openCategoryEditorProps } from './sliceTypes'
 
 const initialState: CategoriesType = {
     categories: [],
-    selectedCategoryId: 0
+    selectedCategoryId: 0,
+    editor: {
+        isOpen: false,
+        value: '',
+    },
 }
 
 export const getCategoriesThunk = createAsyncThunk(
@@ -62,9 +66,21 @@ export const categoriesSlice = createSlice({
         selectCategory: (state, action: PayloadAction<number>) => {
             state.selectedCategoryId = action.payload
         },
-        clearCategories: (state) => {
-            state.categories = []
-        }
+        openCategoryEditor: (state, action: PayloadAction<openCategoryEditorProps | undefined>) => {
+            const value = action.payload?.value || ''
+
+            state.editor = {
+                isOpen: true,
+                value: value,
+                editId: action.payload?.editId
+            }
+        },
+        closeCategoryEditor: state => {
+            state.editor = {
+                isOpen: false,
+                value: state.editor.value,
+            }
+        },
     },
     extraReducers: builder => {
         builder.addCase(getCategoriesThunk.fulfilled, (state, action) => {
@@ -74,9 +90,11 @@ export const categoriesSlice = createSlice({
             state.categories = state.categories.filter(c => c.id !== action.payload)
         })
         builder.addCase(updateCategoryThunk.fulfilled, (state, action) => {
-            state.categories = state.categories.map(x => x.id === action.payload.id ? action.payload : x)
+            state.categories = state.categories.map(x =>
+                x.id === action.payload.id ? action.payload : x
+            )
         })
-    }
+    },
 })
 
-export const { selectCategory, clearCategories } = categoriesSlice.actions
+export const { selectCategory, openCategoryEditor, closeCategoryEditor } = categoriesSlice.actions

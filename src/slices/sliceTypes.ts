@@ -35,20 +35,25 @@ export type PutTodoDTO = {
     taskEnd?: string
 }
 
-export type CategoriesType = {
-    categories: Array<Category>
-    selectedCategoryId: number
+export interface IEditor<T> {
+    isOpen: boolean
+    value: T
+    editId?: number
 }
 
-export type TodoEditorType = {
-    isEditorOpen: boolean
-    value: TodoEditorValueType
-    editTodoId?: number
+export interface ITodoEditor extends IEditor<TodoEditorValueType> {
     prevTodoId?: number
     addBefore?: boolean
 }
 
+export type CategoriesType = {
+    categories: Array<Category>
+    selectedCategoryId: number //????????????
+    editor: IEditor<string>
+}
+
 export type TodoDragType = {
+    //?????????????
     draggedTodo?: TodoDTO
     draggedTodoDepth?: number
 }
@@ -57,9 +62,21 @@ export type TodosType = {
     todos: Array<TodoDTO>
     todoStatusDTOs: Array<TodoStatusDTO>
     todoPositionDTOs: Array<TodoPositionDTO>
-    todoEditor: TodoEditorType
-    draggedTodoId: number | null////////////////////////////?
+    todoEditor: ITodoEditor
+    draggedTodoId: number | null ////////////////////////////?
     todosRequestId: string | null
+}
+
+export type openCategoryEditorProps = {
+    value?: string
+    editId?: number
+}
+
+export type openTodoEditorProps = {
+    value?: TodoEditorValueType
+    editId?: number
+    prevId?: number
+    addBefore?: boolean
 }
 
 export type UpdateStatusesType = {
