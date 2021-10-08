@@ -1,0 +1,25 @@
+.todo-item {
+    background-color: white;
+    font-size: 1.2em;
+    height: 30px;
+    padding: 0 10px 0 10px;
+}
+
+.empty-icon {
+    width: 1em;
+    height: 1em;
+}
+
+.hidden-icon {
+    cursor: pointer;
+}
+
+.before-todo {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    left: calc(-1em - 10px);
+    height: 100%;
+    width: 1em;
+    cursor: move !important;
+}
