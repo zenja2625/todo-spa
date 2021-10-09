@@ -86,7 +86,7 @@ export const TodosList: FC<ITodosProps> = ({ categoryId }) => {
                     style={{
                         width: '100%',
                         backgroundColor: 'orangered',
-                        overflow: 'hidden',
+                        // overflow: 'hidden',
                     }} //*******************************//
                     direction='vertical'
                     size={0}

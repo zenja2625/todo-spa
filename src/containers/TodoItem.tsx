@@ -1,15 +1,21 @@
-import { FC } from 'react'
+import { CSSProperties, FC } from 'react'
 import { Todo } from '../slices/sliceTypes'
-import { MoreOutlined, RightOutlined, DownOutlined } from '@ant-design/icons'
+import { MoreOutlined, RightOutlined, DownOutlined, EllipsisOutlined } from '@ant-design/icons'
 import {
+    depthIndent,
     openTodoEditor,
     toggleTodoHiding,
     toggleTodoProgress,
 } from '../slices/todosSlice'
 import { useAppDispatch, useAppSelector } from '../store'
+<<<<<<< HEAD
 import { Button, Popover, Skeleton } from 'antd'
+=======
+import { Checkbox, Col, Row, Skeleton, Space, Typography } from 'antd'
+>>>>>>> 7102bf9975bd81d2f3ff8e51080a3f77e1f4507e
 import moment from 'moment'
 import { appDateFormat, serverDateFormat } from '../dateFormat'
+import './todoItem.css'
 
 type TodoItemPropsType = {
     todo: Todo
@@ -28,64 +34,36 @@ export const TodoItem: FC<TodoItemPropsType> = ({
 }) => {
     const dispatch = useAppDispatch()
 
-    const taskEnd = todo.taskEnd ? moment(todo.taskEnd, serverDateFormat): undefined
+    const taskEnd = todo.taskEnd ? moment(todo.taskEnd, serverDateFormat) : undefined
+
+    const style: CSSProperties = {
+        marginLeft: `${depthIndent * todo.depth}px`
+    }
 
     if (active)
         return (
             <div
                 style={{
                     backgroundColor: 'lightgray',
-                    marginLeft: `${30 * todo.depth}px`,
+                    marginLeft: `${depthIndent * todo.depth}px`,
                     height: '30px',
-                    width: '100%',
                 }}
             ></div>
         )
 
     return (
-        <div
-            style={{
-                display: 'flex',
-                alignItems: 'center',
-                marginLeft: `${30 * todo.depth}px`,
-                height: '30px',
-                width: '100%',
-                position: 'relative',
-                userSelect: 'none',
-            }}
-            key={todo.id}
-        >
-            <MoreOutlined
-                ref={dragRef}
-                {...handleProps}
-                style={{ cursor: 'move' }}
-            />
-            {todo.showHideButton ? (
-                <input
-                    type='button'
-                    onClick={() => dispatch(toggleTodoHiding(todo.id))}
-                    style={{ width: '25px' }}
-                    value={todo.isHiddenSubTasks ? '>' : 'ᐯ'}
-                />
-            ) : (
-                <span style={{ marginRight: '25px' }}></span>
-            )}
-            <input
-                type='checkbox'
-                onChange={() => dispatch(toggleTodoProgress(todo.id))}
-                checked={todo.isDone}
-            ></input>
-            {todo.value}
+        <Row justify='space-between' style={style} className='todo-item'>
+            <Col>
+                <MoreOutlined ref={dragRef} {...handleProps} className='before-todo'/>
+                <Space>
+                {!todo.showHideButton 
+                    ? <div className='empty-icon'/>
+                    : todo.isHiddenSubTasks 
+                        ? <RightOutlined className='hidden-icon' onClick={() => dispatch(toggleTodoHiding(todo.id))}/>
+                        : <DownOutlined className='hidden-icon' onClick={() => dispatch(toggleTodoHiding(todo.id))}/>
+                    }
 
-            {
-                <span style={{ marginLeft: '3px', width: '80px' }}>
-                    {todo.taskEnd &&
-                        moment(todo.taskEnd, serverDateFormat).format(
-                            appDateFormat
-                        )}
-                </span>
-            }
-
+<<<<<<< HEAD
             <input
                 type='button'
                 value='✎'
@@ -126,5 +104,15 @@ export const TodoItem: FC<TodoItemPropsType> = ({
                 }
             />
         </div>
+=======
+                    <Checkbox onChange={() => dispatch(toggleTodoProgress(todo.id))} checked={todo.isDone}/>
+                    {todo.value}
+                </Space>
+            </Col>
+            <Col>
+                <EllipsisOutlined />
+            </Col>
+        </Row>
+>>>>>>> 7102bf9975bd81d2f3ff8e51080a3f77e1f4507e
     )
 }

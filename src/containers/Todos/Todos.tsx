@@ -75,7 +75,7 @@ export const Todos = () => {
     return (
         <Space
             style={{
-                padding: '15px',
+                padding: '15px 15px 15px 50px',
                 backgroundColor: 'orchid',
                 width: '100%',
             }}//////////////////////////////////////////
