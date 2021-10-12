@@ -84,7 +84,7 @@ export const TodosList: FC<ITodosProps> = ({ categoryId }) => {
             >
                 <Space
                     style={{
-                        width: '100%',
+                        maxWidth: '1000px',
                         backgroundColor: 'orangered',
                         // overflow: 'hidden',
                     }} //*******************************//
@@ -100,6 +100,11 @@ export const TodosList: FC<ITodosProps> = ({ categoryId }) => {
                     </DragOverlay>,
                     document.body
                 )}
+                <div style={{ width: '300px', height: '300px', backgroundColor: 'red' }}>
+                    <div style={{ backgroundColor: 'palegoldenrod', height: '100px' }}>
+
+                    </div>
+                </div>
             </SortableContext>
         )
     }

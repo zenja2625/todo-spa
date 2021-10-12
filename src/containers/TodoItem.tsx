@@ -8,11 +8,7 @@ import {
     toggleTodoProgress,
 } from '../slices/todosSlice'
 import { useAppDispatch, useAppSelector } from '../store'
-<<<<<<< HEAD
-import { Button, Popover, Skeleton } from 'antd'
-=======
 import { Checkbox, Col, Row, Skeleton, Space, Typography } from 'antd'
->>>>>>> 7102bf9975bd81d2f3ff8e51080a3f77e1f4507e
 import moment from 'moment'
 import { appDateFormat, serverDateFormat } from '../dateFormat'
 import './todoItem.css'
@@ -40,19 +36,19 @@ export const TodoItem: FC<TodoItemPropsType> = ({
         marginLeft: `${depthIndent * todo.depth}px`
     }
 
-    if (active)
-        return (
-            <div
-                style={{
-                    backgroundColor: 'lightgray',
-                    marginLeft: `${depthIndent * todo.depth}px`,
-                    height: '30px',
-                }}
-            ></div>
-        )
+    // if (active)
+    //     return (
+    //         <div
+    //             style={{
+    //                 backgroundColor: 'lightgray',
+    //                 marginLeft: `${depthIndent * todo.depth}px`,
+    //                 height: '40px',
+    //             }}
+    //         ></div>
+    //     )
 
     return (
-        <Row justify='space-between' style={style} className='todo-item'>
+        <Row justify='space-between' align='middle' style={style} className='todo-item'>
             <Col>
                 <MoreOutlined ref={dragRef} {...handleProps} className='before-todo'/>
                 <Space>
@@ -63,48 +59,6 @@ export const TodoItem: FC<TodoItemPropsType> = ({
                         : <DownOutlined className='hidden-icon' onClick={() => dispatch(toggleTodoHiding(todo.id))}/>
                     }
 
-<<<<<<< HEAD
-            <input
-                type='button'
-                value='✎'
-                onClick={() =>
-                    dispatch(
-                        openTodoEditor({
-                            editId: todo.id,
-                            value: {
-                                value: todo.value,
-                                taskEnd: taskEnd
-                            }
-                        })
-                    )
-                }
-            />
-            <input type='button' value='❌' onClick={remove} />
-            <input
-                type='button'
-                value='↑'
-                onClick={() =>
-                    dispatch(
-                        openTodoEditor({
-                            prevId: todo.id,
-                            addBefore: true,
-                        })
-                    )
-                }
-            />
-            <input
-                type='button'
-                value='↓'
-                onClick={() =>
-                    dispatch(
-                        openTodoEditor({
-                            prevId: todo.id
-                        })
-                    )
-                }
-            />
-        </div>
-=======
                     <Checkbox onChange={() => dispatch(toggleTodoProgress(todo.id))} checked={todo.isDone}/>
                     {todo.value}
                 </Space>
@@ -113,6 +67,5 @@ export const TodoItem: FC<TodoItemPropsType> = ({
                 <EllipsisOutlined />
             </Col>
         </Row>
->>>>>>> 7102bf9975bd81d2f3ff8e51080a3f77e1f4507e
     )
 }
