@@ -21,7 +21,7 @@ import {
     useSensors,
 } from '@dnd-kit/core'
 import { createPortal } from 'react-dom'
-import { Button, Space, Typography } from 'antd'
+import { Button, Col, Row, Space, Typography } from 'antd'
 
 import { useParams } from 'react-router'
 
@@ -73,13 +73,16 @@ export const Todos = () => {
     const onDragCancel = () => dispatch(stopDragTodo())
 
     return (
-        <Space
+        <Row justify='center' style={{overflowY: 'scroll', height: '100%', padding: '15px 15px' }}>
+            <Col style={{ maxWidth: '800px', width: '100%', }}>
+            <Space
             style={{
-                padding: '15px 15px 15px 50px',
-                backgroundColor: 'orchid',
+
                 width: '100%',
-            }}//////////////////////////////////////////
+                height: '100%'
+            }}
             direction='vertical'
+            
             size='middle'
         >
             {document.getElementById('render') &&
@@ -111,5 +114,7 @@ export const Todos = () => {
             </Button>
             <TodoEditor categoryId={Number(categoryId)}/>
         </Space>
+            </Col>
+        </Row>
     )
 }

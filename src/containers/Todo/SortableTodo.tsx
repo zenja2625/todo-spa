@@ -18,7 +18,7 @@ const animateLayoutChanges: AnimateLayoutChanges = ({
 }) => (isSorting || wasSorting ? false : true);
 
 export const SortableTodo: FC<SortableTodoPropsType> = ({ todo, remove, todos }) => {
-    const sort = useSortable({ id: todo.id.toString(), animateLayoutChanges })
+    const sort = useSortable({ id: todo.id.toString() })
 
     const {
         attributes,
@@ -29,10 +29,15 @@ export const SortableTodo: FC<SortableTodoPropsType> = ({ todo, remove, todos })
         active,
         index,
         overIndex,
-        
+        node,
+        over
     } = sort
 
+    //  console.log(over)
+    console.log(`${index}: ${transform?.y}`)
+
     const style: CSSProperties = {
+        scale: '1',
         transform: CSS.Transform.toString(transform)
     };
 

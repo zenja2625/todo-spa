@@ -56,7 +56,7 @@ export const TodosList: FC<ITodosProps> = ({ categoryId }) => {
             },
         })
     }
-
+    
     const todoItems = todos.map(todo => {
         return (
             <SortableTodo
@@ -84,13 +84,12 @@ export const TodosList: FC<ITodosProps> = ({ categoryId }) => {
             >
                 <Space
                     style={{
-                        maxWidth: '1000px',
-                        backgroundColor: 'orangered',
-                        // overflow: 'hidden',
-                    }} //*******************************//
+                        width: '100%'
+                    }}
                     direction='vertical'
-                    size={0}
-                    split={<Divider style={{ margin: 0 }} />}
+
+                    size={2}
+                    // split={<Divider style={{ margin: 0 }} />}
                 >
                     {todoItems}
                 </Space>
@@ -100,11 +99,6 @@ export const TodosList: FC<ITodosProps> = ({ categoryId }) => {
                     </DragOverlay>,
                     document.body
                 )}
-                <div style={{ width: '300px', height: '300px', backgroundColor: 'red' }}>
-                    <div style={{ backgroundColor: 'palegoldenrod', height: '100px' }}>
-
-                    </div>
-                </div>
             </SortableContext>
         )
     }
