@@ -18,7 +18,7 @@ import {
     UpdatePositionsType,
     UpdateStatusesType,
     updateTodoDragDepthProps,
-    openTodoEditorProps,
+    OpenTodoEditorProps,
 } from './sliceTypes'
 
 const initialState: TodosType = {
@@ -274,13 +274,14 @@ export const todosSlice = createSlice({
         stopDragTodo: state => {
             state.draggedTodoId = null
         },
-        openTodoEditor: (state, action: PayloadAction<openTodoEditorProps | undefined>) => {
+        openTodoEditor: (state, action: PayloadAction<OpenTodoEditorProps | undefined>) => {
             const { value, ...payload } = action.payload || {}
 
             state.todoEditor = {
                 isOpen: true,
                 value: value ? value : { value: '' },
                 ...payload,
+                
             }
         },
         closeTodoEditor: state => {

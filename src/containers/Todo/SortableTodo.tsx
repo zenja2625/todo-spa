@@ -30,15 +30,17 @@ export const SortableTodo: FC<SortableTodoPropsType> = ({ todo, remove, todos })
         index,
         overIndex,
         node,
-        over
+        over,
+        isDragging
     } = sort
 
     //  console.log(over)
-    console.log(`${index}: ${transform?.y}`)
+    // console.log(`${index}: ${transform?.y}`)
 
     const style: CSSProperties = {
         scale: '1',
-        transform: CSS.Transform.toString(transform)
+        transform: CSS.Transform.toString(transform),
+        userSelect: isDragging ? 'none' : undefined
     };
 
     const isActive = !!active && active.id === todo.id.toString()
@@ -49,7 +51,7 @@ export const SortableTodo: FC<SortableTodoPropsType> = ({ todo, remove, todos })
     }
 
     return (
-        <div ref={setDroppableNodeRef} style={style} >
+        <div ref={setDroppableNodeRef} style={style}>
             <TodoItem
                 todo={todo}
                 active={isActive}

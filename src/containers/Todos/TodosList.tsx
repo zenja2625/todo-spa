@@ -1,6 +1,6 @@
 import { DragOverlay } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
-import { Space, Divider, Row, Typography } from 'antd'
+import { Space, Row, Typography } from 'antd'
 import { FC, useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { getTodos } from '../../selectors/getTodos'
@@ -11,6 +11,7 @@ import confirm from 'antd/lib/modal/confirm'
 import { ExclamationCircleOutlined } from '@ant-design/icons'
 import { useDebounce } from '../../hooks/useDebounce'
 import { ITodosProps } from './types'
+import { TodoItem } from '../TodoItem'
 
 export const TodosList: FC<ITodosProps> = ({ categoryId }) => {
     console.log('Render TodosList')
@@ -20,6 +21,8 @@ export const TodosList: FC<ITodosProps> = ({ categoryId }) => {
     const actualStatuses = useAppSelector(state => state.todos.todoStatusDTOs)
     const actualPosition = useAppSelector(state => state.todos.todoPositionDTOs)
     const todosRequestId = useAppSelector(state => state.todos.todosRequestId)
+    const draggedTodoId = useAppSelector(state => state.todos.draggedTodoId)
+    const draggedTodo = todos.find(todo => todo.id === draggedTodoId)
  
     const dispatch = useAppDispatch()
 
@@ -42,17 +45,23 @@ export const TodosList: FC<ITodosProps> = ({ categoryId }) => {
         }
     }, [positions, categoryId, dispatch])
 
-    const openDeletePopup = (id: number) => {
+    const openDeletePopup = (id: number, todoValue: string) => {
         dispatch(updateStatusesThunk(categoryId))
         dispatch(updatePositionsThunk(categoryId))
         confirm({
-            title: 'Вы уверены, что хотите удалить этот todo?',
+            title: (
+                <>
+                    Вы действительно хотите удалить{' '}
+                    <Typography.Text strong>{todoValue}</Typography.Text>?
+                </>
+            ),
             icon: <ExclamationCircleOutlined />,
             okText: 'Да',
             okType: 'danger',
             cancelText: 'Нет',
+            maskClosable: true,
             onOk: () => {
-                if (categoryId) dispatch(deleteTodoThunk({ categoryId, id }))
+                if (!Number.isNaN(categoryId)) dispatch(deleteTodoThunk({ categoryId, id }))
             },
         })
     }
@@ -63,7 +72,7 @@ export const TodosList: FC<ITodosProps> = ({ categoryId }) => {
                 key={todo.id}
                 todos={todos}
                 todo={todo}
-                remove={() => openDeletePopup(todo.id)}
+                remove={() => openDeletePopup(todo.id, todo.value)}
             />
         )
     })
@@ -95,7 +104,7 @@ export const TodosList: FC<ITodosProps> = ({ categoryId }) => {
                 </Space>
                 {createPortal(
                     <DragOverlay>
-                        <div>asd</div>
+                        {draggedTodo && <TodoItem todo={draggedTodo} dragged/>}
                     </DragOverlay>,
                     document.body
                 )}

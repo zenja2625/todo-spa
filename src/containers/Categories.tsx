@@ -10,7 +10,7 @@ import { useAppDispatch, useAppSelector } from '../store'
 import Title from 'antd/lib/typography/Title'
 import { Button, Col, Menu, Popover, Row, Typography } from 'antd'
 import { useHistory, useParams } from 'react-router'
-import { DashOutlined, ExclamationCircleOutlined } from '@ant-design/icons'
+import { EllipsisOutlined, ExclamationCircleOutlined } from '@ant-design/icons'
 import confirm from 'antd/lib/modal/confirm'
 import { Category } from '../slices/sliceTypes'
 import { Formik } from 'formik'
@@ -93,7 +93,7 @@ export const Categories = () => {
                             trigger='click'
                         >
                             <Button type='text' style={{ height: '100%' }}>
-                                <DashOutlined />
+                                <EllipsisOutlined />
                             </Button>
                         </Popover>
                     </Col>

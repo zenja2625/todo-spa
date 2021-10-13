@@ -42,7 +42,7 @@ export interface IEditor<T> {
 }
 
 export interface ITodoEditor extends IEditor<TodoEditorValueType> {
-    prevTodoId?: number
+    overId?: number
     addBefore?: boolean
 }
 
@@ -72,9 +72,9 @@ export type openCategoryEditorProps = {
     editId?: number
 }
 
-export type openTodoEditorProps = {
+export type OpenTodoEditorProps = {
     value?: TodoEditorValueType
-    editId?: number
+    overId?: number
     prevId?: number
     addBefore?: boolean
 }
