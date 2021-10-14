@@ -28,6 +28,7 @@ export const TodoItem: FC<TodoItemPropsType> = ({
     handleProps,
     remove,
     active,
+    dragged
 }) => {
     const [popoverVisable, setPopoverVisable] = useState(false)
 
@@ -36,7 +37,8 @@ export const TodoItem: FC<TodoItemPropsType> = ({
     const taskEnd = todo.taskEnd ? moment(todo.taskEnd, serverDateFormat) : undefined
 
     const style: CSSProperties = {
-        marginLeft: `${depthIndent * todo.depth}px`
+        marginLeft: dragged ? undefined : `${depthIndent * todo.depth}px`,
+        boxShadow: dragged ? '2px 2px 7px 1px lightgray' : undefined
     }
 
     const popoverMenu = () => {
@@ -92,9 +94,9 @@ export const TodoItem: FC<TodoItemPropsType> = ({
         )
 
     return (
-        <Row justify='space-between' align='middle' style={style} className='todo-item'>
+        <Row ref={dragRef} justify='space-between' align='middle' style={style} className='todo-item'>
             <Col>
-                <MoreOutlined ref={dragRef} {...handleProps} className='before-todo' />
+                <MoreOutlined {...handleProps} className='before-todo' />
                 <Space>
                     {!todo.showHideButton
                         ? <div className='empty-icon' />

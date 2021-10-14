@@ -48,7 +48,6 @@ export interface ITodoEditor extends IEditor<TodoEditorValueType> {
 
 export type CategoriesType = {
     categories: Array<Category>
-    selectedCategoryId: number //????????????
     editor: IEditor<string>
 }
 

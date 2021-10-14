@@ -4,7 +4,6 @@ import { CategoriesType, Category, openCategoryEditorProps } from './sliceTypes'
 
 const initialState: CategoriesType = {
     categories: [],
-    selectedCategoryId: 0,
     editor: {
         isOpen: false,
         value: '',
@@ -63,9 +62,6 @@ export const categoriesSlice = createSlice({
     name: 'categories',
     initialState,
     reducers: {
-        selectCategory: (state, action: PayloadAction<number>) => {
-            state.selectedCategoryId = action.payload
-        },
         openCategoryEditor: (state, action: PayloadAction<openCategoryEditorProps | undefined>) => {
             const value = action.payload?.value || ''
 
@@ -97,4 +93,4 @@ export const categoriesSlice = createSlice({
     },
 })
 
-export const { selectCategory, openCategoryEditor, closeCategoryEditor } = categoriesSlice.actions
+export const { openCategoryEditor, closeCategoryEditor } = categoriesSlice.actions
