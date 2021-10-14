@@ -1,13 +1,8 @@
+import { getTodoChildCount } from './getTodoChildCount'
+
 export interface ITodo {
     id: number
     depth: number
-}
-
-export const getTodoChildCount = (todos: Array<ITodo>, index: number) => {
-    let count = 0
-    for (let i = index + 1; i < todos.length && todos[index].depth < todos[i].depth; i++) count++
-
-    return count
 }
 
 export const getTodoDepth = (

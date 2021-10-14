@@ -83,7 +83,7 @@ export const TodosList: FC<ITodosProps> = ({ categoryId }) => {
                 <Typography.Title level={2}>Выберите категорию</Typography.Title>
             </Row>
         )
-    } else if (todosRequestId) {
+    } else if (todosRequestId && !todos.length) {
         return <div>Загрузка...</div>
     } else {
         return (

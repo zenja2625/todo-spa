@@ -4,7 +4,9 @@ import { API } from '../api/api'
 import { TodoPositionDTO, TodoPostDTO, TodoPutDTO, TodoStatusDTO } from '../api/apiTypes'
 import { TodoEditorValueType } from '../containers/containerTypes'
 import { serverDateFormat } from '../dateFormat'
-import { getTodoChildCount, getTodoDepth, ITodo } from '../utility/getTodoDepth'
+import { getParentIndex } from '../utility/getParentIndex'
+import { getTodoChildCount } from '../utility/getTodoChildCount'
+import { getTodoDepth, ITodo } from '../utility/getTodoDepth'
 import { getTodoPosition } from '../utility/getTodoPosition'
 import { deinitialization } from './appSlice'
 import {
@@ -49,6 +51,7 @@ type DeleteTodoProps = {
     id: number
     categoryId: number
 }
+
 
 export const depthIndent = 40
 
@@ -141,7 +144,7 @@ export const updateTodoThunk = createAsyncThunk(
     async (payload: UpdateTodoProps, thunkAPI) => {
         try {
             await API.todos.updateTodo(payload.categoryId, payload.id, payload.todoDTO)
-            await thunkAPI.dispatch(getTodosThunk(payload.categoryId))
+            return payload
         } catch (error: any) {
             return thunkAPI.rejectWithValue(error.response?.status)
         }
@@ -153,27 +156,20 @@ export const deleteTodoThunk = createAsyncThunk(
     async (payload: DeleteTodoProps, thunkAPI) => {
         try {
             await API.todos.deleteTodo(payload.categoryId, payload.id)
-            await thunkAPI.dispatch(getTodosThunk(payload.categoryId))
+            return payload.id
         } catch (error: any) {
             return thunkAPI.rejectWithValue(error.response?.status)
         }
     }
 )
 
-const getParentIndex = (todos: Array<ITodo>, index: number) => {
-    for (let i = index - 1; i >= 0; i--) {
-        if (todos[index].depth > todos[i].depth) {
-            return i
-        }
-    }
-
-    return -1
-}
-
 export const todosSlice = createSlice({
     name: 'todos',
     initialState,
     reducers: {
+        clearTodos: state => {
+            state.todos = []
+        },
         clearTodoStatuses: state => {
             state.todoStatusDTOs = []
         },
@@ -304,10 +300,23 @@ export const todosSlice = createSlice({
                     state.todosRequestId = null
                 }
             })
+            .addCase(updateTodoThunk.fulfilled, (state, action) => {
+                const todo = state.todos.find(todo => todo.id === action.payload.id)
+                if (todo) {
+                    todo.value = action.payload.todoDTO.value
+                    todo.taskEnd = action.payload.todoDTO.taskEnd?.toString()
+                }
+            })
+            .addCase(deleteTodoThunk.fulfilled, (state, action) => {
+                const todoIndex = state.todos.findIndex(todo => todo.id === action.payload)
+                const count = getTodoChildCount(state.todos, todoIndex)
+                state.todos.splice(todoIndex, 1 + count)
+            })
     },
 })
 
 export const {
+    clearTodos,
     toggleTodoProgress,
     toggleTodoHiding,
     moveTodo,

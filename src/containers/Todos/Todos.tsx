@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import {
+    clearTodos,
     getTodosThunk,
     moveTodo,
     openTodoEditor,
@@ -40,7 +41,10 @@ export const Todos = () => {
     )
 
     useEffect(() => {
-        if (categoryId) dispatch(getTodosThunk(Number(categoryId)))
+        if (categoryId) {
+            dispatch(clearTodos())
+            dispatch(getTodosThunk(Number(categoryId)))
+        }
 
         return () => {
             if (categoryId !== undefined) {
