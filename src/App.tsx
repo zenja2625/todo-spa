@@ -11,6 +11,7 @@ import { AppHeader } from './containers/AppHeader'
 import { Main } from './containers/Main'
 import { NotFoundPage } from './containers/NotFoundPage'
 import { initializeApp } from './slices/appSlice'
+import { RedirectWithCurrentLocation } from './containers/utility/RedirectWithCurrentLocation'
 
 const App = () => {
     const isAuth = useAppSelector(state => state.account.isAuth)
@@ -49,7 +50,7 @@ const App = () => {
                     {isAuth ? <Main /> : <Redirect to='/login' />}
                 </Route>
                 <Route path='/category/:categoryId' >
-                    {isAuth ? <Main /> : <Redirect to='/login' />}
+                    {isAuth ? <Main /> : <RedirectWithCurrentLocation to='/login' />}
                 </Route>
                 <Route path='/login'>
                     {isAuth ? <Redirect to='/' /> : <Login />}

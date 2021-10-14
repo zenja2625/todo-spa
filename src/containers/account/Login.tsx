@@ -23,10 +23,12 @@ const initialValues: UserLoginDTO = {
 export const Login = () => {
     const dispatch = useAppDispatch()
 
-    const { push } = useHistory()
-
+    const { push, location } = useHistory<{ from: string } | undefined>()
+    
     const onSubmit = async (values: UserLoginDTO) => {
         await dispatch(loginThunk(values))
+        if (location.state)
+            push(location.state.from)
     }
 
     return (

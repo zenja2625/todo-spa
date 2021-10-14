@@ -77,13 +77,7 @@ export const TodosList: FC<ITodosProps> = ({ categoryId }) => {
         )
     })
 
-    if (Number.isNaN(categoryId)) {
-        return (
-            <Row style={{ height: '100%' }} justify='center' align='middle'>
-                <Typography.Title level={2}>Выберите категорию</Typography.Title>
-            </Row>
-        )
-    } else if (todosRequestId && !todos.length) {
+    if (todosRequestId && !todos.length) {
         return <div>Загрузка...</div>
     } else {
         return (
