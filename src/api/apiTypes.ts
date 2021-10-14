@@ -1,3 +1,5 @@
+import { Moment } from 'moment'
+
 export type UserLoginDTO = {
     name: string;
     password: string;
@@ -11,11 +13,11 @@ export type TodoPostDTO = {
     value: string,
     parentId: number,
     prevTodoId: number,
-    taskEnd?: Date
+    taskEnd?: Moment
 }
 export type TodoPutDTO = {
     value: string,
-    taskEnd?: Date
+    taskEnd?: Moment
 }
 export type TodoStatusDTO = {
     id: number,

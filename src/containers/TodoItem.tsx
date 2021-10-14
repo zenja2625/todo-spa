@@ -34,8 +34,6 @@ export const TodoItem: FC<TodoItemPropsType> = ({
 
     const dispatch = useAppDispatch()
 
-    const taskEnd = todo.taskEnd ? moment(todo.taskEnd, serverDateFormat) : undefined
-
     const style: CSSProperties = {
         marginLeft: dragged ? undefined : `${depthIndent * todo.depth}px`,
         boxShadow: dragged ? '2px 2px 7px 1px lightgray' : undefined
@@ -48,7 +46,7 @@ export const TodoItem: FC<TodoItemPropsType> = ({
                 <Menu.Item
                     onClick={() => {
                         setPopoverVisable(false)
-                        dispatch(openTodoEditor({ editId: todo.id, value: { value: todo.value, taskEnd } }))
+                        dispatch(openTodoEditor({ editId: todo.id, value: { value: todo.value, taskEnd: todo.taskEnd } }))
                     }}
                 >
                     Изменить

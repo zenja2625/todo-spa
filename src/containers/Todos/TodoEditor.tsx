@@ -68,7 +68,7 @@ export const TodoEditor: FC<ITodosProps> = ({ categoryId }) => {
                                     categoryId: selectedCategoryId,
                                     todoDTO: {
                                         value: values.value,
-                                        taskEnd: values.taskEnd?.toDate(),
+                                        taskEnd: values.taskEnd,
                                     },
                                 })
                             )
@@ -106,7 +106,7 @@ export const TodoEditor: FC<ITodosProps> = ({ categoryId }) => {
                             />
                         </Col>
                         <Col span={10}>
-                            <FormItem name='taskEnd' type='datepicker' placeholder='Срок' />
+                            <FormItem name='taskEnd' type='datepicker' placeholder='Срок'/>
                         </Col>
                     </Row>
                 </FormikModal>

@@ -1,11 +1,10 @@
 import { LockOutlined, UserOutlined } from '@ant-design/icons'
 import { DatePicker, Form, Input } from 'antd'
 import { FieldInputProps, useField } from 'formik'
-import { Moment } from 'moment'
+import moment, { Moment } from 'moment'
 import { FC } from 'react'
 import locale from 'antd/es/date-picker/locale/ru_RU'
 import { appDateFormat } from '../../dateFormat'
-import { JsxAttribute } from 'typescript'
 
 type InputTypes = 'text' | 'password' | 'login' | 'datepicker'
 type FormItemType = {
@@ -57,6 +56,7 @@ const getInput = (
                     locale={locale}
                     format={appDateFormat}
                     autoFocus={autoFocus}
+                    disabledDate={date => moment().isSameOrAfter(date, 'day')}
                 />
             )
     }

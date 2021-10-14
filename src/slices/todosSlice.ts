@@ -60,6 +60,7 @@ export const getTodosThunk = createAsyncThunk(
     async (categoryId: number, { rejectWithValue }) => {
         try {
             const response = await API.todos.getTodos(categoryId, true)
+            
             return response.data as Array<TodoDTO>
         } catch (error: any) {
             return rejectWithValue(error.response?.status)
@@ -129,7 +130,7 @@ export const createTodoThunk = createAsyncThunk<void, CreateTodoProps, IState & 
 
             await API.todos.createTodo(payload.categoryId, {
                 value: payload.todoValue.value,
-                taskEnd: payload.todoValue.taskEnd?.toDate(),
+                taskEnd: payload.todoValue.taskEnd,
                 ...getTodoPosition(todos, prevIndex, depth),
             })
             await dispatch(getTodosThunk(payload.categoryId))
@@ -304,7 +305,7 @@ export const todosSlice = createSlice({
                 const todo = state.todos.find(todo => todo.id === action.payload.id)
                 if (todo) {
                     todo.value = action.payload.todoDTO.value
-                    todo.taskEnd = action.payload.todoDTO.taskEnd?.toString()
+                    todo.taskEnd = action.payload.todoDTO.taskEnd
                 }
             })
             .addCase(deleteTodoThunk.fulfilled, (state, action) => {

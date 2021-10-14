@@ -22,11 +22,6 @@ const App = () => {
         if (!initialized) dispatch(initializeApp())
     }, [initialized, dispatch])
 
-    //////
-
-
-    //////
-
     if (!initialized)
         return (
             <Spin

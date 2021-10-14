@@ -1,6 +1,7 @@
 import { TodoPositionDTO, TodoStatusDTO } from '../api/apiTypes'
 import { TodoEditorValueType } from '../containers/containerTypes'
 import { RootState } from '../store'
+import { Moment } from 'moment'
 
 export type AppType = {
     initialized: boolean
@@ -23,7 +24,7 @@ export interface TodoDTO {
     isDone: boolean
     isHiddenSubTasks: boolean
     depth: number
-    taskEnd?: string
+    taskEnd?: Moment
 }
 
 export interface Todo extends TodoDTO {
@@ -32,7 +33,7 @@ export interface Todo extends TodoDTO {
 
 export type PutTodoDTO = {
     value: string
-    taskEnd?: string
+    taskEnd?: Moment
 }
 
 export interface IEditor<T> {

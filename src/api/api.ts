@@ -1,5 +1,6 @@
-import axios from "axios"
-import { accountAPI } from "./accountAPI"
+import axios from 'axios'
+import moment from 'moment'
+import { accountAPI } from './accountAPI'
 import { categoriesAPI } from './categoriesAPI'
 import { todosAPI } from './todosAPI'
 
@@ -8,41 +9,53 @@ export const baseURL = 'https://mytodo.azurewebsites.net/api/'
 
 export const instance = axios.create({
     baseURL,
-    withCredentials: true
+    withCredentials: true,
 })
 
-// instance.interceptors.response.use(originalResponse => {
-//     return originalResponse
-// })
+console.log(moment().isBefore('2021-10-16'))
 
-// const client = axios.create({ baseURL: process.env.NEXT_PUBLIC_API_BASE_URL });
+instance.interceptors.response.use(originalResponse => {
+    stringToMoment(originalResponse.data)
+    return originalResponse
+})
 
-// client.interceptors.response.use(originalResponse => {
-//   handleDates(originalResponse.data);
-//   return originalResponse;
-// });
+instance.interceptors.request.use(originalRequest => {
+    momentToString(originalRequest.data)
+    return originalRequest
+})
 
-// export default client;
+export const stringToMoment = (body: any) => {
+    if (body === null || body === undefined || typeof body !== 'object') return body
 
-// const isoDateFormat = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d*)?$/;
+    for (const key of Object.keys(body)) {
+        const value = body[key]
 
-// function isIsoDateString(value: any): boolean {
-//   return value && typeof value === "string" && isoDateFormat.test(value);
-// }
+        if (typeof value === 'string') {
+            const date = moment(value, true)
 
-// export function handleDates(body: any) {
-//   if (body === null || body === undefined || typeof body !== "object")
-//     return body;
+            if (date.isValid()) body[key] = date
+        } else if (typeof value === 'object') stringToMoment(value)
+    }
+}
 
-//   for (const key of Object.keys(body)) {
-//     const value = body[key];
-//     if (isIsoDateString(value)) body[key] = parseISO(value);
-//     else if (typeof value === "object") handleDates(value);
-//   }
-// }
+export const momentToString = (body: any) => {
+    if (body === null || body === undefined || typeof body !== 'object') return body
+
+    for (const key of Object.keys(body)) {
+        const value = body[key]
+
+        if (typeof value === 'object') {
+            if (moment.isMoment(value)) {
+                body[key] = value.format('YYYY-MM-DD')
+            } else {
+                momentToString(value)
+            }
+        }
+    }
+}
 
 export const API = {
     account: accountAPI,
     todos: todosAPI,
-    categories: categoriesAPI
+    categories: categoriesAPI,
 }
