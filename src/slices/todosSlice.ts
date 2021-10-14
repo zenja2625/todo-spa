@@ -107,8 +107,8 @@ export const createTodoThunk = createAsyncThunk<void, CreateTodoProps, IState & 
             let depth = 0
             let prevIndex: number
 
-            if (payload.overTodoId) {
-                const overIndex = todos.findIndex(todo => todo.id === payload.overTodoId)
+            if (payload.overId) {
+                const overIndex = todos.findIndex(todo => todo.id === payload.overId)
 
                 if (overIndex === -1) {
                     dispatch(deinitialization())
@@ -281,7 +281,6 @@ export const todosSlice = createSlice({
                 isOpen: true,
                 value: value ? value : { value: '' },
                 ...payload,
-                
             }
         },
         closeTodoEditor: state => {

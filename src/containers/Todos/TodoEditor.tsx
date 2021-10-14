@@ -27,7 +27,7 @@ export const TodoEditor: FC<ITodosProps> = ({ categoryId }) => {
     const {
         editId: editTodoId,
         isOpen: isEditorOpen,
-        overId: prevTodoId,
+        overId,
         addBefore,
         value: editValue,
     } = useAppSelector(state => state.todos.todoEditor)
@@ -81,7 +81,7 @@ export const TodoEditor: FC<ITodosProps> = ({ categoryId }) => {
                                     value: values.value,
                                     taskEnd: values.taskEnd,
                                 },
-                                overTodoId: prevTodoId,
+                                overId,
                                 addBefore,
                             })
                         )

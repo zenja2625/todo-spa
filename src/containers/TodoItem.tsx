@@ -46,7 +46,7 @@ export const TodoItem: FC<TodoItemPropsType> = ({
                 <Menu.Item
                     onClick={() => {
                         setPopoverVisable(false)
-                        dispatch(openTodoEditor({ overId: todo.id, value: { value: todo.value, taskEnd } }))
+                        dispatch(openTodoEditor({ editId: todo.id, value: { value: todo.value, taskEnd } }))
                     }}
                 >
                     Изменить
@@ -54,7 +54,7 @@ export const TodoItem: FC<TodoItemPropsType> = ({
                 <Menu.Item
                     onClick={() => {
                         setPopoverVisable(false)
-                        dispatch(openTodoEditor({ prevId: todo.id, addBefore: true }))
+                        dispatch(openTodoEditor({ overId: todo.id, addBefore: true }))
                     }}
                 >
                     Добавить выше
@@ -62,7 +62,7 @@ export const TodoItem: FC<TodoItemPropsType> = ({
                 <Menu.Item
                     onClick={() => {
                         setPopoverVisable(false)
-                        dispatch(openTodoEditor({ prevId: todo.id }))
+                        dispatch(openTodoEditor({ overId: todo.id }))
                     }}
                 >
                     Добавить ниже

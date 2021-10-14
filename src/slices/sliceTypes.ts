@@ -74,8 +74,8 @@ export type openCategoryEditorProps = {
 
 export type OpenTodoEditorProps = {
     value?: TodoEditorValueType
+    editId?: number
     overId?: number
-    prevId?: number
     addBefore?: boolean
 }
 
@@ -92,7 +92,7 @@ export type UpdatePositionsType = {
 export type CreateTodoProps = {
     categoryId: number
     todoValue: TodoEditorValueType
-    overTodoId?: number
+    overId?: number
     addBefore?: boolean
 }
 

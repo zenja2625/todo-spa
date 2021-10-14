@@ -93,7 +93,7 @@ export const Todos = () => {
                     document.getElementById('render') as HTMLElement
                 )}
 
-            <Typography.Title level={3} >
+            <Typography.Title level={3} style={{margin: 0}}>
                 {categoryName}
             </Typography.Title>
             <DndContext
