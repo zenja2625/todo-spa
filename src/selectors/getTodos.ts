@@ -3,7 +3,7 @@ import { Todo } from '../slices/sliceTypes'
 import { RootState } from '../store'
 
 export const getTodos = createDraftSafeSelector(
-    (state: RootState) => state.todos.todos,
+    (state: RootState) => state.todos.items,
     state => state.todos.draggedTodoId,
     state => state.categories.showCompletedTodos,
     (todos, draggedTodoId, showCompletedTodos) => {

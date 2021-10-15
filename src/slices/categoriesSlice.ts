@@ -3,7 +3,7 @@ import { API } from '../api/api'
 import { CategoriesType, Category, openCategoryEditorProps } from './sliceTypes'
 
 const initialState: CategoriesType = {
-    categories: [],
+    items: [],
     editor: {
         isOpen: false,
         value: '',
@@ -84,13 +84,13 @@ export const categoriesSlice = createSlice({
     },
     extraReducers: builder => {
         builder.addCase(getCategoriesThunk.fulfilled, (state, action) => {
-            state.categories = action.payload
+            state.items = action.payload
         })
         builder.addCase(deleteCategoryThunk.fulfilled, (state, action) => {
-            state.categories = state.categories.filter(c => c.id !== action.payload)
+            state.items = state.items.filter(c => c.id !== action.payload)
         })
         builder.addCase(updateCategoryThunk.fulfilled, (state, action) => {
-            state.categories = state.categories.map(x =>
+            state.items = state.items.map(x =>
                 x.id === action.payload.id ? action.payload : x
             )
         })

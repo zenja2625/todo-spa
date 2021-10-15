@@ -16,7 +16,7 @@ import {
 } from './sliceTypes'
 
 const initialState: TodosType = {
-    todos: [],
+    items: [],
     todoStatusDTOs: [],
     todoPositionDTOs: [],
     todoEditor: {
@@ -97,7 +97,7 @@ export const createTodoThunk = createAsyncThunk<void, CreateTodoProps, IState & 
     'todos/createTodoThunk',
     async (payload, { getState, rejectWithValue, dispatch }) => {
         try {
-            const todos = getState().todos.todos
+            const todos = getState().todos.items
             const withCompleted = getState().categories.showCompletedTodos
 
             let depth = 0
@@ -161,7 +161,7 @@ export const todosSlice = createSlice({
     initialState,
     reducers: {
         clearTodos: state => {
-            state.todos = []
+            state.items = []
         },
         clearTodoStatuses: state => {
             state.todoStatusDTOs = []
@@ -170,7 +170,7 @@ export const todosSlice = createSlice({
             state.todoPositionDTOs = []
         },
         toggleTodoProgress: (state, action: PayloadAction<number>) => {
-            const todos = state.todos
+            const todos = state.items
             const index = todos.findIndex(todo => todo.id === action.payload)
 
             if (index !== -1) {
@@ -199,7 +199,7 @@ export const todosSlice = createSlice({
             }
         },
         toggleTodoHiding: (state, action: PayloadAction<number>) => {
-            const todos = state.todos
+            const todos = state.items
             const index = todos.findIndex(todo => todo.id === action.payload)
 
             if (index !== -1) {
@@ -214,13 +214,13 @@ export const todosSlice = createSlice({
         },
         startDragTodo: (state, action: PayloadAction<string>) => {
             state.draggedTodoId =
-                state.todos.find(todo => todo.id.toString() === action.payload)?.id || null
+                state.items.find(todo => todo.id.toString() === action.payload)?.id || null
         },
         moveTodo: (
             state,
             action: PayloadAction<{ id: string; overId: string; deltaX: number }>
         ) => {
-            const todos = state.todos
+            const todos = state.items
             const { id, overId, deltaX } = action.payload
 
             const activeIndex = todos.findIndex(todo => todo.id.toString() === id)
@@ -289,21 +289,21 @@ export const todosSlice = createSlice({
             })
             .addCase(getTodosThunk.fulfilled, (state, action) => {
                 if (state.todosRequestId === action.meta.requestId) {
-                    state.todos = action.payload
+                    state.items = action.payload
                     state.todosRequestId = null
                 }
             })
             .addCase(updateTodoThunk.fulfilled, (state, action) => {
-                const todo = state.todos.find(todo => todo.id === action.payload.id)
+                const todo = state.items.find(todo => todo.id === action.payload.id)
                 if (todo) {
                     todo.value = action.payload.todoDTO.value
                     todo.taskEnd = action.payload.todoDTO.taskEnd
                 }
             })
             .addCase(deleteTodoThunk.fulfilled, (state, action) => {
-                const todoIndex = state.todos.findIndex(todo => todo.id === action.payload)
-                const count = getTodoChildCount(state.todos, todoIndex)
-                state.todos.splice(todoIndex, 1 + count)
+                const todoIndex = state.items.findIndex(todo => todo.id === action.payload)
+                const count = getTodoChildCount(state.items, todoIndex)
+                state.items.splice(todoIndex, 1 + count)
             })
     },
 })

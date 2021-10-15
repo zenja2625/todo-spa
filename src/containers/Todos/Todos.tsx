@@ -40,7 +40,7 @@ export const Todos = () => {
     const dispatch = useAppDispatch()
 
     const showCompletedTodos = useAppSelector(state => state.categories.showCompletedTodos)
-    const categories = useAppSelector(state => state.categories.categories)
+    const categories = useAppSelector(state => state.categories.items)
     const selectedCategory = useMemo(
         () => categories.find(category => category.id.toString() === categoryId),
         [categories, categoryId]

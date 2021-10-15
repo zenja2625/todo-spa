@@ -30,7 +30,7 @@ export const Categories = () => {
     const [popupMenuVisableId, setPopupMenuVisableId] = useState<number | null>(null)
 
     const dispatch = useAppDispatch()
-    const categories = useAppSelector(state => state.categories.categories)
+    const categories = useAppSelector(state => state.categories.items)
     const { isOpen, value, editId } = useAppSelector(state => state.categories.editor)
 
     const openDeletePopup = (category: Category) => {
