@@ -1,8 +1,8 @@
 .todo-item {
     background-color: white;
-    font-size: 1.2em;
-    height: 40px;
+    font-size: 1.1em;
     padding: 0 10px 0 10px;
+    line-height: 1.2;
 }
 
 .empty-icon {
@@ -22,4 +22,13 @@
     height: 100%;
     width: 1em;
     cursor: move !important;
+}
+
+.todo-taskEnd {
+    font-size: 0.8em;
+    color: gray;
+}
+
+.todo-expired {
+    color: orangered;
 }

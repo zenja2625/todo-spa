@@ -15,7 +15,6 @@ import { TodoItem } from '../TodoItem'
 
 export const TodosList: FC<ITodosProps> = ({ categoryId }) => {
     console.log('Render TodosList')
-    const [isLoadingTodos, setIsLoadingTodos] = useState(false)
 
     const todos = useAppSelector(getTodos)
     const actualStatuses = useAppSelector(state => state.todos.todoStatusDTOs)
@@ -90,9 +89,7 @@ export const TodosList: FC<ITodosProps> = ({ categoryId }) => {
                         width: '100%'
                     }}
                     direction='vertical'
-
                     size={2}
-                    // split={<Divider style={{ margin: 0 }} />}
                 >
                     {todoItems}
                 </Space>

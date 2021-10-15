@@ -56,7 +56,7 @@ const getInput = (
                     locale={locale}
                     format={appDateFormat}
                     autoFocus={autoFocus}
-                    disabledDate={date => moment().isSameOrAfter(date, 'day')}
+                    disabledDate={date => moment().isAfter(date, 'day')}
                 />
             )
     }
