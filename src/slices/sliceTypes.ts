@@ -50,6 +50,7 @@ export interface ITodoEditor extends IEditor<TodoEditorValueType> {
 export type CategoriesType = {
     categories: Array<Category>
     editor: IEditor<string>
+    showCompletedTodos: boolean
 }
 
 export type TodoDragType = {

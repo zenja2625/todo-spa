@@ -1,10 +1,10 @@
-import { AnimateLayoutChanges, useSortable } from '@dnd-kit/sortable';
+import { AnimateLayoutChanges, useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { CSSProperties, FC } from 'react';
-import { Todo } from '../../slices/sliceTypes';
-import { depthIndent } from '../../slices/todosSlice';
-import { getTodoDepth } from '../../utility/getTodoDepth';
-import { TodoItem } from '../TodoItem';
+import { CSSProperties, FC } from 'react'
+import { Todo } from '../../slices/sliceTypes'
+import { depthIndent } from '../../slices/todosSlice'
+import { getTodoDepth } from '../../utility/getTodoDepth'
+import { TodoItem } from '../TodoItem'
 
 type SortableTodoPropsType = {
     todo: Todo
@@ -12,14 +12,7 @@ type SortableTodoPropsType = {
     remove: () => void
 }
 
-const animateLayoutChanges: AnimateLayoutChanges = ({
-    isSorting,
-    wasSorting
-}) => (isSorting || wasSorting ? false : true);
-
 export const SortableTodo: FC<SortableTodoPropsType> = ({ todo, remove, todos }) => {
-    const sort = useSortable({ id: todo.id.toString() })
-
     const {
         attributes,
         listeners,
@@ -29,25 +22,26 @@ export const SortableTodo: FC<SortableTodoPropsType> = ({ todo, remove, todos })
         active,
         index,
         overIndex,
-        node,
-        over,
-        isDragging
-    } = sort
-
-    //  console.log(over)
-    // console.log(`${index}: ${transform?.y}`)
+        isDragging,
+    } = useSortable({ id: todo.id.toString() })
 
     const style: CSSProperties = {
         scale: '1',
         transform: CSS.Transform.toString(transform),
-        userSelect: isDragging ? 'none' : undefined
-    };
+        userSelect: isDragging ? 'none' : undefined,
+    }
 
     const isActive = !!active && active.id === todo.id.toString()
 
     if (isActive && typeof active?.data?.current?.deltaX === 'number') {
-        const actualDepth = getTodoDepth(todos, index, overIndex, active.data.current.deltaX, depthIndent)
-        todo = {...todo, depth: actualDepth}
+        const actualDepth = getTodoDepth(
+            todos,
+            index,
+            overIndex,
+            active.data.current.deltaX,
+            depthIndent
+        )
+        todo = { ...todo, depth: actualDepth }
     }
 
     return (
@@ -59,7 +53,7 @@ export const SortableTodo: FC<SortableTodoPropsType> = ({ todo, remove, todos })
                 dragRef={setDraggableNodeRef}
                 handleProps={{
                     ...attributes,
-                    ...listeners
+                    ...listeners,
                 }}
             />
         </div>

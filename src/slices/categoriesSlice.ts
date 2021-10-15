@@ -8,6 +8,7 @@ const initialState: CategoriesType = {
         isOpen: false,
         value: '',
     },
+    showCompletedTodos: false
 }
 
 export const getCategoriesThunk = createAsyncThunk(

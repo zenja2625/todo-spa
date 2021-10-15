@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
     clearTodos,
     getTodosThunk,
@@ -22,18 +22,23 @@ import {
     useSensors,
 } from '@dnd-kit/core'
 import { createPortal } from 'react-dom'
-import { Button, Col, Row, Space, Typography } from 'antd'
+import { MoreOutlined, RightOutlined, DownOutlined, EllipsisOutlined } from '@ant-design/icons'
+
+import { Button, Col, Menu, Popover, Row, Space, Typography } from 'antd'
 
 import { Redirect, useParams } from 'react-router'
 
 import { TodoEditor } from './TodoEditor'
 import { TodosList } from './TodosList'
+import { openCategoryEditor } from '../../slices/categoriesSlice'
 
 let renderCount = 1
 
 export const Todos = () => {
     console.log('Render Todos')
     const { categoryId } = useParams<{ categoryId?: string }>()
+
+    const [popoverVisable, setPopoverVisable] = useState(false)
 
     const dispatch = useAppDispatch()
 
@@ -61,6 +66,36 @@ export const Todos = () => {
     const touchSensor = useSensor(TouchSensor)
 
     const sensors = useSensors(mouseSensor, touchSensor)
+
+    const popoverMenu = () => {
+        return (
+            <Menu style={{ border: 0 }}>
+                <Menu.Item
+                    onClick={() => {
+                        setPopoverVisable(false)
+                        if (selectedCategory) {
+                            dispatch(
+                                openCategoryEditor({
+                                    editId: selectedCategory.id,
+                                    value: selectedCategory.name,
+                                })
+                            )
+                        }
+                    }}
+                >
+                    Изменить
+                </Menu.Item>
+                <Menu.Item
+                    onClick={() => {
+                        setPopoverVisable(false)
+                        // dispatch(openTodoEditor({ overId: todo.id, addBefore: true }))
+                    }}
+                >
+                    {true ? 'Скрывать выполненые задачи' : 'Показывать выполненые задачи'}
+                </Menu.Item>
+            </Menu>
+        )
+    }
 
     const onDragStart = ({ active }: DragStartEvent) => {
         if (selectedCategory) dispatch(updateStatusesThunk(selectedCategory.id))
@@ -98,7 +133,7 @@ export const Todos = () => {
         return (
             <Row
                 justify='center'
-                style={{ overflowY: 'auto', height: '100%', padding: '15px 15px' }}
+                style={{ overflowY: 'auto', height: '100%', padding: '15px 25px' }}
             >
                 <Col style={{ maxWidth: '800px', width: '100%' }}>
                     <Space
@@ -109,17 +144,30 @@ export const Todos = () => {
                         direction='vertical'
                         size='middle'
                     >
-                        {document.getElementById('render') &&
-                            createPortal(
-                                <div>
-                                    <span>Todos:</span> {renderCount++}
-                                </div>,
-                                document.getElementById('render') as HTMLElement
-                            )}
-
-                        <Typography.Title level={3} style={{ margin: 0 }}>
-                            {selectedCategory.name}
-                        </Typography.Title>
+                        <Row justify='space-between' align='middle'>
+                            <Col>
+                                <Typography.Title level={3} style={{ margin: 0 }}>
+                                    {selectedCategory.name}
+                                </Typography.Title>
+                            </Col>
+                            <Col>
+                                <Popover
+                                    destroyTooltipOnHide={{ keepParent: false }}
+                                    visible={popoverVisable}
+                                    onVisibleChange={visable => {
+                                        if (visable) setPopoverVisable(true)
+                                        else setPopoverVisable(false)
+                                    }}
+                                    placement='bottom'
+                                    content={() => popoverMenu()}
+                                    trigger='click'
+                                >
+                                    <Button type='text' style={{ height: '100%' }}>
+                                        <EllipsisOutlined />
+                                    </Button>
+                                </Popover>
+                            </Col>
+                        </Row>
                         <DndContext
                             collisionDetection={closestCenter}
                             onDragStart={onDragStart}
