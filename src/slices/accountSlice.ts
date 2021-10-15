@@ -1,5 +1,4 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
-import { AxiosError } from 'axios'
 import { API } from '../api/api'
 import { UserLoginDTO, UserRegisterDTO } from '../api/apiTypes'
 import { deinitialization } from './appSlice'

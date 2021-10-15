@@ -1,25 +1,17 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { WritableDraft } from 'immer/dist/internal'
 import { API } from '../api/api'
-import { TodoPositionDTO, TodoPostDTO, TodoPutDTO, TodoStatusDTO } from '../api/apiTypes'
-import { TodoEditorValueType } from '../containers/containerTypes'
-import { serverDateFormat } from '../dateFormat'
+import { TodoPutDTO } from '../api/apiTypes'
 import { getParentIndex } from '../utility/getParentIndex'
 import { getTodoChildCount } from '../utility/getTodoChildCount'
-import { getTodoDepth, ITodo } from '../utility/getTodoDepth'
+import { getTodoDepth } from '../utility/getTodoDepth'
 import { getTodoPosition } from '../utility/getTodoPosition'
 import { deinitialization } from './appSlice'
 import {
     CreateTodoProps,
     IState,
     RejectValueType,
-    Todo,
     TodoDTO,
-    ITodoEditor,
     TodosType,
-    UpdatePositionsType,
-    UpdateStatusesType,
-    updateTodoDragDepthProps,
     OpenTodoEditorProps,
 } from './sliceTypes'
 
@@ -33,12 +25,6 @@ const initialState: TodosType = {
     },
     draggedTodoId: null,
     todosRequestId: null,
-}
-
-let isDelay = true
-
-function delay(ms: number) {
-    return new Promise(resolve => setTimeout(resolve, ms))
 }
 
 type UpdateTodoProps = {

@@ -21,8 +21,7 @@ import {
     useSensor,
     useSensors,
 } from '@dnd-kit/core'
-import { createPortal } from 'react-dom'
-import { MoreOutlined, RightOutlined, DownOutlined, EllipsisOutlined } from '@ant-design/icons'
+import { EllipsisOutlined } from '@ant-design/icons'
 
 import { Button, Col, Menu, Popover, Row, Space, Typography } from 'antd'
 
@@ -31,8 +30,6 @@ import { Redirect, useParams } from 'react-router'
 import { TodoEditor } from './TodoEditor'
 import { TodosList } from './TodosList'
 import { openCategoryEditor, toggleShowCompletedTodos } from '../../slices/categoriesSlice'
-
-let renderCount = 1
 
 export const Todos = () => {
     console.log('Render Todos')
@@ -179,7 +176,7 @@ export const Todos = () => {
                         >
                             <TodosList categoryId={selectedCategory.id} />
                         </DndContext>
-                        <Button type='primary' onClick={() => dispatch(openTodoEditor())}>
+                        <Button type='primary' style={{ width: '100%' }} onClick={() => dispatch(openTodoEditor())}>
                             Новая задача
                         </Button>
                         <TodoEditor categoryId={selectedCategory.id} />

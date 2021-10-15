@@ -1,2 +1,2 @@
-export const appDateFormat = 'DD.MM.YYYY'
+export const appDateFormat = 'DD MMMM YYYY'
 export const serverDateFormat = 'YYYY-MM-DD'

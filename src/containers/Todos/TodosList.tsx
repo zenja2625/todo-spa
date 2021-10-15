@@ -1,17 +1,18 @@
 import { DragOverlay } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { Space, Row, Typography, Col } from 'antd'
-import { FC, useEffect, useState } from 'react'
+import { FC, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { getTodos } from '../../selectors/getTodos'
 import { updateStatusesThunk, updatePositionsThunk, deleteTodoThunk } from '../../slices/todosSlice'
 import { useAppDispatch, useAppSelector } from '../../store'
-import { SortableTodo } from '../Todo/SortableTodo'
+import { SortableTodo } from './SortableTodo'
 import confirm from 'antd/lib/modal/confirm'
 import { ExclamationCircleOutlined } from '@ant-design/icons'
 import { useDebounce } from '../../hooks/useDebounce'
 import { ITodosProps } from './types'
-import { TodoItem } from '../TodoItem'
+import { TodoItem } from './TodoItem'
+import { onUnload } from '../../utility/onUnload'
 
 export const TodosList: FC<ITodosProps> = ({ categoryId }) => {
     console.log('Render TodosList')
@@ -22,15 +23,20 @@ export const TodosList: FC<ITodosProps> = ({ categoryId }) => {
     const todosRequestId = useAppSelector(state => state.todos.todosRequestId)
     const draggedTodoId = useAppSelector(state => state.todos.draggedTodoId)
     const draggedTodo = todos.find(todo => todo.id === draggedTodoId)
- 
+
     const dispatch = useAppDispatch()
 
-    useEffect(() => {
-
-    }, [todosRequestId])
+    useEffect(() => {}, [todosRequestId])
 
     const statuses = useDebounce(actualStatuses, 1000)
     const positions = useDebounce(actualPosition, 1000)
+
+    useEffect(() => {
+        if (actualStatuses.length || actualPosition.length)
+            window.addEventListener('beforeunload', onUnload)
+
+        return () => window.removeEventListener('beforeunload', onUnload)
+    }, [actualStatuses, actualPosition])
 
     useEffect(() => {
         if (statuses.length) {
@@ -64,7 +70,7 @@ export const TodosList: FC<ITodosProps> = ({ categoryId }) => {
             },
         })
     }
-    
+
     const todoItems = todos.map(todo => {
         return (
             <SortableTodo
@@ -78,16 +84,16 @@ export const TodosList: FC<ITodosProps> = ({ categoryId }) => {
 
     if (todosRequestId && !todos.length) {
         return <div>Загрузка...</div>
-    }   if (!todos.length){
+    }
+    if (!todos.length) {
         return (
-            <Row justify='center'>
+            <Row justify='center' style={{ paddingTop: '50px', paddingBottom: '50px' }}>
                 <Col>
                     <Typography.Title level={4}>Создайте новую задачу</Typography.Title>
                 </Col>
             </Row>
         )
-    }
-     else {
+    } else {
         return (
             <SortableContext
                 items={todos.map(x => ({ id: x.id.toString() }))}
@@ -95,7 +101,7 @@ export const TodosList: FC<ITodosProps> = ({ categoryId }) => {
             >
                 <Space
                     style={{
-                        width: '100%'
+                        width: '100%',
                     }}
                     direction='vertical'
                     size={2}
@@ -104,7 +110,7 @@ export const TodosList: FC<ITodosProps> = ({ categoryId }) => {
                 </Space>
                 {createPortal(
                     <DragOverlay>
-                        {draggedTodo && <TodoItem todo={draggedTodo} dragged/>}
+                        {draggedTodo && <TodoItem todo={draggedTodo} dragged />}
                     </DragOverlay>,
                     document.body
                 )}

@@ -1,6 +1,5 @@
 import { Action, AnyAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import { message } from 'antd'
-import { RootState } from '../store'
 import { loginThunk, userInfoThunk } from './accountSlice'
 import { getCategoriesThunk } from './categoriesSlice'
 import { AppType, IState } from './sliceTypes'

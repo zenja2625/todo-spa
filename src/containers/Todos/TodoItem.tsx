@@ -1,16 +1,16 @@
 import { CSSProperties, FC, useState } from 'react'
-import { Todo } from '../slices/sliceTypes'
+import { Todo } from '../../slices/sliceTypes'
 import { MoreOutlined, RightOutlined, DownOutlined, EllipsisOutlined } from '@ant-design/icons'
 import {
     depthIndent,
     openTodoEditor,
     toggleTodoHiding,
     toggleTodoProgress,
-} from '../slices/todosSlice'
-import { useAppDispatch, useAppSelector } from '../store'
-import { Button, Checkbox, Col, Menu, Popover, Row, Skeleton, Space, Typography } from 'antd'
+} from '../../slices/todosSlice'
+import { useAppDispatch } from '../../store'
+import { Button, Checkbox, Col, Menu, Popover, Row, Space } from 'antd'
 import moment from 'moment'
-import { appDateFormat, serverDateFormat } from '../dateFormat'
+import { appDateFormat } from '../../dateFormat'
 import './todoItem.css'
 
 type TodoItemPropsType = {
@@ -130,7 +130,7 @@ export const TodoItem: FC<TodoItemPropsType> = ({
                     />
                     <div>
                         {todo.value}
-                        <div className={dateClass}>{todo.taskEnd?.format('DD MMMM YYYY')}</div>
+                        <div className={dateClass}>{todo.taskEnd?.format(appDateFormat)}</div>
                     </div>
                 </Space>
             </Col>

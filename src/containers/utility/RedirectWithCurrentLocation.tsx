@@ -1,5 +1,5 @@
 import { FC } from 'react'
-import { Redirect, useLocation, useRouteMatch } from 'react-router'
+import { Redirect, useLocation } from 'react-router'
 
 type RedirectWithCurrentLocationProps = {
     to: string

@@ -1,4 +1,4 @@
-import { Layout, Space, Spin, Typography } from 'antd'
+import { Layout, Spin } from 'antd'
 import { useEffect } from 'react'
 import { Login } from './containers/account/Login'
 import { Register } from './containers/account/Register'
@@ -57,27 +57,6 @@ const App = () => {
                     <NotFoundPage />
                 </Route>
             </Switch>
-
-            {
-                ////////////////////
-                <Space
-                    id='render'
-                    direction='vertical'
-                    style={{
-                        position: 'absolute',
-                        bottom: '60px',
-                        left: 0,
-                        zIndex: 10000,
-                        backgroundColor: '#001529',
-                        color: 'white',
-                        width: '200px',
-                        padding: '10px'
-                    }}
-                >
-                    <Typography.Title style={{ color: 'white' }} level={4}>Render</Typography.Title>
-                </Space>
-                ////////////////////
-            }
         </Layout>
     )
 }

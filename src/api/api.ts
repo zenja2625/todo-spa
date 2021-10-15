@@ -1,5 +1,6 @@
 import axios from 'axios'
 import moment from 'moment'
+import { serverDateFormat } from '../dateFormat'
 import { accountAPI } from './accountAPI'
 import { categoriesAPI } from './categoriesAPI'
 import { todosAPI } from './todosAPI'
@@ -46,7 +47,7 @@ export const momentToString = (body: any) => {
 
         if (typeof value === 'object') {
             if (moment.isMoment(value)) {
-                body[key] = value.format('YYYY-MM-DD')
+                body[key] = value.format(serverDateFormat)
             } else {
                 momentToString(value)
             }

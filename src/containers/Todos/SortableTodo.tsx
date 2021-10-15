@@ -1,10 +1,10 @@
-import { AnimateLayoutChanges, useSortable } from '@dnd-kit/sortable'
+import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { CSSProperties, FC } from 'react'
 import { Todo } from '../../slices/sliceTypes'
 import { depthIndent } from '../../slices/todosSlice'
 import { getTodoDepth } from '../../utility/getTodoDepth'
-import { TodoItem } from '../TodoItem'
+import { TodoItem } from './TodoItem'
 
 type SortableTodoPropsType = {
     todo: Todo
