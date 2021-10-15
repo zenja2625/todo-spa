@@ -30,7 +30,7 @@ import { Redirect, useParams } from 'react-router'
 
 import { TodoEditor } from './TodoEditor'
 import { TodosList } from './TodosList'
-import { openCategoryEditor } from '../../slices/categoriesSlice'
+import { openCategoryEditor, toggleShowCompletedTodos } from '../../slices/categoriesSlice'
 
 let renderCount = 1
 
@@ -42,6 +42,7 @@ export const Todos = () => {
 
     const dispatch = useAppDispatch()
 
+    const showCompletedTodos = useAppSelector(state => state.categories.showCompletedTodos)
     const categories = useAppSelector(state => state.categories.categories)
     const selectedCategory = useMemo(
         () => categories.find(category => category.id.toString() === categoryId),
@@ -51,7 +52,7 @@ export const Todos = () => {
     useEffect(() => {
         if (selectedCategory) {
             dispatch(clearTodos())
-            dispatch(getTodosThunk(selectedCategory.id))
+            dispatch(getTodosThunk({ categoryId: selectedCategory.id, withCompleted: showCompletedTodos}))
         }
 
         return () => {
@@ -60,7 +61,7 @@ export const Todos = () => {
                 dispatch(updatePositionsThunk(selectedCategory.id))
             }
         }
-    }, [selectedCategory, dispatch])
+    }, [selectedCategory, showCompletedTodos, dispatch])
 
     const mouseSensor = useSensor(MouseSensor)
     const touchSensor = useSensor(TouchSensor)
@@ -88,10 +89,10 @@ export const Todos = () => {
                 <Menu.Item
                     onClick={() => {
                         setPopoverVisable(false)
-                        // dispatch(openTodoEditor({ overId: todo.id, addBefore: true }))
+                        dispatch(toggleShowCompletedTodos())
                     }}
                 >
-                    {true ? 'Скрывать выполненые задачи' : 'Показывать выполненые задачи'}
+                    {showCompletedTodos ? 'Скрывать выполненые задачи' : 'Показывать выполненые задачи'}
                 </Menu.Item>
             </Menu>
         )
@@ -150,7 +151,7 @@ export const Todos = () => {
                                     {selectedCategory.name}
                                 </Typography.Title>
                             </Col>
-                            <Col>
+                            <Col style={{  }}>
                                 <Popover
                                     destroyTooltipOnHide={{ keepParent: false }}
                                     visible={popoverVisable}
@@ -162,8 +163,8 @@ export const Todos = () => {
                                     content={() => popoverMenu()}
                                     trigger='click'
                                 >
-                                    <Button type='text' style={{ height: '100%' }}>
-                                        <EllipsisOutlined />
+                                    <Button type='text'  style={{ height: '100%', paddingTop: 0, paddingBottom: 0 }}>
+                                        <EllipsisOutlined style={{ fontSize: '2em' }}/>
                                     </Button>
                                 </Popover>
                             </Col>

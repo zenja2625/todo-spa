@@ -52,14 +52,19 @@ type DeleteTodoProps = {
     categoryId: number
 }
 
+type GetTodosProps = {
+    categoryId: number
+    withCompleted: boolean
+}
+
 
 export const depthIndent = 40
 
 export const getTodosThunk = createAsyncThunk(
     'todos/getTodosThunk',
-    async (categoryId: number, { rejectWithValue }) => {
+    async (payload: GetTodosProps, { rejectWithValue }) => {
         try {
-            const response = await API.todos.getTodos(categoryId, true)
+            const response = await API.todos.getTodos(payload.categoryId, payload.withCompleted)
             
             return response.data as Array<TodoDTO>
         } catch (error: any) {
@@ -107,6 +112,7 @@ export const createTodoThunk = createAsyncThunk<void, CreateTodoProps, IState & 
     async (payload, { getState, rejectWithValue, dispatch }) => {
         try {
             const todos = getState().todos.todos
+            const withCompleted = getState().categories.showCompletedTodos
 
             let depth = 0
             let prevIndex: number
@@ -133,7 +139,7 @@ export const createTodoThunk = createAsyncThunk<void, CreateTodoProps, IState & 
                 taskEnd: payload.todoValue.taskEnd,
                 ...getTodoPosition(todos, prevIndex, depth),
             })
-            await dispatch(getTodosThunk(payload.categoryId))
+            await dispatch(getTodosThunk({ categoryId: payload.categoryId, withCompleted}))
         } catch (error: any) {
             return rejectWithValue(error.response?.status)
         }

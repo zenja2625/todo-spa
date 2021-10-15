@@ -63,6 +63,9 @@ export const categoriesSlice = createSlice({
     name: 'categories',
     initialState,
     reducers: {
+        toggleShowCompletedTodos: state => {
+            state.showCompletedTodos = !state.showCompletedTodos
+        },
         openCategoryEditor: (state, action: PayloadAction<openCategoryEditorProps | undefined>) => {
             const value = action.payload?.value || ''
 
@@ -94,4 +97,4 @@ export const categoriesSlice = createSlice({
     },
 })
 
-export const { openCategoryEditor, closeCategoryEditor } = categoriesSlice.actions
+export const { openCategoryEditor, closeCategoryEditor, toggleShowCompletedTodos } = categoriesSlice.actions

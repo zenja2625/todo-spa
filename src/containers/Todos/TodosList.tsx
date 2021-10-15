@@ -1,6 +1,6 @@
 import { DragOverlay } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
-import { Space, Row, Typography } from 'antd'
+import { Space, Row, Typography, Col } from 'antd'
 import { FC, useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { getTodos } from '../../selectors/getTodos'
@@ -78,7 +78,16 @@ export const TodosList: FC<ITodosProps> = ({ categoryId }) => {
 
     if (todosRequestId && !todos.length) {
         return <div>Загрузка...</div>
-    } else {
+    }   if (!todos.length){
+        return (
+            <Row justify='center'>
+                <Col>
+                    <Typography.Title level={4}>Создайте новую задачу</Typography.Title>
+                </Col>
+            </Row>
+        )
+    }
+     else {
         return (
             <SortableContext
                 items={todos.map(x => ({ id: x.id.toString() }))}
