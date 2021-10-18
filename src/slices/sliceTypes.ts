@@ -6,6 +6,7 @@ import { Moment } from 'moment'
 export type AppType = {
     initialized: boolean
     requestCount: number
+    siderCollapsed: boolean
 }
 
 export type AccountType = {

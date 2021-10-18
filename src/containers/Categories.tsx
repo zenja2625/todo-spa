@@ -101,11 +101,11 @@ export const Categories = () => {
             </Menu.Item>
         )
     })
-
+//className='ant-menu-inline-collapsed'
     return (
-        <div style={{ margin: '15px' }}>
+        <div style={{ padding: '15px', overflow: 'hidden', width: '200px' }}>
             <Title level={4}>Категории</Title>
-            <Menu selectedKeys={categoryId ? [categoryId] : undefined} style={{ border: 0 }}>
+            <Menu  selectedKeys={categoryId ? [categoryId] : undefined} style={{ border: 0 }}>
                 {categoryItems}
             </Menu>
             <Button

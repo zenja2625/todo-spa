@@ -13,8 +13,6 @@ export const instance = axios.create({
     withCredentials: true,
 })
 
-console.log(moment().isBefore('2021-10-16'))
-
 instance.interceptors.response.use(originalResponse => {
     stringToMoment(originalResponse.data)
     return originalResponse

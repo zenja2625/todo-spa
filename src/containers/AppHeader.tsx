@@ -1,4 +1,4 @@
-import { Row, Col, Menu, Layout, Tooltip } from 'antd'
+import { Row, Col, Menu, Layout, Tooltip, Button } from 'antd'
 import Avatar from 'antd/lib/avatar/avatar'
 import Title from 'antd/lib/typography/Title'
 import { Link, useHistory, useLocation } from 'react-router-dom'
@@ -7,6 +7,7 @@ import { useAppDispatch, useAppSelector } from '../store'
 import { Spin } from 'antd'
 import { LoadingOutlined } from '@ant-design/icons'
 import useBreakpoint from 'antd/lib/grid/hooks/useBreakpoint'
+import { toggleSider } from '../slices/appSlice'
 
 const { Header } = Layout
 const antIcon = (
@@ -29,6 +30,7 @@ export const AppHeader = () => {
 
     return (
         <Header className={'header'}>
+            <Button onClick={() => dispatch(toggleSider())} style={{ position: 'absolute', left: '0' }}>ASD</Button>
             <Row
                 style={{ height: '64px' }}
                 justify='space-between'
@@ -64,7 +66,7 @@ export const AppHeader = () => {
                     {isAuth ? (
                         <Row justify='end' wrap={false} gutter={10}>
                             <Col>
-                                <Tooltip title={username}>
+                                <Tooltip destroyTooltipOnHide  title={username}>
                                     <Avatar
                                         style={{
                                             backgroundColor: 'orangered',

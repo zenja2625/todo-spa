@@ -32,7 +32,6 @@ import { TodosList } from './TodosList'
 import { openCategoryEditor, toggleShowCompletedTodos } from '../../slices/categoriesSlice'
 
 export const Todos = () => {
-    console.log('Render Todos')
     const { categoryId } = useParams<{ categoryId?: string }>()
 
     const [popoverVisable, setPopoverVisable] = useState(false)

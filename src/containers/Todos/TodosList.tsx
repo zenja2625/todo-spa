@@ -15,8 +15,6 @@ import { TodoItem } from './TodoItem'
 import { onUnload } from '../../utility/onUnload'
 
 export const TodosList: FC<ITodosProps> = ({ categoryId }) => {
-    console.log('Render TodosList')
-
     const todos = useAppSelector(getTodos)
     const actualStatuses = useAppSelector(state => state.todos.todoStatusDTOs)
     const actualPosition = useAppSelector(state => state.todos.todoPositionDTOs)

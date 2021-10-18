@@ -7,6 +7,7 @@ import { AppType, IState } from './sliceTypes'
 const initialState: AppType = {
     initialized: false,
     requestCount: 0,
+    siderCollapsed: true
 }
 
 interface RejectedAction extends Action {
@@ -38,6 +39,9 @@ export const appSlice = createSlice({
     reducers: {
         deinitialization: state => {
             state.initialized = false
+        },
+        toggleSider: state => {
+            state.siderCollapsed = !state.siderCollapsed
         }
     },
     extraReducers: builder => {
@@ -73,4 +77,4 @@ export const appSlice = createSlice({
     },
 })
 
-export const { deinitialization } = appSlice.actions
+export const { deinitialization, toggleSider } = appSlice.actions
