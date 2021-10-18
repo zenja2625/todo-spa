@@ -5,40 +5,59 @@ import { Link, useHistory, useLocation } from 'react-router-dom'
 import { logoutThunk } from '../slices/accountSlice'
 import { useAppDispatch, useAppSelector } from '../store'
 import { Spin } from 'antd'
-import { LoadingOutlined } from '@ant-design/icons'
+import { LoadingOutlined, MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons'
 import useBreakpoint from 'antd/lib/grid/hooks/useBreakpoint'
 import { toggleSider } from '../slices/appSlice'
+import { useEffect, useState } from 'react'
 
 const { Header } = Layout
-const antIcon = (
-    <LoadingOutlined style={{ fontSize: 30, color: 'white' }} spin />
-)
+const antIcon = <LoadingOutlined style={{ fontSize: '2em', color: 'white' }} spin />
 
 export const AppHeader = () => {
-    const { xs } = useBreakpoint()
+    const { xs, lg } = useBreakpoint()
 
     const { push } = useHistory()
     const { pathname } = useLocation()
 
     const { isAuth, username } = useAppSelector(state => state.account)
+    const siderCollapsed = useAppSelector(state => state.app.siderCollapsed)
     const isRequest = useAppSelector(state => state.app.requestCount > 0)
     const dispatch = useAppDispatch()
 
-    const logout = () => {
-        dispatch(logoutThunk())
-    }
+    const [prevLg, setPrevLg] = useState(lg)
+
+    useEffect(() => {
+        if (lg !== prevLg) {
+            setPrevLg(lg)
+
+            if (lg && siderCollapsed) {
+                dispatch(toggleSider())
+            } else if (!lg && !siderCollapsed) {
+                dispatch(toggleSider())
+            }
+        }
+    }, [lg, siderCollapsed, prevLg, dispatch])
 
     return (
         <Header className={'header'}>
-            <Button onClick={() => dispatch(toggleSider())} style={{ position: 'absolute', left: '0' }}>ASD</Button>
-            <Row
-                style={{ height: '64px' }}
-                justify='space-between'
-                align='middle'
-                wrap={false}
-            >
+            <Row style={{ height: '64px' }} justify='space-between' align='middle' wrap={false}>
                 <Col>
                     <Row align='middle' gutter={xs ? 10 : 20}>
+                        {isAuth && (
+                            <Col style={{ display: 'flex' }}>
+                                <Button
+                                    type='text'
+                                    style={{ width: '2em', height: '2em', fontSize: '2em' }}
+                                    onClick={() => dispatch(toggleSider())}
+                                >
+                                    {siderCollapsed ? (
+                                        <MenuUnfoldOutlined style={{ color: 'white' }} />
+                                    ) : (
+                                        <MenuFoldOutlined style={{ color: 'white' }} />
+                                    )}
+                                </Button>
+                            </Col>
+                        )}
                         <Col>
                             <Link to='/'>
                                 <Title
@@ -47,18 +66,14 @@ export const AppHeader = () => {
                                         margin: 0,
                                         whiteSpace: 'nowrap',
                                     }}
-                                    level={xs ? 4 : 2}
+                                    level={xs ? 4 : 3}
                                 >
                                     My Todo
                                 </Title>
                             </Link>
                         </Col>
                         <Col>
-                            <Spin
-                                indicator={antIcon}
-                                delay={500}
-                                spinning={isRequest}
-                            />
+                            <Spin indicator={antIcon} delay={500} spinning={isRequest} />
                         </Col>
                     </Row>
                 </Col>
@@ -66,7 +81,7 @@ export const AppHeader = () => {
                     {isAuth ? (
                         <Row justify='end' wrap={false} gutter={10}>
                             <Col>
-                                <Tooltip destroyTooltipOnHide  title={username}>
+                                <Tooltip destroyTooltipOnHide title={username}>
                                     <Avatar
                                         style={{
                                             backgroundColor: 'orangered',
@@ -93,7 +108,7 @@ export const AppHeader = () => {
                                             display: 'flex',
                                             alignItems: 'center',
                                         }}
-                                        onClick={logout}
+                                        onClick={() => dispatch(logoutThunk())}
                                     >
                                         Выход
                                     </Menu.Item>

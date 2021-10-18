@@ -18,6 +18,8 @@ import { FormItem } from './utility/FormItem'
 import * as Yup from 'yup'
 import { FormikModal } from './utility/EditableModal'
 import { shallowEqual } from 'react-redux'
+import useBreakpoint from 'antd/lib/grid/hooks/useBreakpoint'
+import { toggleSider } from '../slices/appSlice'
 
 const CategorySchema = Yup.object().shape({
     value: Yup.string().required('Это поле обязательно'),
@@ -27,10 +29,13 @@ export const Categories = () => {
     const { push } = useHistory()
     const { categoryId } = useParams<{ categoryId?: string }>()
 
+    const { lg } = useBreakpoint()
+
     const [popupMenuVisableId, setPopupMenuVisableId] = useState<number | null>(null)
 
     const dispatch = useAppDispatch()
     const categories = useAppSelector(state => state.categories.items)
+    const siderCollapsed = useAppSelector(state => state.app.siderCollapsed)
     const { isOpen, value, editId } = useAppSelector(state => state.categories.editor)
 
     const openDeletePopup = (category: Category) => {
@@ -76,7 +81,10 @@ export const Categories = () => {
             <Menu.Item
                 className={'menuItem' + (categoryId !== item.id.toString() ? ' menuItemPopup' : '')}
                 key={item.id}
-                onClick={() => categoryId !== item.id.toString() && push(`/category/${item.id}`)}
+                onClick={() => {
+                    if (!lg && !siderCollapsed) dispatch(toggleSider())
+                    categoryId !== item.id.toString() && push(`/category/${item.id}`)
+                }}
             >
                 <Row wrap={false} justify='space-between'>
                     <Col style={{ textOverflow: 'ellipsis', overflow: 'hidden' }}>{item.name}</Col>
@@ -101,11 +109,11 @@ export const Categories = () => {
             </Menu.Item>
         )
     })
-//className='ant-menu-inline-collapsed'
+
     return (
         <div style={{ padding: '15px', overflow: 'hidden', width: '200px' }}>
             <Title level={4}>Категории</Title>
-            <Menu  selectedKeys={categoryId ? [categoryId] : undefined} style={{ border: 0 }}>
+            <Menu selectedKeys={categoryId ? [categoryId] : undefined} style={{ border: 0 }}>
                 {categoryItems}
             </Menu>
             <Button
