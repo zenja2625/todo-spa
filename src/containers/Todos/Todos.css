@@ -1,0 +1,9 @@
+.todos-row-wrapper {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.todos-row {
+    width: 800px;
+}

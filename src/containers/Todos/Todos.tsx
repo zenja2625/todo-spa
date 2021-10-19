@@ -31,6 +31,8 @@ import { TodoEditor } from './TodoEditor'
 import { TodosList } from './TodosList'
 import { openCategoryEditor, toggleShowCompletedTodos } from '../../slices/categoriesSlice'
 
+import './Todos.css'
+
 export const Todos = () => {
     const { categoryId } = useParams<{ categoryId?: string }>()
 
@@ -128,58 +130,28 @@ export const Todos = () => {
         )
     } else {
         return (
-            <Row
-                justify='center'
-                style={{ overflowY: 'auto', height: '100%', padding: '15px 25px' }}
-            >
-                <Col style={{ maxWidth: '800px', width: '100%' }}>
-                    <Space
-                        style={{
-                            width: '100%',
-                            height: '100%',
-                        }}
-                        direction='vertical'
-                        size='middle'
-                    >
-                        <Row justify='space-between' align='middle'>
-                            <Col>
-                                <Typography.Title level={3} style={{ margin: 0 }}>
-                                    {selectedCategory.name}
-                                </Typography.Title>
-                            </Col>
-                            <Col style={{  }}>
-                                <Popover
-                                    destroyTooltipOnHide={{ keepParent: false }}
-                                    visible={popoverVisable}
-                                    onVisibleChange={visable => {
-                                        if (visable) setPopoverVisable(true)
-                                        else setPopoverVisable(false)
-                                    }}
-                                    placement='bottom'
-                                    content={() => popoverMenu()}
-                                    trigger='click'
-                                >
-                                    <Button type='text'  style={{ height: '100%', paddingTop: 0, paddingBottom: 0 }}>
-                                        <EllipsisOutlined style={{ fontSize: '2em' }}/>
-                                    </Button>
-                                </Popover>
-                            </Col>
-                        </Row>
-                        <DndContext
-                            collisionDetection={closestCenter}
-                            onDragStart={onDragStart}
-                            onDragMove={onDragMove}
-                            onDragEnd={onDragEnd}
-                            onDragCancel={onDragCancel}
-                            sensors={sensors}
-                        >
-                            <TodosList categoryId={selectedCategory.id} />
-                        </DndContext>
-                        <Button type='primary' style={{ width: '100%' }} onClick={() => dispatch(openTodoEditor())}>
-                            Новая задача
-                        </Button>
-                        <TodoEditor categoryId={selectedCategory.id} />
-                    </Space>
+            <Row gutter={[0, 12]} style={{ height: '100%', overflowY: 'scroll', position: 'sticky', backgroundColor: 'lightsteelblue' }}>
+                <Col className='todos-row-wrapper' style={{ position: 'sticky', top: 0, zIndex: 100, backgroundColor: 'darkslateblue' }}>
+                    <Row justify='space-between' className='todos-row'>
+                        <Col>Row 1.1</Col>
+                        <Col>Row 1.2</Col>
+                    </Row>
+                </Col>
+                <Col className='todos-row-wrapper' style={{ backgroundColor: 'lightseagreen' }}>
+                    <Row className="todos-row">
+                        <Col>
+                            <div style={{ height: '1000px', }}>Row 2</div>
+                        </Col>
+                    </Row>
+                </Col>
+                <Col className='todos-row-wrapper'>
+                    <Row className="todos-row">
+                        <Col>
+                            <Button type='primary' style={{ width: '100%' }} onClick={() => dispatch(openTodoEditor())}>
+                                Новая задача
+                            </Button>
+                        </Col>
+                    </Row>
                 </Col>
             </Row>
         )
