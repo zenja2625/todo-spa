@@ -6,4 +6,6 @@
 
 .todos-row {
     width: 800px;
+    max-width: 800px;
+    padding: 0 45px 0 45px;
 }

@@ -50,7 +50,12 @@ export const Todos = () => {
     useEffect(() => {
         if (selectedCategory) {
             dispatch(clearTodos())
-            dispatch(getTodosThunk({ categoryId: selectedCategory.id, withCompleted: showCompletedTodos}))
+            dispatch(
+                getTodosThunk({
+                    categoryId: selectedCategory.id,
+                    withCompleted: showCompletedTodos,
+                })
+            )
         }
 
         return () => {
@@ -90,7 +95,9 @@ export const Todos = () => {
                         dispatch(toggleShowCompletedTodos())
                     }}
                 >
-                    {showCompletedTodos ? 'Скрывать выполненые задачи' : 'Показывать выполненые задачи'}
+                    {showCompletedTodos
+                        ? 'Скрывать выполненые задачи'
+                        : 'Показывать выполненые задачи'}
                 </Menu.Item>
             </Menu>
         )
@@ -130,29 +137,73 @@ export const Todos = () => {
         )
     } else {
         return (
-            <Row gutter={[0, 12]} style={{ height: '100%', overflowY: 'scroll', position: 'sticky', backgroundColor: 'lightsteelblue' }}>
-                <Col className='todos-row-wrapper' style={{ position: 'sticky', top: 0, zIndex: 100, backgroundColor: 'darkslateblue' }}>
+            <Row
+                style={{
+                    maxHeight: '100%',
+                    overflowY: 'auto',
+                    position: 'sticky',
+                }}
+            >
+                <Col
+                    className='todos-row-wrapper'
+                    style={{
+                        position: 'sticky',
+                        top: 0,
+                        zIndex: 100,
+                        backgroundColor: '#f0f2f5',
+                        padding: '15px 0 15px 0',
+                    }}
+                >
                     <Row justify='space-between' className='todos-row'>
-                        <Col>Row 1.1</Col>
-                        <Col>Row 1.2</Col>
-                    </Row>
-                </Col>
-                <Col className='todos-row-wrapper' style={{ backgroundColor: 'lightseagreen' }}>
-                    <Row className="todos-row">
                         <Col>
-                            <div style={{ height: '1000px', }}>Row 2</div>
+                            <Typography.Title level={3} style={{ margin: 0 }}>
+                                {selectedCategory.name}
+                            </Typography.Title>
+                        </Col>
+                        <Col style={{}}>
+                            <Popover
+                                destroyTooltipOnHide={{ keepParent: false }}
+                                visible={popoverVisable}
+                                onVisibleChange={visable => {
+                                    if (visable) setPopoverVisable(true)
+                                    else setPopoverVisable(false)
+                                }}
+                                placement='bottom'
+                                content={() => popoverMenu()}
+                                trigger='click'
+                            >
+                                <Button
+                                    type='text'
+                                    style={{ height: '100%', paddingTop: 0, paddingBottom: 0 }}
+                                >
+                                    <EllipsisOutlined style={{ fontSize: '2em' }} />
+                                </Button>
+                            </Popover>
                         </Col>
                     </Row>
                 </Col>
                 <Col className='todos-row-wrapper'>
-                    <Row className="todos-row">
-                        <Col>
-                            <Button type='primary' style={{ width: '100%' }} onClick={() => dispatch(openTodoEditor())}>
-                                Новая задача
-                            </Button>
-                        </Col>
-                    </Row>
+                    <Space className='todos-row' direction='vertical' size='large'>
+                        <DndContext
+                            collisionDetection={closestCenter}
+                            onDragStart={onDragStart}
+                            onDragMove={onDragMove}
+                            onDragEnd={onDragEnd}
+                            onDragCancel={onDragCancel}
+                            sensors={sensors}
+                        >
+                            <TodosList categoryId={selectedCategory.id} />
+                        </DndContext>
+                        <Button
+                            type='primary'
+                            style={{ width: '100%', marginBottom: '25px' }}
+                            onClick={() => dispatch(openTodoEditor())}
+                        >
+                            Новая задача
+                        </Button>
+                    </Space>
                 </Col>
+                <TodoEditor categoryId={selectedCategory.id} />
             </Row>
         )
     }
