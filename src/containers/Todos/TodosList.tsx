@@ -69,6 +69,7 @@ export const TodosList: FC<ITodosProps> = ({ categoryId }) => {
         })
     }
 
+
     const todoItems = todos.map(todo => {
         return (
             <SortableTodo

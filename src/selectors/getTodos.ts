@@ -29,7 +29,7 @@ export const getTodos = createDraftSafeSelector(
                 
             newTodos.push({
                 ...todos[i],
-                showHideButton: false,
+                showHideButton: todos[i].isHiddenSubTasks,
             })
         }
 
