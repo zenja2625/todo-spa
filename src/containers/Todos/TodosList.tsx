@@ -10,11 +10,19 @@ import { SortableTodo } from './SortableTodo'
 import confirm from 'antd/lib/modal/confirm'
 import { ExclamationCircleOutlined } from '@ant-design/icons'
 import { useDebounce } from '../../hooks/useDebounce'
-import { ITodosProps } from './types'
+import { ITodosListProps } from './types'
 import { TodoItem } from './TodoItem'
 import { onUnload } from '../../utility/onUnload'
+import { AutoSizer, List, ListRowProps } from 'react-virtualized'
 
-export const TodosList: FC<ITodosProps> = ({ categoryId }) => {
+export const TodosList: FC<ITodosListProps> = ({
+    categoryId,
+    isScrolling,
+    scrollTop,
+    height,
+    registerChild,
+    onChildScroll,
+}) => {
     const todos = useAppSelector(getTodos)
     const actualStatuses = useAppSelector(state => state.todos.todoStatusDTOs)
     const actualPosition = useAppSelector(state => state.todos.todoPositionDTOs)
@@ -69,7 +77,6 @@ export const TodosList: FC<ITodosProps> = ({ categoryId }) => {
         })
     }
 
-
     const todoItems = todos.map(todo => {
         return (
             <SortableTodo
@@ -80,6 +87,18 @@ export const TodosList: FC<ITodosProps> = ({ categoryId }) => {
             />
         )
     })
+
+    const todoRender = ({ index, key, style }: ListRowProps) => {
+        return (
+            <SortableTodo
+                style={style}
+                key={key}
+                todos={todos}
+                todo={todos[index]}
+                remove={() => openDeletePopup(todos[index].id, todos[index].value)}
+            />
+        )
+    }
 
     if (todosRequestId && !todos.length) {
         return <div>Загрузка...</div>
@@ -98,15 +117,27 @@ export const TodosList: FC<ITodosProps> = ({ categoryId }) => {
                 items={todos.map(x => ({ id: x.id.toString() }))}
                 strategy={verticalListSortingStrategy}
             >
-                <Space
-                    style={{
-                        width: '100%',
-                    }}
-                    direction='vertical'
-                    size={2}
-                >
-                    {todoItems}
-                </Space>
+                <div style={{ flex: '1 1 auto' }}>
+                    <AutoSizer disableHeight>
+                        {({ width }) => {
+                            return (
+                                <div ref={registerChild}>
+                                    <List
+                                        autoHeight
+                                        isScrolling={isScrolling}
+                                        scrollTop={scrollTop}
+                                        height={height}
+                                        width={width}
+                                        rowCount={todos.length}
+                                        rowHeight={45}
+                                        rowRenderer={todoRender}
+                                        onScroll={onChildScroll}
+                                    />
+                                </div>
+                            )
+                        }}
+                    </AutoSizer>
+                </div>
                 {createPortal(
                     <DragOverlay>
                         {draggedTodo && <TodoItem todo={draggedTodo} dragged />}

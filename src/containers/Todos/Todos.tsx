@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
     clearTodos,
     getTodosThunk,
@@ -32,11 +32,13 @@ import { TodosList } from './TodosList'
 import { openCategoryEditor, toggleShowCompletedTodos } from '../../slices/categoriesSlice'
 
 import './Todos.css'
+import { WindowScroller } from 'react-virtualized'
 
 export const Todos = () => {
     const { categoryId } = useParams<{ categoryId?: string }>()
 
     const [popoverVisable, setPopoverVisable] = useState(false)
+    const [scrollWrapper, setScrollWrapper] = useState<Element>()
 
     const dispatch = useAppDispatch()
 
@@ -137,74 +139,85 @@ export const Todos = () => {
         )
     } else {
         return (
-            <Row
-                style={{
-                    maxHeight: '100%',
-                    overflowY: 'auto',
-                    position: 'sticky',
-                }}
+            <div
+                ref={e => setScrollWrapper(e as Element)}
+                style={{ overflowY: 'auto', height: '100%' }}
             >
-                <Col
-                    className='todos-row-wrapper'
+                <Row
                     style={{
-                        position: 'sticky',
-                        top: 0,
-                        zIndex: 100,
-                        backgroundColor: '#f0f2f5',
-                        padding: '15px 0 15px 0',
                     }}
                 >
-                    <Row justify='space-between' className='todos-row'>
-                        <Col>
-                            <Typography.Title level={3} style={{ margin: 0 }}>
-                                {selectedCategory.name}
-                            </Typography.Title>
-                        </Col>
-                        <Col style={{}}>
-                            <Popover
-                                destroyTooltipOnHide={{ keepParent: false }}
-                                visible={popoverVisable}
-                                onVisibleChange={visable => {
-                                    if (visable) setPopoverVisable(true)
-                                    else setPopoverVisable(false)
-                                }}
-                                placement='bottom'
-                                content={() => popoverMenu()}
-                                trigger='click'
-                            >
-                                <Button
-                                    type='text'
-                                    style={{ height: '100%', paddingTop: 0, paddingBottom: 0 }}
+                    <Col
+                        className='todos-row-wrapper'
+                        style={{
+                            position: 'sticky',
+                            top: 0,
+                            zIndex: 100,
+                            backgroundColor: '#f0f2f5',
+                            padding: '15px 0 15px 0',
+                        }}
+                    >
+                        <Row justify='space-between' className='todos-row'>
+                            <Col>
+                                <Typography.Title level={3} style={{ margin: 0 }}>
+                                    {selectedCategory.name}
+                                </Typography.Title>
+                            </Col>
+                            <Col style={{}}>
+                                <Popover
+                                    destroyTooltipOnHide={{ keepParent: false }}
+                                    visible={popoverVisable}
+                                    onVisibleChange={visable => {
+                                        if (visable) setPopoverVisable(true)
+                                        else setPopoverVisable(false)
+                                    }}
+                                    placement='bottom'
+                                    content={() => popoverMenu()}
+                                    trigger='click'
                                 >
-                                    <EllipsisOutlined style={{ fontSize: '2em' }} />
-                                </Button>
-                            </Popover>
-                        </Col>
-                    </Row>
-                </Col>
-                <Col className='todos-row-wrapper'>
-                    <Space className='todos-row' direction='vertical' size='large'>
-                        <DndContext
-                            collisionDetection={closestCenter}
-                            onDragStart={onDragStart}
-                            onDragMove={onDragMove}
-                            onDragEnd={onDragEnd}
-                            onDragCancel={onDragCancel}
-                            sensors={sensors}
-                        >
-                            <TodosList categoryId={selectedCategory.id} />
-                        </DndContext>
-                        <Button
-                            type='primary'
-                            style={{ width: '100%', marginBottom: '25px' }}
-                            onClick={() => dispatch(openTodoEditor())}
-                        >
-                            Новая задача
-                        </Button>
-                    </Space>
-                </Col>
-                <TodoEditor categoryId={selectedCategory.id} />
-            </Row>
+                                    <Button
+                                        type='text'
+                                        style={{ height: '100%', paddingTop: 0, paddingBottom: 0 }}
+                                    >
+                                        <EllipsisOutlined style={{ fontSize: '2em' }} />
+                                    </Button>
+                                </Popover>
+                            </Col>
+                        </Row>
+                    </Col>
+                    <Col className='todos-row-wrapper'>
+                        <Space className='todos-row' direction='vertical' size='large'>
+                            <DndContext
+                                collisionDetection={closestCenter}
+                                onDragStart={onDragStart}
+                                onDragMove={onDragMove}
+                                onDragEnd={onDragEnd}
+                                onDragCancel={onDragCancel}
+                                sensors={sensors}
+                            >
+                                {scrollWrapper && (
+                                    <WindowScroller scrollElement={scrollWrapper}>
+                                        {scrollProps => (
+                                            <TodosList
+                                                categoryId={selectedCategory.id}
+                                                {...scrollProps}
+                                            />
+                                        )}
+                                    </WindowScroller>
+                                )}
+                            </DndContext>
+                            <Button
+                                type='primary'
+                                style={{ width: '100%', marginBottom: '25px' }}
+                                onClick={() => dispatch(openTodoEditor())}
+                            >
+                                Новая задача
+                            </Button>
+                        </Space>
+                    </Col>
+                    <TodoEditor categoryId={selectedCategory.id} />
+                </Row>
+            </div>
         )
     }
 }

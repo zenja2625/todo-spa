@@ -10,9 +10,10 @@ type SortableTodoPropsType = {
     todo: Todo
     todos: Array<Todo>
     remove: () => void
+    style?: CSSProperties
 }
 
-export const SortableTodo: FC<SortableTodoPropsType> = ({ todo, remove, todos }) => {
+export const SortableTodo: FC<SortableTodoPropsType> = ({ todo, remove, todos, style }) => {
     const {
         attributes,
         listeners,
@@ -25,10 +26,11 @@ export const SortableTodo: FC<SortableTodoPropsType> = ({ todo, remove, todos })
         isDragging,
     } = useSortable({ id: todo.id.toString() })
 
-    const style: CSSProperties = {
+    const todoStyle: CSSProperties = {
         scale: '1',
         transform: CSS.Transform.toString(transform),
         userSelect: isDragging ? 'none' : undefined,
+        ...style
     }
 
     const isActive = !!active && active.id === todo.id.toString()
@@ -45,7 +47,7 @@ export const SortableTodo: FC<SortableTodoPropsType> = ({ todo, remove, todos })
     }
 
     return (
-        <div ref={setDroppableNodeRef} style={style}>
+        <div ref={setDroppableNodeRef} style={todoStyle}>
             <TodoItem
                 todo={todo}
                 active={isActive}
