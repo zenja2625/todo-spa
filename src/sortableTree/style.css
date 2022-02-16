@@ -1,0 +1,26 @@
+.list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 250px;
+    touch-action: none;
+    overflow-anchor: none;
+}
+
+.item {
+    height: 50px;
+    padding: 5px;
+    background-color: hsl(220, 13%, 30%);
+    user-select: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.selectedItem {
+    background-color: gray;
+}
+
+.selectedItem * {
+    opacity: 0;
+}
