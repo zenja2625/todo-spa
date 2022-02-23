@@ -11,7 +11,7 @@ import confirm from 'antd/lib/modal/confirm'
 import { ExclamationCircleOutlined } from '@ant-design/icons'
 import { useDebounce } from '../../hooks/useDebounce'
 import { ITodosProps } from './types'
-import { TodoItem } from './TodoItem'
+import { TodoItem1 } from './TodoItem1'
 import { onUnload } from '../../utility/onUnload'
 
 export const TodosList: FC<ITodosProps> = ({ categoryId }) => {
@@ -109,7 +109,7 @@ export const TodosList: FC<ITodosProps> = ({ categoryId }) => {
                 </Space>
                 {createPortal(
                     <DragOverlay>
-                        {draggedTodo && <TodoItem todo={draggedTodo} dragged />}
+                        {draggedTodo && <TodoItem1 todo={draggedTodo} dragged />}
                     </DragOverlay>,
                     document.body
                 )}

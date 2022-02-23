@@ -11,6 +11,7 @@ import { arrayMoveImmutable } from '../utils/arrayMoveImmutable'
 import { getCoordinates } from '../utils/getCoordinates'
 import { getItemChildCount } from '../utils/getItemChildCount'
 import { Overlay } from './Overlay'
+import '../style.css'
 
 export const Tree = <T extends TreeItem>({
     items,
@@ -51,10 +52,11 @@ export const Tree = <T extends TreeItem>({
     const onDrag = useCallback(
         (event: Event, index: number, depth: number) => {
             const childCount = getItemChildCount(items, index)
+            const active = ref.current?.children[index]
 
-            if (event.target instanceof HTMLDivElement) {
+            if (active) {
                 const mouseCoors = getCoordinates(event)
-                const { left, top } = event.target.getBoundingClientRect()
+                const { left, top } = active.getBoundingClientRect()
                 const initialCoors: Coors = {
                     x: left,
                     y: top,
@@ -164,7 +166,6 @@ export const Tree = <T extends TreeItem>({
         <>
             {activeItem && listWidth && (
                 <Overlay
-                    value={activeItem.id}
                     initialCoors={state.initialCoors}
                     shift={state.shift}
                     width={listWidth - depthIndent * activeItem.depth}
