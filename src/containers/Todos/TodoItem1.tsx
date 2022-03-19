@@ -1,25 +1,44 @@
-import { Menu, Row, Col, Space, Checkbox, Popover, Button } from 'antd'
-import moment from 'moment'
 import { CSSProperties, FC, useState } from 'react'
-import { appDateFormat } from '../../dateFormat'
 import { Todo } from '../../slices/sliceTypes'
 import { MoreOutlined, RightOutlined, DownOutlined, EllipsisOutlined } from '@ant-design/icons'
-
-import { openTodoEditor, toggleTodoHiding, toggleTodoProgress } from '../../slices/todosSlice'
-import { SyntheticEvents } from '../../sortableTree/types'
+import {
+    depthIndent,
+    openTodoEditor,
+    toggleTodoHiding,
+    toggleTodoProgress,
+} from '../../slices/todosSlice'
 import { useAppDispatch } from '../../store'
+import { Button, Checkbox, Col, Menu, Popover, Row, Space } from 'antd'
+import moment from 'moment'
+import { appDateFormat } from '../../dateFormat'
+import './todoItem.css'
 
-type TodoItemProps = {
+type TodoItemPropsType = {
     todo: Todo
-    listeners?: SyntheticEvents | undefined
+    active?: boolean
+    dragRef?: (element: HTMLElement | null) => void
+    handleProps?: any
     remove?: () => void
+    dragged?: boolean
 }
 
-export const TodoItem: FC<TodoItemProps> = ({ todo, listeners, remove }) => {
+export const TodoItem1: FC<TodoItemPropsType> = ({
+    todo,
+    dragRef,
+    handleProps,
+    remove,
+    active,
+    dragged,
+}) => {
     const [popoverVisable, setPopoverVisable] = useState(false)
 
     const dispatch = useAppDispatch()
 
+    const style: CSSProperties = {
+        marginLeft: dragged ? undefined : `${depthIndent * todo.depth}px`,
+        boxShadow: dragged ? '2px 2px 7px 1px lightgray' : undefined,
+        height: '45px',
+    }
     const dateClass =
         todo.taskEnd && moment().isAfter(todo.taskEnd, 'day')
             ? 'todo-taskEnd todo-expired'
@@ -69,12 +88,29 @@ export const TodoItem: FC<TodoItemProps> = ({ todo, listeners, remove }) => {
         )
     }
 
+    if (active)
+        return (
+            <div
+                style={{
+                    backgroundColor: 'lightgray',
+                    ...style,
+                }}
+            />
+        )
+
     return (
-        <Row justify='space-between' align='middle' className='todo-item'>
+        <Row
+            ref={dragRef}
+            justify='space-between'
+            align='middle'
+            style={style}
+            className='todo-item'
+        >
             <Col>
-                <MoreOutlined {...listeners} className='before-todo' />
+                <MoreOutlined {...handleProps} className='before-todo' />
+
                 <Space>
-                    {!todo.showHideButton ? (
+                    {!todo.showHideButton || dragged ? (
                         <div className='empty-icon' />
                     ) : todo.isHiddenSubTasks ? (
                         <RightOutlined
@@ -99,21 +135,23 @@ export const TodoItem: FC<TodoItemProps> = ({ todo, listeners, remove }) => {
                 </Space>
             </Col>
             <Col onClick={event => event.stopPropagation()}>
-                <Popover
-                    destroyTooltipOnHide={{ keepParent: false }}
-                    visible={popoverVisable}
-                    onVisibleChange={visable => {
-                        if (visable) setPopoverVisable(true)
-                        else setPopoverVisable(false)
-                    }}
-                    placement='bottom'
-                    content={() => popoverMenu()}
-                    trigger='click'
-                >
-                    <Button type='text' style={{ height: '100%' }}>
-                        <EllipsisOutlined />
-                    </Button>
-                </Popover>
+                {!dragged && (
+                    <Popover
+                        destroyTooltipOnHide={{ keepParent: false }}
+                        visible={popoverVisable}
+                        onVisibleChange={visable => {
+                            if (visable) setPopoverVisable(true)
+                            else setPopoverVisable(false)
+                        }}
+                        placement='bottom'
+                        content={() => popoverMenu()}
+                        trigger='click'
+                    >
+                        <Button type='text' style={{ height: '100%' }}>
+                            <EllipsisOutlined />
+                        </Button>
+                    </Popover>
+                )}
             </Col>
         </Row>
     )

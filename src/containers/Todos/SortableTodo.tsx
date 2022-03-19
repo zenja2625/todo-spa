@@ -4,7 +4,7 @@ import { CSSProperties, FC } from 'react'
 import { Todo } from '../../slices/sliceTypes'
 import { depthIndent } from '../../slices/todosSlice'
 import { getTodoDepth } from '../../utility/getTodoDepth'
-import { TodoItem } from './TodoItem'
+import { TodoItem1 } from './TodoItem1'
 
 type SortableTodoPropsType = {
     todo: Todo
@@ -46,7 +46,7 @@ export const SortableTodo: FC<SortableTodoPropsType> = ({ todo, remove, todos })
 
     return (
         <div ref={setDroppableNodeRef} style={style}>
-            <TodoItem
+            <TodoItem1
                 todo={todo}
                 active={isActive}
                 remove={remove}

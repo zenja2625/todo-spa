@@ -32,8 +32,11 @@ import { TodosList } from './TodosList'
 import { openCategoryEditor, toggleShowCompletedTodos } from '../../slices/categoriesSlice'
 
 import './Todos.css'
+import { TodoItems } from './TodoItems'
 
 export const Todos = () => {
+    const [isNew, setIsNew] = useState(true)
+
     const { categoryId } = useParams<{ categoryId?: string }>()
 
     const [popoverVisable, setPopoverVisable] = useState(false)
@@ -144,6 +147,17 @@ export const Todos = () => {
                     position: 'sticky',
                 }}
             >
+                <Button
+                    style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                    }}
+                    onClick={() => setIsNew(prev => !prev)}
+                >
+                    {isNew ? 'New' : 'Old'}
+                </Button>
+
                 <Col
                     className='todos-row-wrapper'
                     style={{
@@ -184,16 +198,21 @@ export const Todos = () => {
                 </Col>
                 <Col className='todos-row-wrapper'>
                     <Space className='todos-row' direction='vertical' size='large'>
-                        <DndContext
-                            collisionDetection={closestCenter}
-                            onDragStart={onDragStart}
-                            onDragMove={onDragMove}
-                            onDragEnd={onDragEnd}
-                            onDragCancel={onDragCancel}
-                            sensors={sensors}
-                        >
-                            <TodosList categoryId={selectedCategory.id} />
-                        </DndContext>
+                        {isNew ? (
+                            <TodoItems />
+                        ) : (
+                            <DndContext
+                                collisionDetection={closestCenter}
+                                onDragStart={onDragStart}
+                                onDragMove={onDragMove}
+                                onDragEnd={onDragEnd}
+                                onDragCancel={onDragCancel}
+                                sensors={sensors}
+                            >
+                                <TodosList categoryId={selectedCategory.id} />
+                            </DndContext>
+                        )}
+
                         <Button
                             type='primary'
                             style={{ width: '100%', marginBottom: '25px' }}

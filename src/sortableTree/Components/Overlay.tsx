@@ -2,7 +2,7 @@ import { CSSProperties, FC, useCallback, useState } from 'react'
 import { useListeners } from '../hooks/useListeners'
 import { Coors, OverlayProps } from '../types'
 
-export const Overlay: FC<OverlayProps> = ({ value, initialCoors, shift, width, children }) => {
+export const Overlay: FC<OverlayProps> = ({ initialCoors, shift, width, children }) => {
     const [{ x, y }, setCoors] = useState<Coors>(initialCoors)
 
     const onMove = useCallback(

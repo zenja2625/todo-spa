@@ -3,6 +3,8 @@
     font-size: 1.1em;
     padding: 0 10px 0 10px;
     line-height: 1.2;
+    height: 45px;
+    user-select: none;
 }
 
 .empty-icon {
