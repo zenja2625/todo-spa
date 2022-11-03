@@ -1,13 +1,19 @@
+<<<<<<< HEAD
 import { createRef, useCallback, useLayoutEffect, useRef, useState } from 'react'
 import { Column, Index, Table } from 'react-virtualized'
 import { getTodos } from '../../selectors/getTodos'
 import { Tree } from '../../sortableTree/Components/Tree'
 import { useListeners } from '../../sortableTree/hooks/useListeners'
+=======
+import { getTodos } from '../../selectors/getTodos'
+import { Tree } from '../../sortableTree/Components/Tree'
+>>>>>>> 4314e69ce0844ce828107cc03aef8c1da817470b
 import { useAppSelector } from '../../store'
 import { TodoItem } from './TodoItem'
 
 export const TodoItems = () => {
     const todos = useAppSelector(getTodos)
+<<<<<<< HEAD
     const ref = useRef<Array<HTMLElement | null>>([])
 
 
@@ -31,6 +37,8 @@ export const TodoItems = () => {
         },
         [over, todos]
     )
+=======
+>>>>>>> 4314e69ce0844ce828107cc03aef8c1da817470b
 
     return (
         <Tree
@@ -42,6 +50,7 @@ export const TodoItems = () => {
                 return <TodoItem todo={item} listeners={listeners} />
             }}
         />
+<<<<<<< HEAD
         // <Table
         //     width={500}
         //     height={400}
@@ -55,5 +64,7 @@ export const TodoItems = () => {
         // >
         //     <Column dataKey='todo' width={500} label='Name' />
         // </Table>
+=======
+>>>>>>> 4314e69ce0844ce828107cc03aef8c1da817470b
     )
 }
