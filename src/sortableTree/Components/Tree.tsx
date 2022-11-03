@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react'
+import { createContext, useCallback, useLayoutEffect, useMemo } from 'react'
 import { PropsWithChildren, useRef, useReducer } from 'react'
 import { useAutoScroll } from '../hooks/useAutoScroll'
 import { useBinarySearch } from '../hooks/useBinarySearch'
@@ -6,12 +6,24 @@ import { useItemDepth } from '../hooks/useItemDepth'
 import { useListeners } from '../hooks/useListeners'
 import { useTreeStyle } from '../hooks/useTreeStyle'
 import { initialState, reducer } from '../reducer/reducer'
-import { Coors, SyntheticEvents, TreeItem, TreeProps } from '../types'
+import { Coors, ItemRef, SyntheticEvents, TreeItem, TreeProps } from '../types'
 import { arrayMoveImmutable } from '../utils/arrayMoveImmutable'
 import { getCoordinates } from '../utils/getCoordinates'
 import { getItemChildCount } from '../utils/getItemChildCount'
 import { Overlay } from './Overlay'
 import '../style.css'
+
+type ContextType = {
+    addItem: (item: TreeItem, ref: React.RefObject<HTMLElement>) => void
+    removeItem: (id: number) => void
+}
+
+export const Context = createContext<ContextType>({
+    addItem: () => {
+        console.log(555)
+    },
+    removeItem: () => {},
+})
 
 export const Tree = <T extends TreeItem>({
     items,
@@ -21,22 +33,48 @@ export const Tree = <T extends TreeItem>({
     onDragEnd,
 }: PropsWithChildren<TreeProps<T>>) => {
     const ref = useRef<HTMLDivElement>(null)
+    const refs = useRef<Array<ItemRef>>([])
+
+    const contextValue: ContextType = {
+        addItem: (item, ref1) => {
+            for (let i = 0; i < refs.current.length; i++) {
+                const first = refs.current[i].ref.current?.getBoundingClientRect().y
+                const second = ref1.current?.getBoundingClientRect().y
+
+                if (first && second && first > second) {
+                    console.log('splice')
+
+                    refs.current.splice(i, 0, { id: item.id, ref: ref1 })
+                    return
+                }
+            }
+
+            refs.current.push({ id: item.id, ref: ref1 })
+        },
+        removeItem: id => {
+            console.log(123)
+
+            const index = refs.current.findIndex(item => item.id === id)
+            refs.current.splice(index, 1)
+        },
+    }
+
     const [state, dispath] = useReducer(reducer, initialState)
 
     useAutoScroll(ref.current, state.activeIndex !== -1)
 
-    useTreeStyle(
-        ref.current?.children,
-        state.activeIndex,
-        state.overIndex,
-        state.depth,
-        state.activeDepth,
-        depthIndent,
-        state.childCount
-    )
+    // useTreeStyle(
+    //     refs.current,
+    //     state.activeIndex,
+    //     state.overIndex,
+    //     state.depth,
+    //     state.activeDepth,
+    //     depthIndent,
+    //     state.childCount
+    // )
 
     const binarySearch = useBinarySearch(
-        ref.current?.children,
+        refs.current,
         state.activeIndex,
         state.overIndex,
         state.childCount
@@ -52,7 +90,7 @@ export const Tree = <T extends TreeItem>({
     const onDrag = useCallback(
         (event: Event, index: number, depth: number) => {
             const childCount = getItemChildCount(items, index)
-            const active = ref.current?.children[index]
+            const active = refs.current[index].ref.current
 
             if (active) {
                 const mouseCoors = getCoordinates(event)
@@ -162,8 +200,15 @@ export const Tree = <T extends TreeItem>({
     const activeItem = items[state.activeIndex]
     const listWidth = ref.current?.getBoundingClientRect().width
 
+    useLayoutEffect(() => {
+        // console.log(refs)
+    })
+
+
+    
+
     return (
-        <>
+        <Context.Provider value={contextValue}>
             {activeItem && listWidth && (
                 <Overlay
                     initialCoors={state.initialCoors}
@@ -176,6 +221,6 @@ export const Tree = <T extends TreeItem>({
             <div ref={ref} className='list'>
                 {itemsList}
             </div>
-        </>
+        </Context.Provider>
     )
 }

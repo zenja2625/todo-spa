@@ -1,7 +1,8 @@
 import { useLayoutEffect } from 'react'
+import { ItemRef } from '../types'
 
 export const useTreeStyle = (
-    list: HTMLCollection | undefined,
+    list: ItemRef[] | undefined,
     activeIndex: number,
     overIndex: number,
     depth: number,
@@ -14,7 +15,7 @@ export const useTreeStyle = (
             const lastChildIndex = activeIndex + childCount
 
             for (let i = list.length - 1; i >= 0; i--) {
-                const children = list[i]
+                const children = list[i].ref.current
 
                 if (children instanceof HTMLElement) {
                     if (i === activeIndex) children.classList.add('selectedItem')
@@ -31,7 +32,7 @@ export const useTreeStyle = (
         return () => {
             if (list && activeIndex >= 0 && activeIndex < list.length) {
                 for (let i = list.length - 1; i >= 0; i--) {
-                    const children = list[i]
+                    const children = list[i].ref.current
 
                     if (children instanceof HTMLElement) {
                         children.style.order = ''
@@ -48,7 +49,7 @@ export const useTreeStyle = (
 
     useLayoutEffect(() => {
         if (list && activeIndex >= 0 && activeIndex < list.length) {
-            const active = list[activeIndex]
+            const active = list[activeIndex].ref.current
 
             if (active instanceof HTMLElement) {
                 const order = activeIndex < overIndex ? overIndex + 1 : overIndex

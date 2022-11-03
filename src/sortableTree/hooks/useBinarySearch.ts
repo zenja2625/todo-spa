@@ -1,7 +1,8 @@
 import { useCallback, useMemo } from 'react'
+import { ItemRef } from '../types'
 
 export const useBinarySearch = (
-    list: HTMLCollection | undefined,
+    list: Array<ItemRef> | undefined,
     activeIndex: number,
     overIndex: number,
     childCount: number
@@ -18,9 +19,14 @@ export const useBinarySearch = (
                         ? index - 1
                         : index
 
-                return list[
-                    sortedIndex > activeIndex ? sortedIndex + childCount : sortedIndex
-                ].getBoundingClientRect()
+                const rect =
+                    list[
+                        sortedIndex > activeIndex ? sortedIndex + childCount : sortedIndex
+                    ].ref.current?.getBoundingClientRect()
+
+                if (rect) {
+                    return rect
+                }
             }
 
             return new DOMRect()

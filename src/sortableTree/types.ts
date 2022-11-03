@@ -25,3 +25,8 @@ export type OverlayProps = {
 export type SyntheticEvents = { [key: string]: (e: React.SyntheticEvent) => void }
 
 export type Direction = 1 | -1
+
+export type ItemRef = {
+    id: number
+    ref: React.RefObject<HTMLElement>
+}
