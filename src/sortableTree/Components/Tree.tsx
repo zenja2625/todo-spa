@@ -12,7 +12,6 @@ import { getCoordinates } from '../utils/getCoordinates'
 import { getItemChildCount } from '../utils/getItemChildCount'
 import { Overlay } from './Overlay'
 import '../style.css'
-<<<<<<< HEAD
 
 type ContextType = {
     addItem: (item: TreeItem, ref: React.RefObject<HTMLElement>) => void
@@ -25,8 +24,6 @@ export const Context = createContext<ContextType>({
     },
     removeItem: () => {},
 })
-=======
->>>>>>> 4314e69ce0844ce828107cc03aef8c1da817470b
 
 export const Tree = <T extends TreeItem>({
     items,
@@ -93,11 +90,7 @@ export const Tree = <T extends TreeItem>({
     const onDrag = useCallback(
         (event: Event, index: number, depth: number) => {
             const childCount = getItemChildCount(items, index)
-<<<<<<< HEAD
             const active = refs.current[index].ref.current
-=======
-            const active = ref.current?.children[index]
->>>>>>> 4314e69ce0844ce828107cc03aef8c1da817470b
 
             if (active) {
                 const mouseCoors = getCoordinates(event)
