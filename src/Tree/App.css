@@ -1,0 +1,95 @@
+html,
+body {
+  padding: 0;
+  margin: 0;
+  font-family: sans-serif;
+  height: 100%;
+  width: 100%;
+  /* overflow: hidden; */
+}
+
+#root {
+  height: 100%;
+  width: 100%;
+  display: flex;
+}
+
+.wrapper {
+  margin: 50px;
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+.App {
+  text-align: center;
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* justify-content: center; */
+  font-size: calc(10px + 2vmin);
+  color: white;
+  touch-action: none;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  overflow-anchor: none;
+  /* gap: 1px; */
+}
+
+.empty-item {
+  width: 250px;
+  height: 44px;
+}
+
+.item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  /* width: 250px; */
+  /* height: 44px; */
+  /* border-bottom: 1px solid #282c34; */
+  /* margin-bottom: 1px; */
+
+  background-color: orangered;
+  user-select: none;
+
+  /* -webkit-font-smoothing: subpixel-antialiased; */
+  /* backface-visibility: hidden; */
+  /* will-change: transform; */
+
+  /* overflow-anchor: none; */
+
+  /* font-size: 0.5em; */
+
+  /* overflow: hidden; */
+}
+
+.item-button {
+  display: inline-block;
+  background-color: red;
+  width: 40px;
+  height: 100%;
+}
+
+button {
+  position: fixed;
+  top: 0;
+  left: 0;
+  font-size: 2em;
+}
+
+.test {
+  position: fixed;
+  bottom: 10px;
+  left: 10px;
+  white-space: pre-line;
+  text-align: left;
+}

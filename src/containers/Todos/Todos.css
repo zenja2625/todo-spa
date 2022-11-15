@@ -2,9 +2,18 @@
     display: flex;
     justify-content: center;
     width: 100%;
+
+    /* height: 100%;
+    background-color: red; */
 }
 
-.todos-row {
+.todos-title {
+    position: sticky;
+    top: 0px;
+    z-index: 1000;
+}
+
+.todos-content {
     width: 800px;
     max-width: 800px;
     padding: 0 45px 0 45px;

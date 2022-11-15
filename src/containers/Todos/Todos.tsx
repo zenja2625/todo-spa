@@ -28,11 +28,12 @@ import { Button, Col, Menu, Popover, Row, Space, Typography } from 'antd'
 import { Redirect, useParams } from 'react-router'
 
 import { TodoEditor } from './TodoEditor'
-import { TodosList } from './TodosList'
+import { TodosList } from './TodosListNew'
 import { openCategoryEditor, toggleShowCompletedTodos } from '../../slices/categoriesSlice'
 
 import './Todos.css'
 import { TodoItems } from './TodoItems'
+import { Tree } from '../../Tree/Tree'
 
 export const Todos = () => {
     const [isNew, setIsNew] = useState(true)
@@ -140,90 +141,9 @@ export const Todos = () => {
         )
     } else {
         return (
-            <Row
-                style={{
-                    maxHeight: '100%',
-                    overflowY: 'auto',
-                    position: 'sticky',
-                }}
-            >
-                <Button
-                    style={{
-                        position: 'fixed',
-                        top: 0,
-                        left: 0,
-                    }}
-                    onClick={() => setIsNew(prev => !prev)}
-                >
-                    {isNew ? 'New' : 'Old'}
-                </Button>
-
-                <Col
-                    className='todos-row-wrapper'
-                    style={{
-                        position: 'sticky',
-                        top: 0,
-                        zIndex: 100,
-                        backgroundColor: '#f0f2f5',
-                        padding: '15px 0 15px 0',
-                    }}
-                >
-                    <Row justify='space-between' className='todos-row'>
-                        <Col>
-                            <Typography.Title level={3} style={{ margin: 0 }}>
-                                {selectedCategory.name}
-                            </Typography.Title>
-                        </Col>
-                        <Col style={{}}>
-                            <Popover
-                                destroyTooltipOnHide={{ keepParent: false }}
-                                visible={popoverVisable}
-                                onVisibleChange={visable => {
-                                    if (visable) setPopoverVisable(true)
-                                    else setPopoverVisable(false)
-                                }}
-                                placement='bottom'
-                                content={() => popoverMenu()}
-                                trigger='click'
-                            >
-                                <Button
-                                    type='text'
-                                    style={{ height: '100%', paddingTop: 0, paddingBottom: 0 }}
-                                >
-                                    <EllipsisOutlined style={{ fontSize: '2em' }} />
-                                </Button>
-                            </Popover>
-                        </Col>
-                    </Row>
-                </Col>
-                <Col className='todos-row-wrapper'>
-                    <Space className='todos-row' direction='vertical' size='large'>
-                        {isNew ? (
-                            <TodoItems />
-                        ) : (
-                            <DndContext
-                                collisionDetection={closestCenter}
-                                onDragStart={onDragStart}
-                                onDragMove={onDragMove}
-                                onDragEnd={onDragEnd}
-                                onDragCancel={onDragCancel}
-                                sensors={sensors}
-                            >
-                                <TodosList categoryId={selectedCategory.id} />
-                            </DndContext>
-                        )}
-
-                        <Button
-                            type='primary'
-                            style={{ width: '100%', marginBottom: '25px' }}
-                            onClick={() => dispatch(openTodoEditor())}
-                        >
-                            Новая задача
-                        </Button>
-                    </Space>
-                </Col>
-                <TodoEditor categoryId={selectedCategory.id} />
-            </Row>
+            <>
+                <TodosList categoryId={Number(categoryId)} />
+            </>
         )
     }
 }
