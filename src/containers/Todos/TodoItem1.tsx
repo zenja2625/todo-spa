@@ -20,6 +20,8 @@ type TodoItemPropsType = {
     handleProps?: any
     remove?: () => void
     dragged?: boolean
+    toggleIsOpen?: (id: number) => void
+    toggleIsCheck?: (id: number) => void
 }
 
 export const TodoItem1: FC<TodoItemPropsType> = ({
@@ -29,13 +31,15 @@ export const TodoItem1: FC<TodoItemPropsType> = ({
     remove,
     active,
     dragged,
+    toggleIsOpen,
+    toggleIsCheck
 }) => {
     const [popoverVisable, setPopoverVisable] = useState(false)
 
     const dispatch = useAppDispatch()
 
     const style: CSSProperties = {
-        marginLeft: dragged ? undefined : `${depthIndent * todo.depth}px`,
+        // marginLeft: dragged ? undefined : `${depthIndent * todo.depth}px`,
         boxShadow: dragged ? '2px 2px 7px 1px lightgray' : undefined,
         height: '45px',
     }
@@ -97,6 +101,7 @@ export const TodoItem1: FC<TodoItemPropsType> = ({
                 }}
             />
         )
+// console.log(handleProps);
 
     return (
         <Row
@@ -112,20 +117,20 @@ export const TodoItem1: FC<TodoItemPropsType> = ({
                 <Space>
                     {!todo.showHideButton || dragged ? (
                         <div className='empty-icon' />
-                    ) : todo.isHiddenSubTasks ? (
+                    ) : !todo.isHiddenSubTasks ? (
                         <RightOutlined
                             className='hidden-icon'
-                            onClick={() => dispatch(toggleTodoHiding(todo.id))}
+                            onClick={() => toggleIsOpen?.(todo.id)}
                         />
                     ) : (
                         <DownOutlined
                             className='hidden-icon'
-                            onClick={() => dispatch(toggleTodoHiding(todo.id))}
+                            onClick={() => toggleIsOpen?.(todo.id)}
                         />
                     )}
 
                     <Checkbox
-                        onChange={() => dispatch(toggleTodoProgress(todo.id))}
+                        onChange={() => toggleIsCheck?.(todo.id)}
                         checked={todo.isDone}
                     />
                     <div>

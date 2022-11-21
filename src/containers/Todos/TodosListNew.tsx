@@ -103,7 +103,7 @@ export const TodosList: FC<ITodosProps> = ({ categoryId }) => {
                     ></div>
                 </div> */}
                 <Tree
-                    depthWidth={30}
+                    depthWidth={50}
                     gap={10}
                     itemHeight={45}
                     items={todos.map(todo => ({ ...todo, id: todo.id.toString(), isOpen: !todo.isHiddenSubTasks }))}

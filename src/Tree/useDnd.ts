@@ -17,14 +17,10 @@ export const useDnd = (
     gap: number,
     wrapper: HTMLElement | null,
     shift: Coors,
-    maxDepth: number
+    maxDepth: number,
+    depthWidth: number
 ) => {
-    const {
-        activeIndex,
-        overIndex,
-        order,
-        activeDepth,
-    } = state
+    const { activeIndex, overIndex, order, activeDepth } = state
 
     const onMove = useCallback(
         ({ x, y }: Coors) => {
@@ -46,7 +42,13 @@ export const useDnd = (
             const min = order[nextIndex]?.depth || 0
 
             const offsetX = x - shift.x - dx
-            const depth = getRoundedValue(offsetX / 30 - activeDepth, activeDepth, 0.3, max, min)
+            const depth = getRoundedValue(
+                offsetX / depthWidth - activeDepth,
+                activeDepth,
+                0.3,
+                max,
+                min
+            )
 
             dispath({
                 type: 'move',
@@ -56,7 +58,7 @@ export const useDnd = (
                 },
             })
         },
-        [wrapper, shift, height, gap,maxDepth, activeDepth, activeIndex, overIndex, order, dispath]
+        [wrapper, shift, height, gap, maxDepth, activeDepth, activeIndex, overIndex, order, dispath]
     )
 
     const dragEnd = useCallback(() => {
@@ -69,7 +71,6 @@ export const useDnd = (
         (id: string) => (e: React.MouseEvent | React.TouchEvent) => {
             e.preventDefault()
             const { x, y } = getCoordinates(e.nativeEvent)
-
             dispath({
                 type: 'dragStart',
                 payload: {

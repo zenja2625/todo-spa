@@ -18,6 +18,8 @@ import { FixedSizeList as List, ListChildComponentProps, ReactElementType } from
 import ReactDOM from 'react-dom'
 import { TodoItem1 } from '../containers/Todos/TodoItem1'
 import { Todo } from '../slices/sliceTypes'
+import { useAppDispatch } from '../store'
+import { toggleTodoHiding, toggleTodoProgress } from '../slices/todosSlice'
 
 type ListData = {
     activeIndex: number
@@ -26,7 +28,8 @@ type ListData = {
     gap: number
     depthWidth: number
     order: Array<TreeItem>
-    toggle: (id: string) => void
+    toggleIsOpen: (id: string) => void
+    toggleIsCheck: (id: string) => void
     dragStart: (id: string) => (e: React.MouseEvent | React.TouchEvent) => void
 }
 
@@ -41,7 +44,25 @@ const contextIntitial = {
 const Context = createContext(contextIntitial)
 
 const Row = ({ index, style, data }: ListChildComponentProps<ListData>) => {
-    const { dragStart, toggle, order, activeIndex, overIndex, gap, itemHeight, depthWidth } = data
+    const {
+        dragStart,
+        toggleIsOpen,
+        toggleIsCheck,
+        order,
+        activeIndex,
+        overIndex,
+        gap,
+        itemHeight,
+        depthWidth,
+    } = data
+
+    const handleProps = useMemo(
+        () => ({
+            onDragStart: dragStart(order[index].id),
+            onMouseDown: dragStart(order[index].id),
+        }),
+        [dragStart, order[index].id]
+    )
 
     if (index === activeIndex) return null
 
@@ -61,30 +82,47 @@ const Row = ({ index, style, data }: ListChildComponentProps<ListData>) => {
 
     return (
         <div style={nStyle}>
-            <TodoItem1 todo={{ ...todo, id: Number(todo.id) }} />
-            {/* <Item dragStart={dragStart} toggle={toggle} {...order[index]} /> */}
+            <TodoItem1
+                handleProps={handleProps}
+                toggleIsOpen={e => toggleIsOpen(e.toString())}
+                todo={{ ...todo, id: Number(todo.id), isHiddenSubTasks: todo.isOpen }}
+            />
         </div>
     )
 }
 
 const innerElementType: ReactElementType = forwardRef<HTMLDivElement, any>(
     ({ children, ...rest }, ref) => {
+        console.log(rest)
+
+        rest = { ...rest, style: { ...rest.style, display: 'flex', justifyContent: 'center' } }
+
         return (
             <Context.Consumer>
                 {({ overIndex, activeDepth, itemHeight, gap, depthWidth }) => {
                     return (
-                        <div ref={ref} {...rest}>
-                            {children}
+                        <div {...rest}>
                             <div
+                                ref={ref}
                                 style={{
-                                    backgroundColor: 'gray',
-                                    height: `${itemHeight}px`,
-                                    position: 'absolute',
-                                    right: 0,
-                                    left: activeDepth * depthWidth,
-                                    top: `${overIndex * (itemHeight + gap)}px`,
+                                    position: 'relative',
+                                    width: '800px',
+                                    maxWidth: '800px',
+                                    margin: '0 45px 0 45px',
                                 }}
-                            ></div>
+                            >
+                                {children}
+                                <div
+                                    style={{
+                                        backgroundColor: 'gray',
+                                        height: `${itemHeight}px`,
+                                        position: 'absolute',
+                                        right: 0,
+                                        left: activeDepth * depthWidth,
+                                        top: `${overIndex * (itemHeight + gap)}px`,
+                                    }}
+                                ></div>
+                            </div>
                         </div>
                     )
                 }}
@@ -94,16 +132,12 @@ const innerElementType: ReactElementType = forwardRef<HTMLDivElement, any>(
 )
 
 export const Tree: FC<TreeProps> = ({ items, itemHeight, gap, depthWidth, maxDepth, setItems }) => {
-    
-    
     const wrapperRef = useRef<HTMLDivElement>(null)
 
     const [state, dispatch] = useReducer(reducer, initialState)
+    const appDispatch = useAppDispatch()
 
     const { activeDepth, activeIndex, initialDepth, initialPosition, order, overIndex } = state
-
-    console.log(items);
-    console.log(order);
 
     const shift = useMemo((): Coors => {
         const { x = 0, y = 0 } = wrapperRef.current?.getBoundingClientRect() || {}
@@ -123,22 +157,29 @@ export const Tree: FC<TreeProps> = ({ items, itemHeight, gap, depthWidth, maxDep
         dispatch({ type: 'setOrder', payload: items })
     }, [items])
 
-    const dragStart = useDnd(state, dispatch, itemHeight, gap, wrapperRef.current, shift, maxDepth)
+    const dragStart = useDnd(
+        state,
+        dispatch,
+        itemHeight,
+        gap,
+        wrapperRef.current,
+        shift,
+        maxDepth,
+        depthWidth
+    )
 
-    const toggle = useCallback(
+    const toggleIsOpen = useCallback(
         (id: string) => {
-            setItems(prev =>
-                prev.map(item =>
-                    item.id === id
-                        ? {
-                              ...item,
-                              isOpen: !item.isOpen,
-                          }
-                        : item
-                )
-            )
+            appDispatch(toggleTodoHiding(Number(id)))
         },
-        [setItems]
+        [appDispatch]
+    )
+
+    const toggleIsCheck = useCallback(
+        (id: string) => {
+            appDispatch(toggleTodoProgress(Number(id)))
+        },
+        [appDispatch]
     )
 
     const itemData: ListData = useMemo(
@@ -150,9 +191,20 @@ export const Tree: FC<TreeProps> = ({ items, itemHeight, gap, depthWidth, maxDep
             depthWidth,
             gap,
             dragStart,
-            toggle,
+            toggleIsOpen,
+            toggleIsCheck,
         }),
-        [order, activeIndex, overIndex, itemHeight, depthWidth, gap, dragStart, toggle]
+        [
+            order,
+            activeIndex,
+            overIndex,
+            itemHeight,
+            depthWidth,
+            gap,
+            dragStart,
+            toggleIsOpen,
+            toggleIsCheck,
+        ]
     )
 
     const value = useMemo(
@@ -187,7 +239,11 @@ export const Tree: FC<TreeProps> = ({ items, itemHeight, gap, depthWidth, maxDep
                             // onScroll={() => {
                             //     console.log('scroll')
                             // }}
-                            style={{ backgroundColor: 'orangered', width: `100%`, willChange: 'auto' }}
+                            style={{
+                                backgroundColor: 'orangered',
+                                width: `100%`,
+                                willChange: 'auto',
+                            }}
                         >
                             {Row}
                         </List>
