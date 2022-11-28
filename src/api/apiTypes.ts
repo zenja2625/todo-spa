@@ -11,8 +11,8 @@ export type UserRegisterDTO = {
 }
 export type TodoPostDTO = {
     value: string,
-    parentId: number,
-    prevTodoId: number,
+    parentId: string,
+    prevTodoId: string,
     taskEnd?: Moment
 }
 export type TodoPutDTO = {
@@ -26,8 +26,8 @@ export type TodoStatusDTO = {
 }
 export type TodoPositionDTO = {
     id: string,
-    parentId: number,
-    prevTodoId: number
+    parentId: string,
+    prevTodoId: string
 }
 export type CategoryRequestDTO = {
     name: string
