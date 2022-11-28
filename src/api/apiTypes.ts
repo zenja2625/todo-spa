@@ -20,12 +20,12 @@ export type TodoPutDTO = {
     taskEnd?: Moment
 }
 export type TodoStatusDTO = {
-    id: number,
+    id: string,
     isDone?: boolean,
     isHiddenSubTasks?: boolean
 }
 export type TodoPositionDTO = {
-    id: number,
+    id: string,
     parentId: number,
     prevTodoId: number
 }

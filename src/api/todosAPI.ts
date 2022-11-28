@@ -2,17 +2,17 @@ import { instance } from './api'
 import { TodoPositionDTO, TodoPostDTO, TodoPutDTO, TodoStatusDTO } from './apiTypes'
 
 export const todosAPI = {
-    getTodos: (categoryId: number, withCompleted: boolean = false) =>
+    getTodos: (categoryId: string, withCompleted: boolean = false) =>
         instance.get(`categories/${categoryId}/todos`, { params: { withCompleted } }),
-    createTodo: (categoryId: number, payload: TodoPostDTO) => 
+    createTodo: (categoryId: string, payload: TodoPostDTO) => 
         instance.post(`categories/${categoryId}/todos`, payload),
-    updateTodo: (categoryId: number, todoId: number, payload: TodoPutDTO) =>
+    updateTodo: (categoryId: string, todoId: string, payload: TodoPutDTO) =>
         instance.put(`categories/${categoryId}/todos/${todoId}`, payload),
-    deleteTodo: (categoryId: number, todoId: number) =>
+    deleteTodo: (categoryId: string, todoId: string) =>
         instance.delete(`categories/${categoryId}/todos/${todoId}`),
-    updateStatuses: (categoryId: number, payload: TodoStatusDTO[]) =>
+    updateStatuses: (categoryId: string, payload: TodoStatusDTO[]) =>
         instance.patch(`categories/${categoryId}/todos/statuses`, payload),
-    updatePositions: (categoryId: number, payload: TodoPositionDTO[]) =>
+    updatePositions: (categoryId: string, payload: TodoPositionDTO[]) =>
         instance.patch(`categories/${categoryId}/todos/positions`, payload),
 }
 

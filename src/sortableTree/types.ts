@@ -4,7 +4,7 @@ export type Coors = {
 }
 
 export type TreeItem = {
-    id: number
+    id: string
     depth: number
 }
 
@@ -27,6 +27,6 @@ export type SyntheticEvents = { [key: string]: (e: React.SyntheticEvent) => void
 export type Direction = 1 | -1
 
 export type ItemRef = {
-    id: number
+    id: string
     ref: React.RefObject<HTMLElement>
 }

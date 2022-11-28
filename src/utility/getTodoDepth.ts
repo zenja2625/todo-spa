@@ -1,7 +1,7 @@
 import { getTodoChildCount } from './getTodoChildCount'
 
 export interface ITodo {
-    id: number
+    id: string
     depth: number
 }
 

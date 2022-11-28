@@ -37,7 +37,7 @@ export const createCategoryThunk = createAsyncThunk(
 
 export const deleteCategoryThunk = createAsyncThunk(
     'categories/deleteCategoryThunk',
-    async (payload: number, thunkAPI) => {
+    async (payload: string, thunkAPI) => {
         try {
             await API.categories.deleteCategory(payload)
             return payload

@@ -20,8 +20,8 @@ type TodoItemPropsType = {
     handleProps?: any
     remove?: () => void
     dragged?: boolean
-    toggleIsOpen?: (id: number) => void
-    toggleIsCheck?: (id: number) => void
+    toggleIsOpen?: (id: string) => void
+    toggleIsCheck?: (id: string) => void
 }
 
 export const TodoItem1: FC<TodoItemPropsType> = ({

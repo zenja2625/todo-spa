@@ -142,7 +142,7 @@ export const Todos = () => {
     } else {
         return (
             <>
-                <TodosList categoryId={Number(categoryId)} />
+                <TodosList categoryId={categoryId || ''} />
             </>
         )
     }

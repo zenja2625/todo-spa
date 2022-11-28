@@ -15,7 +15,7 @@ import '../style.css'
 
 type ContextType = {
     addItem: (item: TreeItem, ref: React.RefObject<HTMLElement>) => void
-    removeItem: (id: number) => void
+    removeItem: (id: string) => void
 }
 
 export const Context = createContext<ContextType>({

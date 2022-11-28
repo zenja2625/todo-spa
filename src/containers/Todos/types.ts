@@ -1,3 +1,3 @@
 export interface ITodosProps {
-    categoryId: number
+    categoryId: string
 }

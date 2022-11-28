@@ -28,18 +28,18 @@ const initialState: TodosType = {
 }
 
 type UpdateTodoProps = {
-    id: number
-    categoryId: number
+    id: string
+    categoryId: string
     todoDTO: TodoPutDTO
 }
 
 type DeleteTodoProps = {
-    id: number
-    categoryId: number
+    id: string
+    categoryId: string
 }
 
 type GetTodosProps = {
-    categoryId: number
+    categoryId: string
     withCompleted: boolean
 }
 
@@ -59,7 +59,7 @@ export const getTodosThunk = createAsyncThunk(
     }
 )
 
-export const updatePositionsThunk = createAsyncThunk<void, number, IState & RejectValueType>(
+export const updatePositionsThunk = createAsyncThunk<void, string, IState & RejectValueType>(
     'todos/updatePositionsThunk',
     async (payload, { getState, dispatch, rejectWithValue }) => {
         try {
@@ -76,7 +76,7 @@ export const updatePositionsThunk = createAsyncThunk<void, number, IState & Reje
     }
 )
 
-export const updateStatusesThunk = createAsyncThunk<void, number, IState & RejectValueType>(
+export const updateStatusesThunk = createAsyncThunk<void, string, IState & RejectValueType>(
     'todos/updateStatusesThunk',
     async (payload, { getState, dispatch, rejectWithValue }) => {
         try {
@@ -169,7 +169,7 @@ export const todosSlice = createSlice({
         clearTodoPositions: state => {
             state.todoPositionDTOs = []
         },
-        toggleTodoProgress: (state, action: PayloadAction<number>) => {
+        toggleTodoProgress: (state, action: PayloadAction<string>) => {
             const todos = state.items
             const index = todos.findIndex(todo => todo.id === action.payload)
 
@@ -198,7 +198,7 @@ export const todosSlice = createSlice({
                 })
             }
         },
-        toggleTodoHiding: (state, action: PayloadAction<number>) => {
+        toggleTodoHiding: (state, action: PayloadAction<string>) => {
             const todos = state.items
             const index = todos.findIndex(todo => todo.id === action.payload)
 

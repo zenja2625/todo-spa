@@ -6,8 +6,8 @@ export const getTodoPosition = (
     actualTodoDepth: number = 0,
     actualTodoIndex: number = -1
 ) => {
-    let parentId = 0
-    let prevTodoId = 0
+    let parentId = ''
+    let prevTodoId = ''
 
     for (let i = actualPrevTodoIndex; i >= 0; i--) {
         const todo = todos[i]

@@ -31,7 +31,7 @@ export const Categories = () => {
 
     const { lg } = useBreakpoint()
 
-    const [popupMenuVisableId, setPopupMenuVisableId] = useState<number | null>(null)
+    const [popupMenuVisableId, setPopupMenuVisableId] = useState<string | null>(null)
 
     const dispatch = useAppDispatch()
     const categories = useAppSelector(state => state.categories.items)

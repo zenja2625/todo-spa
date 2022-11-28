@@ -6,8 +6,8 @@ export const categoriesAPI = {
         instance.get('categories'),
     createCategory: (payload: CategoryRequestDTO) =>
         instance.post('categories', payload),
-    updateCategory: (categoryId: number, payload: CategoryRequestDTO) =>
+    updateCategory: (categoryId: string, payload: CategoryRequestDTO) =>
         instance.put(`categories/${categoryId}`, payload),
-    deleteCategory: (categoryId: number) =>
+    deleteCategory: (categoryId: string) =>
         instance.delete(`categories/${categoryId}`)
 }

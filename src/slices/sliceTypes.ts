@@ -15,12 +15,12 @@ export type AccountType = {
 }
 
 export type Category = {
-    id: number
+    id: string
     name: string
 }
 
 export interface TodoDTO {
-    id: number
+    id: string
     value: string
     isDone: boolean
     isHiddenSubTasks: boolean
@@ -40,11 +40,11 @@ export type PutTodoDTO = {
 export interface IEditor<T> {
     isOpen: boolean
     value: T
-    editId?: number
+    editId?: string
 }
 
 export interface ITodoEditor extends IEditor<TodoEditorValueType> {
-    overId?: number
+    overId?: string
     addBefore?: boolean
 }
 
@@ -65,41 +65,41 @@ export type TodosType = {
     todoStatusDTOs: Array<TodoStatusDTO>
     todoPositionDTOs: Array<TodoPositionDTO>
     todoEditor: ITodoEditor
-    draggedTodoId: number | null ////////////////////////////?
+    draggedTodoId: string | null ////////////////////////////?
     todosRequestId: string | null
 }
 
 export type openCategoryEditorProps = {
     value?: string
-    editId?: number
+    editId?: string
 }
 
 export type OpenTodoEditorProps = {
     value?: TodoEditorValueType
-    editId?: number
-    overId?: number
+    editId?: string
+    overId?: string
     addBefore?: boolean
 }
 
 export type UpdateStatusesType = {
     todoStatusDTOs: Array<TodoStatusDTO>
-    categoryId: number
+    categoryId: string
 }
 
 export type UpdatePositionsType = {
     todoPositionDTOs: Array<TodoPositionDTO>
-    categoryId: number
+    categoryId: string
 }
 
 export type CreateTodoProps = {
-    categoryId: number
+    categoryId: string
     todoValue: TodoEditorValueType
-    overId?: number
+    overId?: string
     addBefore?: boolean
 }
 
 export type updateTodoDragDepthProps = {
-    overTodoId: number
+    overTodoId: string
     offsetLeft: number
 }
 
@@ -108,8 +108,8 @@ export type RejectValueType = {
 }
 
 export type ChangeTodoPositionType = {
-    todoId: number
-    prevTodoId: number | null
+    todoId: string
+    prevTodoId: string | null
     depth: number
 }
 

@@ -48,7 +48,7 @@ export const TodosList: FC<ITodosProps> = ({ categoryId }) => {
         }
     }, [positions, categoryId, dispatch])
 
-    const openDeletePopup = (id: number, todoValue: string) => {
+    const openDeletePopup = (id: string, todoValue: string) => {
         dispatch(updateStatusesThunk(categoryId))
         dispatch(updatePositionsThunk(categoryId))
         confirm({

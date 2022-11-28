@@ -170,14 +170,14 @@ export const Tree: FC<TreeProps> = ({ items, itemHeight, gap, depthWidth, maxDep
 
     const toggleIsOpen = useCallback(
         (id: string) => {
-            appDispatch(toggleTodoHiding(Number(id)))
+            appDispatch(toggleTodoHiding(id))
         },
         [appDispatch]
     )
 
     const toggleIsCheck = useCallback(
         (id: string) => {
-            appDispatch(toggleTodoProgress(Number(id)))
+            appDispatch(toggleTodoProgress(id))
         },
         [appDispatch]
     )
