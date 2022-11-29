@@ -19,7 +19,12 @@ instance.interceptors.response.use(originalResponse => {
 })
 
 instance.interceptors.request.use(originalRequest => {
-    momentToString(originalRequest.data)
+    if (typeof originalRequest.data === 'object') {
+        const body = JSON.parse(JSON.stringify(originalRequest.data))
+        momentToString(body)
+        originalRequest.data = body
+    }
+
     return originalRequest
 })
 
@@ -31,8 +36,7 @@ export const stringToMoment = (body: any) => {
 
         if (key === 'id' && typeof value === 'number') {
             body[key] = value.toString()
-        }
-        else if (typeof value === 'string') {
+        } else if (typeof value === 'string') {
             const date = moment(value, true)
 
             if (date.isValid()) body[key] = date
@@ -40,23 +44,16 @@ export const stringToMoment = (body: any) => {
     }
 }
 
-const ids = [ 'id', 'parentId', 'prevTodoId',  ]
+const ids = ['id', 'parentId', 'prevTodoId']
 
 export const momentToString = (body: any) => {
     if (body === null || body === undefined || typeof body !== 'object') return body
 
     for (const key of Object.keys(body)) {
         const value = body[key]
-            console.log(key + ' ' + !!ids.find(x => x === key))
         if (!!ids.find(x => x === key) && typeof value === 'string') {
-            console.log(key + ' ' + value + ' ' + Number(value))
-            const asd = Number(value)
-            
-            console.log(asd)
-            body[key] = asd
-            console.log(key)
-        }
-        else if (typeof value === 'object') {
+            body[key] = Number(value)
+        } else if (typeof value === 'object') {
             if (moment.isMoment(value)) {
                 body[key] = value.format(serverDateFormat)
             } else {

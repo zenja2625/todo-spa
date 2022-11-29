@@ -93,7 +93,7 @@ const Row = ({ index, style, data }: ListChildComponentProps<ListData>) => {
 
 const innerElementType: ReactElementType = forwardRef<HTMLDivElement, any>(
     ({ children, ...rest }, ref) => {
-        console.log(rest)
+        //console.log(rest)
 
         rest = { ...rest, style: { ...rest.style, display: 'flex', justifyContent: 'center' } }
 
