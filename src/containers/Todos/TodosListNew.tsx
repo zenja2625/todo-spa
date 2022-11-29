@@ -94,9 +94,7 @@ export const TodosList: FC<ITodosProps> = ({ categoryId }) => {
         )
     } else {
         return (
-            <div style={{ backgroundColor: 'red'
-            , height: '100%' 
-            }}>
+            <div style={{ backgroundColor: 'red', height: '100%' }}>
                 {/* <div style={{ width: '100%', height: '100%', overflowY: 'auto' }}>
                     <div
                         style={{ width: '100%', height: '10000px', backgroundColor: 'green' }}
@@ -106,7 +104,11 @@ export const TodosList: FC<ITodosProps> = ({ categoryId }) => {
                     depthWidth={50}
                     gap={10}
                     itemHeight={45}
-                    items={todos.map(todo => ({ ...todo, id: todo.id.toString(), isOpen: !todo.isHiddenSubTasks }))}
+                    items={todos.map(todo => ({
+                        ...todo,
+                        id: todo.id.toString(),
+                        isOpen: !todo.isHiddenSubTasks,
+                    }))}
                     maxDepth={5}
                     setItems={() => {}}
                 />

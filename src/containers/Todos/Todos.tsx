@@ -142,7 +142,31 @@ export const Todos = () => {
     } else {
         return (
             <>
-                <TodosList categoryId={categoryId || ''} />
+                <div
+                    style={{
+                        width: '100%',
+                        height: '100%',
+                        // backgroundColor: 'orangered',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        overflowY: 'auto',
+                    }}
+                >
+                    <div
+                        style={{
+                            position: 'sticky',
+                            top: 0,
+                            flexShrink: 0,
+                            flexBasis: '80px',
+                            backgroundColor: 'red',
+                            zIndex: 1000,
+                        }}
+                    ></div>
+                    <div style={{ flexGrow: 1, backgroundColor: 'green' }}>
+                        <TodosList categoryId={categoryId || ''} />
+                    </div>
+                </div>
+
             </>
         )
     }

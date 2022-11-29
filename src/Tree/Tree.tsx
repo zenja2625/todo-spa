@@ -236,13 +236,14 @@ export const Tree: FC<TreeProps> = ({ items, itemHeight, gap, depthWidth, maxDep
                             innerRef={wrapperRef}
                             overscanCount={30}
                             innerElementType={innerElementType}
-                            // onScroll={() => {
-                            //     console.log('scroll')
-                            // }}
+                            onScroll={() => {
+                                console.log('scroll')
+                            }}
                             style={{
                                 backgroundColor: 'orangered',
                                 width: `100%`,
                                 willChange: 'auto',
+                                // overflow: undefined
                             }}
                         >
                             {Row}
