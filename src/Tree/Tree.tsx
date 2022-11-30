@@ -7,6 +7,7 @@ import React, {
     useMemo,
     forwardRef,
     createContext,
+    useEffect,
 } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { Coors, TreeItem, TreeProps } from './types'
@@ -93,7 +94,7 @@ const Row = ({ index, style, data }: ListChildComponentProps<ListData>) => {
 
 const innerElementType: ReactElementType = forwardRef<HTMLDivElement, any>(
     ({ children, ...rest }, ref) => {
-        //console.log(rest)
+        console.log(rest)
 
         rest = { ...rest, style: { ...rest.style, display: 'flex', justifyContent: 'center' } }
 
@@ -101,29 +102,34 @@ const innerElementType: ReactElementType = forwardRef<HTMLDivElement, any>(
             <Context.Consumer>
                 {({ overIndex, activeDepth, itemHeight, gap, depthWidth }) => {
                     return (
-                        <div {...rest}>
-                            <div
-                                ref={ref}
-                                style={{
-                                    position: 'relative',
-                                    width: '800px',
-                                    maxWidth: '800px',
-                                    margin: '0 45px 0 45px',
-                                }}
-                            >
-                                {children}
-                                <div
-                                    style={{
-                                        backgroundColor: 'gray',
-                                        height: `${itemHeight}px`,
-                                        position: 'absolute',
-                                        right: 0,
-                                        left: activeDepth * depthWidth,
-                                        top: `${overIndex * (itemHeight + gap)}px`,
-                                    }}
-                                ></div>
-                            </div>
+                        <>
+                        <div style={{ height: '180px', width: '100%', backgroundColor: 'blanchedalmond'}}>
+
                         </div>
+                            <div {...rest}>
+                                <div
+                                    ref={ref}
+                                    style={{
+                                        position: 'relative',
+                                        width: '800px',
+                                        maxWidth: '800px',
+                                        margin: '0 45px 0 45px',
+                                    }}
+                                >
+                                    {children}
+                                    <div
+                                        style={{
+                                            backgroundColor: 'gray',
+                                            height: `${itemHeight}px`,
+                                            position: 'absolute',
+                                            right: 0,
+                                            left: activeDepth * depthWidth,
+                                            top: `${overIndex * (itemHeight + gap)}px`,
+                                        }}
+                                    ></div>
+                                </div>
+                            </div>
+                        </>
                     )
                 }}
             </Context.Consumer>
@@ -218,6 +224,16 @@ export const Tree: FC<TreeProps> = ({ items, itemHeight, gap, depthWidth, maxDep
         [overIndex, activeDepth, itemHeight, gap, depthWidth]
     )
 
+    const myRef = useRef<any>()
+
+    useLayoutEffect(() => {
+        const ds = document.getElementById('ds')
+        ds?.addEventListener('scroll', e => {
+            // myRef?.current?.scrollTo(ds.scrollTop)
+        })
+        // console.log(ds)
+    }, [])
+
     return (
         <>
             <Context.Provider value={value}>
@@ -228,22 +244,24 @@ export const Tree: FC<TreeProps> = ({ items, itemHeight, gap, depthWidth, maxDep
                 >
                     {({ width, height }) => (
                         <List
+                        
+                            ref={myRef}
                             height={height}
                             itemCount={order.length}
                             itemSize={itemHeight + gap}
                             width={width}
                             itemData={itemData}
                             innerRef={wrapperRef}
-                            overscanCount={30}
+                            overscanCount={0}
                             innerElementType={innerElementType}
-                            onScroll={() => {
-                                console.log('scroll')
-                            }}
+                            // onScroll={e => {
+                            //     console.log(e.scrollOffset)
+                            // }}
                             style={{
                                 backgroundColor: 'orangered',
                                 width: `100%`,
                                 willChange: 'auto',
-                                // overflow: undefined
+                                // overflow: undefined,
                             }}
                         >
                             {Row}
@@ -251,6 +269,14 @@ export const Tree: FC<TreeProps> = ({ items, itemHeight, gap, depthWidth, maxDep
                     )}
                 </AutoSizer>
             </Context.Provider>
+            <button
+                style={{ position: 'fixed' }}
+                onClick={() => {
+                    console.log(myRef.current.scrollTo(5000))
+                }}
+            >
+                Click
+            </button>
             {ReactDOM.createPortal(
                 activeIndex !== -1 && (
                     <Overlay

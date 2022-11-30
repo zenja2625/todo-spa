@@ -9,6 +9,7 @@ import {
     updatePositionsThunk,
     updateStatusesThunk,
 } from '../../slices/todosSlice'
+import AutoSizer from 'react-virtualized-auto-sizer'
 import { useAppDispatch, useAppSelector } from '../../store'
 import {
     closestCenter,
@@ -143,30 +144,43 @@ export const Todos = () => {
         return (
             <>
                 <div
+                id='ds'
                     style={{
                         width: '100%',
                         height: '100%',
-                        // backgroundColor: 'orangered',
+                        backgroundColor: 'orangered',
                         display: 'flex',
                         flexDirection: 'column',
                         overflowY: 'auto',
                     }}
+                    // onScroll={() => {
+                    //     console.log('scroll')
+                    // }}
                 >
-                    <div
+                    {/* <div
                         style={{
                             position: 'sticky',
                             top: 0,
                             flexShrink: 0,
-                            flexBasis: '80px',
+                            flexBasis: '380px',
                             backgroundColor: 'red',
+                            opacity: 0.5,
                             zIndex: 1000,
                         }}
-                    ></div>
+                    ></div> */}
                     <div style={{ flexGrow: 1, backgroundColor: 'green' }}>
                         <TodosList categoryId={categoryId || ''} />
+                        {/* <div
+                            style={{
+                                width: '100%',
+                                height: '30px',
+                                backgroundColor: 'yellowgreen',
+                                zIndex: 1000,
+                            }}
+                        ></div> */}
                     </div>
+        
                 </div>
-
             </>
         )
     }
