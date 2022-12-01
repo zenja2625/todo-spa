@@ -272,7 +272,7 @@ export const Tree: FC<TreeProps> = ({ items, itemHeight, gap, depthWidth, maxDep
             <button
                 style={{ position: 'fixed' }}
                 onClick={() => {
-                    console.log(myRef.current.scrollTo(5000))
+                    console.log(myRef.current.scrollTo(50000))
                 }}
             >
                 Click

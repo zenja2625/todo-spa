@@ -106,7 +106,6 @@ export const TodosList: FC<ITodosProps> = ({ categoryId }) => {
                     itemHeight={45}
                     items={todos.map(todo => ({
                         ...todo,
-                        id: todo.id.toString(),
                         isOpen: !todo.isHiddenSubTasks,
                     }))}
                     maxDepth={5}
