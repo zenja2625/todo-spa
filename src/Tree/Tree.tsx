@@ -8,6 +8,8 @@ import React, {
     forwardRef,
     createContext,
     useEffect,
+    CSSProperties,
+    useContext,
 } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { Coors, TreeItem, TreeProps } from './types'
@@ -92,47 +94,47 @@ const Row = ({ index, style, data }: ListChildComponentProps<ListData>) => {
     )
 }
 
-const innerElementType: ReactElementType = forwardRef<HTMLDivElement, any>(
+const innerElementType: ReactElementType = forwardRef<HTMLDivElement, { style: CSSProperties }>(
     ({ children, ...rest }, ref) => {
-        console.log(rest)
+        console.log(rest.style)
+
+        const { overIndex, activeDepth, itemHeight, gap, depthWidth } = useContext(Context)
 
         rest = { ...rest, style: { ...rest.style, display: 'flex', justifyContent: 'center' } }
 
         return (
-            <Context.Consumer>
-                {({ overIndex, activeDepth, itemHeight, gap, depthWidth }) => {
-                    return (
-                        <>
-                        <div style={{ height: '180px', width: '100%', backgroundColor: 'blanchedalmond'}}>
-
-                        </div>
-                            <div {...rest}>
-                                <div
-                                    ref={ref}
-                                    style={{
-                                        position: 'relative',
-                                        width: '800px',
-                                        maxWidth: '800px',
-                                        margin: '0 45px 0 45px',
-                                    }}
-                                >
-                                    {children}
-                                    <div
-                                        style={{
-                                            backgroundColor: 'gray',
-                                            height: `${itemHeight}px`,
-                                            position: 'absolute',
-                                            right: 0,
-                                            left: activeDepth * depthWidth,
-                                            top: `${overIndex * (itemHeight + gap)}px`,
-                                        }}
-                                    ></div>
-                                </div>
-                            </div>
-                        </>
-                    )
-                }}
-            </Context.Consumer>
+            <>
+                <div
+                    style={{
+                        height: '180px',
+                        width: '100%',
+                        backgroundColor: 'blanchedalmond',
+                    }}
+                ></div>
+                <div {...rest}>
+                    <div
+                        ref={ref}
+                        style={{
+                            position: 'relative',
+                            width: '800px',
+                            maxWidth: '800px',
+                            margin: '0 45px 0 45px',
+                        }}
+                    >
+                        {children}
+                        <div
+                            style={{
+                                backgroundColor: 'gray',
+                                height: `${itemHeight}px`,
+                                position: 'absolute',
+                                right: 0,
+                                left: activeDepth * depthWidth,
+                                top: `${overIndex * (itemHeight + gap)}px`,
+                            }}
+                        ></div>
+                    </div>
+                </div>
+            </>
         )
     }
 )
@@ -244,7 +246,6 @@ export const Tree: FC<TreeProps> = ({ items, itemHeight, gap, depthWidth, maxDep
                 >
                     {({ width, height }) => (
                         <List
-                        
                             ref={myRef}
                             height={height}
                             itemCount={order.length}
