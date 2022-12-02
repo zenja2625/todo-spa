@@ -15,7 +15,7 @@ import { TodoItem1 } from './TodoItem1'
 import { onUnload } from '../../utility/onUnload'
 import { Tree } from '../../Tree/Tree'
 
-export const TodosList: FC<ITodosProps> = ({ categoryId }) => {
+export const TodosList: FC<ITodosProps> = ({ categoryId, header, footer }) => {
     const todos = useAppSelector(getTodos)
     const actualStatuses = useAppSelector(state => state.todos.todoStatusDTOs)
     const actualPosition = useAppSelector(state => state.todos.todoPositionDTOs)
@@ -110,6 +110,8 @@ export const TodosList: FC<ITodosProps> = ({ categoryId }) => {
                     }))}
                     maxDepth={5}
                     setItems={() => {}}
+                    header={header}
+                    footer={footer}
                 />
             </div>
         )
