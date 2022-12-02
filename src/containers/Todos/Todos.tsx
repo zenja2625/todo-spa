@@ -169,7 +169,11 @@ export const Todos = () => {
                         }}
                     ></div> */}
                     <div style={{ flexGrow: 1, backgroundColor: 'green' }}>
-                        <TodosList categoryId={categoryId || ''} />
+                        <TodosList 
+                        categoryId={categoryId || ''} 
+                        header={(<div> </div>)}
+                        footer={(<div></div>)}
+                        />
                         {/* <div
                             style={{
                                 width: '100%',

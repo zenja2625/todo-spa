@@ -11,6 +11,8 @@ export type TreeProps = {
     gap: number
     maxDepth: number
     depthWidth: number
+    header: JSX.Element
+    footer: JSX.Element
 }
 
 export type ItemProps = {
