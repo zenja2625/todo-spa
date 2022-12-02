@@ -225,5 +225,14 @@ export const Todos = () => {
                         </Col>
                     </Row>
                 </Col>
+
+
+                              <Button
+                            type='primary'
+                            style={{ width: '100%', marginBottom: '25px' }}
+                            onClick={() => dispatch(openTodoEditor())}
+                        >
+                            Новая задача
+                        </Button>
                 
 */

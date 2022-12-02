@@ -93,6 +93,16 @@ const Row = ({ index, style, data }: ListChildComponentProps<ListData>) => {
         </div>
     )
 }
+type Props = {
+    children?: React.ReactNode
+}
+const Comp: FC<Props> = r => {
+    console.log(r);
+    
+    const { children } = r
+
+    return <div>{children}</div>
+}
 
 const innerElementType: ReactElementType = forwardRef<HTMLDivElement, { style: CSSProperties }>(
     ({ children, ...rest }, ref) => {
@@ -254,7 +264,7 @@ export const Tree: FC<TreeProps> = ({ items, itemHeight, gap, depthWidth, maxDep
                             itemData={itemData}
                             innerRef={wrapperRef}
                             overscanCount={0}
-                            innerElementType={innerElementType}
+                            innerElementType={Comp}
                             // onScroll={e => {
                             //     console.log(e.scrollOffset)
                             // }}
