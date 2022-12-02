@@ -65,7 +65,7 @@ export const TodosList: FC<ITodosProps> = ({ categoryId, header, footer }) => {
             cancelText: 'Нет',
             maskClosable: true,
             onOk: () => {
-                if (!Number.isNaN(categoryId)) dispatch(deleteTodoThunk({ categoryId, id }))
+                if (categoryId) dispatch(deleteTodoThunk({ categoryId, id }))
             },
         })
     }
@@ -94,7 +94,12 @@ export const TodosList: FC<ITodosProps> = ({ categoryId, header, footer }) => {
         )
     } else {
         return (
-            <div style={{ backgroundColor: 'red', height: '100%' }}>
+            <div
+                style={{
+                    // backgroundColor: 'red',
+                    height: '100%',
+                }}
+            >
                 {/* <div style={{ width: '100%', height: '100%', overflowY: 'auto' }}>
                     <div
                         style={{ width: '100%', height: '10000px', backgroundColor: 'green' }}

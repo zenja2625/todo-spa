@@ -43,7 +43,7 @@ const contextIntitial = {
     gap: 0,
     depthWidth: 0,
     header: <div></div>,
-    footer: <div></div>
+    footer: <div></div>,
 }
 
 const Context = createContext(contextIntitial)
@@ -99,8 +99,8 @@ type Props = {
     children?: React.ReactNode
 }
 const Comp: FC<Props> = r => {
-    console.log(r);
-    
+    console.log(r)
+
     const { children } = r
 
     return <div>{children}</div>
@@ -110,33 +110,34 @@ const innerElementType: ReactElementType = forwardRef<HTMLDivElement, { style: C
     ({ children, ...rest }, ref) => {
         console.log(rest.style)
 
-        const { overIndex, activeDepth, itemHeight, gap, depthWidth,header, footer } = useContext(Context)
+        const { overIndex, activeDepth, itemHeight, gap, depthWidth, header, footer } =
+            useContext(Context)
 
         rest = { ...rest, style: { ...rest.style, position: 'relative' } }
 
         return (
             <>
-                <div 
-                  ref={ref}
-                  style={{
-                  display: 'flex', 
-                  justifyContent: 'center'
-                }}>
-                    <div style={{
-                      backgroundColor: 'red',
-                      width: '800px',
-                      maxWidth: '800px',
-                      margin: '0 45px 0 45px',
-                    }}>
+                <div
+                    style={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                    }}
+                >
+                    <div
+                        style={{
+                            width: '800px',
+                            maxWidth: '800px',
+                            margin: '0 45px 0 45px',
+                        }}
+                    >
                         {header}
-                        <div {...rest}>
+                        <div ref={ref} {...rest}>
                             {children}
                         </div>
                         {footer}
                     </div>
                 </div>
-                
-                
+
                 {/* <div {...rest}>
                     <div
                         ref={ref}
@@ -165,7 +166,16 @@ const innerElementType: ReactElementType = forwardRef<HTMLDivElement, { style: C
     }
 )
 
-export const Tree: FC<TreeProps> = ({ items, itemHeight, gap, depthWidth, maxDepth, setItems,footer,header }) => {
+export const Tree: FC<TreeProps> = ({
+    items,
+    itemHeight,
+    gap,
+    depthWidth,
+    maxDepth,
+    setItems,
+    footer,
+    header,
+}) => {
     const wrapperRef = useRef<HTMLDivElement>(null)
 
     const [state, dispatch] = useReducer(reducer, initialState)
@@ -249,9 +259,9 @@ export const Tree: FC<TreeProps> = ({ items, itemHeight, gap, depthWidth, maxDep
             gap,
             depthWidth,
             header,
-            footer
+            footer,
         }),
-        [overIndex, activeDepth, itemHeight, gap, depthWidth,header,footer]
+        [overIndex, activeDepth, itemHeight, gap, depthWidth, header, footer]
     )
 
     const myRef = useRef<any>()
@@ -287,7 +297,7 @@ export const Tree: FC<TreeProps> = ({ items, itemHeight, gap, depthWidth, maxDep
                             //     console.log(e.scrollOffset)
                             // }}
                             style={{
-                                backgroundColor: 'orangered',
+                                // backgroundColor: 'orangered',
                                 width: `100%`,
                                 willChange: 'auto',
                                 // overflow: undefined,

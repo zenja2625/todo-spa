@@ -48,7 +48,7 @@ export const Todos = () => {
     const showCompletedTodos = useAppSelector(state => state.categories.showCompletedTodos)
     const categories = useAppSelector(state => state.categories.items)
     const selectedCategory = useMemo(
-        () => categories.find(category => category.id.toString() === categoryId),
+        () => categories.find(category => category.id === categoryId),
         [categories, categoryId]
     )
 
@@ -125,6 +125,53 @@ export const Todos = () => {
 
     const onDragCancel = () => dispatch(stopDragTodo())
 
+    const Header = (
+        <Row
+            style={{
+                position: 'sticky',
+                top: 0,
+                zIndex: 100,
+                backgroundColor: '#f0f2f5',
+                padding: '15px 0 15px 45px',
+                marginLeft: '-45px',
+            }}
+            justify='space-between'
+        >
+            <Col>
+                <Typography.Title level={3} style={{ margin: 0 }}>
+                    {selectedCategory?.name}
+                </Typography.Title>
+            </Col>
+            <Col>
+                <Popover
+                    destroyTooltipOnHide={{ keepParent: false }}
+                    visible={popoverVisable}
+                    onVisibleChange={visable => {
+                        if (visable) setPopoverVisable(true)
+                        else setPopoverVisable(false)
+                    }}
+                    placement='bottom'
+                    content={() => popoverMenu()}
+                    trigger='click'
+                >
+                    <Button type='text' style={{ height: '100%', paddingTop: 0, paddingBottom: 0 }}>
+                        <EllipsisOutlined style={{ fontSize: '2em' }} />
+                    </Button>
+                </Popover>
+            </Col>
+        </Row>
+    )
+
+    const Footer = (
+        <Button
+            type='primary'
+            style={{ width: '100%', marginBottom: '100px' }}
+            onClick={() => dispatch(openTodoEditor())}
+        >
+            Новая задача
+        </Button>
+    )
+
     if (!selectedCategory) {
         return (
             <>
@@ -148,95 +195,11 @@ export const Todos = () => {
                     style={{
                         width: '100%',
                         height: '100%',
-                        backgroundColor: 'orangered',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        overflowY: 'auto',
                     }}
-                    // onScroll={() => {
-                    //     console.log('scroll')
-                    // }}
                 >
-                    {/* <div
-                        style={{
-                            position: 'sticky',
-                            top: 0,
-                            flexShrink: 0,
-                            flexBasis: '380px',
-                            backgroundColor: 'red',
-                            opacity: 0.5,
-                            zIndex: 1000,
-                        }}
-                    ></div> */}
-                    <div style={{ flexGrow: 1, backgroundColor: 'green' }}>
-                        <TodosList 
-                        categoryId={categoryId || ''} 
-                        header={(<div> </div>)}
-                        footer={(<div></div>)}
-                        />
-                        {/* <div
-                            style={{
-                                width: '100%',
-                                height: '30px',
-                                backgroundColor: 'yellowgreen',
-                                zIndex: 1000,
-                            }}
-                        ></div> */}
-                    </div>
+                    <TodosList categoryId={categoryId || ''} header={Header} footer={Footer} />
                 </div>
             </>
         )
     }
 }
-
-
-/*      
-          <Col
-                    className='todos-row-wrapper'
-                    style={{
-                        position: 'sticky',
-                        top: 0,
-                        zIndex: 100,
-                        backgroundColor: '#f0f2f5',
-                        padding: '15px 0 15px 0',
-                    }}
-                >
-                    <Row justify='space-between' className='todos-row'>
-                        <Col>
-                            <Typography.Title level={3} style={{ margin: 0 }}>
-                                {selectedCategory.name}
-                            </Typography.Title>
-                        </Col>
-                        <Col style={{}}>
-                            <Popover
-                                destroyTooltipOnHide={{ keepParent: false }}
-                                visible={popoverVisable}
-                                onVisibleChange={visable => {
-                                    if (visable) setPopoverVisable(true)
-                                    else setPopoverVisable(false)
-                                }}
-                                placement='bottom'
-                                content={() => popoverMenu()}
-                                trigger='click'
-                            >
-                                <Button
-                                    type='text'
-                                    style={{ height: '100%', paddingTop: 0, paddingBottom: 0 }}
-                                >
-                                    <EllipsisOutlined style={{ fontSize: '2em' }} />
-                                </Button>
-                            </Popover>
-                        </Col>
-                    </Row>
-                </Col>
-
-
-                              <Button
-                            type='primary'
-                            style={{ width: '100%', marginBottom: '25px' }}
-                            onClick={() => dispatch(openTodoEditor())}
-                        >
-                            Новая задача
-                        </Button>
-                
-*/
