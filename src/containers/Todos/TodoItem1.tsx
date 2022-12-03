@@ -8,10 +8,12 @@ import {
     toggleTodoProgress,
 } from '../../slices/todosSlice'
 import { useAppDispatch } from '../../store'
-import { Button, Checkbox, Col, Menu, Popover, Row, Space } from 'antd'
+import { Button, Checkbox, Col, Menu, Popover, Row, Space, Typography } from 'antd'
 import moment from 'moment'
 import { appDateFormat } from '../../dateFormat'
 import './todoItem.css'
+
+const { Text } = Typography
 
 type TodoItemPropsType = {
     todo: Todo
@@ -26,13 +28,12 @@ type TodoItemPropsType = {
 
 export const TodoItem1: FC<TodoItemPropsType> = ({
     todo,
-    dragRef,
     handleProps,
     remove,
     active,
     dragged,
     toggleIsOpen,
-    toggleIsCheck
+    toggleIsCheck,
 }) => {
     const [popoverVisable, setPopoverVisable] = useState(false)
 
@@ -101,45 +102,42 @@ export const TodoItem1: FC<TodoItemPropsType> = ({
                 }}
             />
         )
-// console.log(handleProps);
+    // console.log(handleProps);
 
     return (
-        <Row
-            ref={dragRef}
-            justify='space-between'
-            align='middle'
-            style={style}
-            className='todo-item'
-        >
+        <Row wrap={false} align={'middle'} className='todo-item'>
+            <MoreOutlined {...handleProps} className='before-todo' />
             <Col>
-                <MoreOutlined {...handleProps} className='before-todo' />
-
-                <Space>
-                    {!todo.showHideButton || dragged ? (
-                        <div className='empty-icon' />
-                    ) : !todo.isHiddenSubTasks ? (
-                        <RightOutlined
-                            className='hidden-icon'
-                            onClick={() => toggleIsOpen?.(todo.id)}
-                        />
-                    ) : (
-                        <DownOutlined
-                            className='hidden-icon'
-                            onClick={() => toggleIsOpen?.(todo.id)}
-                        />
-                    )}
-
-                    <Checkbox
-                        onChange={() => toggleIsCheck?.(todo.id)}
-                        checked={todo.isDone}
+                {!todo.showHideButton || dragged ? (
+                    <div className='empty-icon' />
+                ) : !todo.isHiddenSubTasks ? (
+                    <RightOutlined
+                        className='hidden-icon'
+                        onClick={() => toggleIsOpen?.(todo.id)}
                     />
-                    <div>
-                        {todo.value}
-                        <div className={dateClass}>{todo.taskEnd?.format(appDateFormat)}</div>
-                    </div>
-                </Space>
+                ) : (
+                    <DownOutlined className='hidden-icon' onClick={() => toggleIsOpen?.(todo.id)} />
+                )}
             </Col>
-            <Col onClick={event => event.stopPropagation()}>
+            <Col>
+                <Checkbox onChange={() => toggleIsCheck?.(todo.id)} checked={todo.isDone} />
+            </Col>
+            <Col
+                flex={'1 1 auto'}
+                style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    // backgroundColor: 'lime',
+                    overflow: 'hidden',
+                }}
+            >
+                <Text ellipsis={true}>{todo.value}</Text>
+                <Text className={dateClass} ellipsis={true}>
+                    {/* abcdefghijklmnopqestuvwxyz */}
+                    {todo.taskEnd?.format(appDateFormat)}
+                </Text>
+            </Col>
+            <Col>
                 {!dragged && (
                     <Popover
                         destroyTooltipOnHide={{ keepParent: false }}
@@ -159,5 +157,59 @@ export const TodoItem1: FC<TodoItemPropsType> = ({
                 )}
             </Col>
         </Row>
+        // <Space className='todo-item'>
+        //     <div>asd</div>
+        //     <div>qwe</div>
+        //     <div>zxc</div>
+        //     <div style={{ backgroundColor: 'lime', flexShrink: 0 }}>asd</div>
+        // </Space>
+        // <div style={style} className='ant-row ant-row-space-between ant-row-middle todo-item'>
+        //     <div className='ant-col'>
+        //         <MoreOutlined {...handleProps} className='before-todo' />
+
+        //         <Space >
+        //             {!todo.showHideButton || dragged ? (
+        //                 <div className='empty-icon' />
+        //             ) : !todo.isHiddenSubTasks ? (
+        //                 <RightOutlined
+        //                     className='hidden-icon'
+        //                     onClick={() => toggleIsOpen?.(todo.id)}
+        //                 />
+        //             ) : (
+        //                 <DownOutlined
+        //                     className='hidden-icon'
+        //                     onClick={() => toggleIsOpen?.(todo.id)}
+        //                 />
+        //             )}
+
+        //             <Checkbox onChange={() => toggleIsCheck?.(todo.id)} checked={todo.isDone} />
+        //             <div style={{ backgroundColor: 'red'}}>
+        //                 {/* <Text ellipsis={true}>{todo.value}</Text> */}
+        //                 <div style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{todo.value}</div>
+        //                 {/* <div style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{todo.value}</div> */}
+        //                 <div className={dateClass}>{todo.taskEnd?.format(appDateFormat)}</div>
+        //             </div>
+        //         </Space>
+        //     </div>
+        //     <Col style={{ backgroundColor: 'yellowgreen' }} onClick={event => event.stopPropagation()}>
+        //         {!dragged && (
+        //             <Popover
+        //                 destroyTooltipOnHide={{ keepParent: false }}
+        //                 visible={popoverVisable}
+        //                 onVisibleChange={visable => {
+        //                     if (visable) setPopoverVisable(true)
+        //                     else setPopoverVisable(false)
+        //                 }}
+        //                 placement='bottom'
+        //                 content={() => popoverMenu()}
+        //                 trigger='click'
+        //             >
+        //                 <Button type='text' style={{ height: '100%' }}>
+        //                     <EllipsisOutlined />
+        //                 </Button>
+        //             </Popover>
+        //         )}
+        //     </Col>
+        // </div>
     )
 }

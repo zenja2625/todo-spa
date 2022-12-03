@@ -1,10 +1,14 @@
 .todo-item {
     background-color: white;
     font-size: 1.1em;
-    padding: 0 10px 0 10px;
+    padding: 0 0px 0 10px;
     line-height: 1.2;
-    height: 45px;
+    gap: 10px;
+    /* height: 45px; */
     user-select: none;
+
+    height: 100%;
+    width: 100%;
 }
 
 .empty-icon {
