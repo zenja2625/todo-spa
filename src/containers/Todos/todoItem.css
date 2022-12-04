@@ -7,13 +7,17 @@
     /* height: 45px; */
     user-select: none;
 
+    display: flex;
     height: 100%;
-    width: 100%;
+    align-items: center;
+    /* height: 100%;
+    width: 100%; */
 }
 
 .empty-icon {
     width: 1em;
     height: 1em;
+    flex-shrink: 0;
 }
 
 .hidden-icon {
@@ -28,6 +32,17 @@
     height: 100%;
     width: 1em;
     cursor: move !important;
+}
+
+.todo-text-wrapper {
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+.todo-ellipsis-text {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
 
 .todo-taskEnd {
