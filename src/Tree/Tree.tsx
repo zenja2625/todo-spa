@@ -69,6 +69,12 @@ const Row = ({ index, style, data }: ListChildComponentProps<ListData>) => {
         [dragStart, order[index].id]
     )
 
+    //Remove
+    let todo = order[index] as any
+    todo = useMemo(() => ({ ...todo, id: Number(todo.id), isHiddenSubTasks: todo.isOpen }), [index])
+
+    const toggle = useCallback((e: string) => toggleIsOpen(e), [toggleIsOpen])
+
     if (index === activeIndex) return null
 
     const top =
@@ -82,16 +88,9 @@ const Row = ({ index, style, data }: ListChildComponentProps<ListData>) => {
 
     const nStyle = { ...style, top, left, height, right: 0, width: undefined }
 
-    //Remove
-    const todo = order[index] as any
-
     return (
         <div style={nStyle}>
-            <TodoItem1
-                handleProps={handleProps}
-                toggleIsOpen={e => toggleIsOpen(e.toString())}
-                todo={{ ...todo, id: Number(todo.id), isHiddenSubTasks: todo.isOpen }}
-            />
+            <TodoItem1 handleProps={handleProps} toggleIsOpen={toggle} todo={todo} />
         </div>
     )
 }
@@ -108,7 +107,7 @@ const Comp: FC<Props> = r => {
 
 const innerElementType: ReactElementType = forwardRef<HTMLDivElement, { style: CSSProperties }>(
     ({ children, ...rest }, ref) => {
-        console.log(rest.style)
+        // console.log(rest.style)
 
         const { overIndex, activeDepth, itemHeight, gap, depthWidth, header, footer } =
             useContext(Context)
@@ -293,9 +292,9 @@ export const Tree: FC<TreeProps> = ({
                             innerRef={wrapperRef}
                             overscanCount={0}
                             innerElementType={innerElementType}
-                            // onScroll={e => {
-                            //     console.log(e.scrollOffset)
-                            // }}
+                            onScroll={e => {
+                                // console.log('Scroll')
+                            }}
                             style={{
                                 // backgroundColor: 'orangered',
                                 width: `100%`,
