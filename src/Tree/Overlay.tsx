@@ -10,6 +10,7 @@ export const Overlay: FC<OverlayProps> = ({
     itemWidth,
     itemHeight,
     shift,
+    children
 }) => {
     const [coors, setCoors] = useState<Coors>(() => ({
         x: initialPosition.x - shift.x,
@@ -32,7 +33,7 @@ export const Overlay: FC<OverlayProps> = ({
             position: 'fixed',
             top: coors.y,
             left: coors.x,
-            backgroundColor: 'pink',
+            //backgroundColor: 'pink',
             width: `${itemWidth}px`,
             height: `${itemHeight}px`,
             zIndex: 1000,
@@ -43,6 +44,7 @@ export const Overlay: FC<OverlayProps> = ({
 
     return (
         <div style={style}>
+            {children}
             {/* <Item id={id} depth={0} isOpen={isOpen} /> */}
         </div>
     )

@@ -96,15 +96,9 @@ export const TodosList: FC<ITodosProps> = ({ categoryId, header, footer }) => {
         return (
             <div
                 style={{
-                    // backgroundColor: 'red',
                     height: '100%',
                 }}
             >
-                {/* <div style={{ width: '100%', height: '100%', overflowY: 'auto' }}>
-                    <div
-                        style={{ width: '100%', height: '10000px', backgroundColor: 'green' }}
-                    ></div>
-                </div> */}
                 <Tree
                     depthWidth={50}
                     gap={10}
