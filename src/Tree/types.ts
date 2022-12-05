@@ -37,6 +37,7 @@ export type OverlayProps = {
     itemHeight: number
     itemWidth: number
     shift: Coors
+    children?: React.ReactNode
 } & TreeItem
 
 export type ListElement = {
