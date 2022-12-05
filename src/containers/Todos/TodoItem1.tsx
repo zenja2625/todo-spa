@@ -30,7 +30,7 @@ type TodoItemPropsType = {
 export const TodoItem1: FC<TodoItemPropsType> = memo(
     ({ todo, handleProps, remove, active, dragged, toggleIsOpen, toggleIsCheck }) => {
         useEffect(() => {
-            // console.log('todo.id')
+            console.log('todo.id')
         })
 
         const [popoverVisable, setPopoverVisable] = useState(false)
@@ -199,7 +199,6 @@ export const TodoItem1: FC<TodoItemPropsType> = memo(
                             >
                                 <div
                                     style={{
-                                        backgroundColor: 'red',
                                         width: '100%',
                                         height: '100%',
                                         position: 'absolute',

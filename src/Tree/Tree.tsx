@@ -71,7 +71,7 @@ const Row = ({ index, style, data }: ListChildComponentProps<ListData>) => {
 
     //Remove
     let todo = order[index] as any
-    todo = useMemo(() => ({ ...todo, id: Number(todo.id), isHiddenSubTasks: todo.isOpen }), [index])
+    todo = useMemo(() => ({ ...todo, isHiddenSubTasks: todo.isOpen }), [todo])
 
     const toggle = useCallback((e: string) => toggleIsOpen(e), [toggleIsOpen])
 
@@ -136,30 +136,6 @@ const innerElementType: ReactElementType = forwardRef<HTMLDivElement, { style: C
                         {footer}
                     </div>
                 </div>
-
-                {/* <div {...rest}>
-                    <div
-                        ref={ref}
-                        style={{
-                            position: 'relative',
-                            width: '800px',
-                            maxWidth: '800px',
-                            margin: '0 45px 0 45px',
-                        }}
-                    >
-                        {children}
-                        <div
-                            style={{
-                                backgroundColor: 'gray',
-                                height: `${itemHeight}px`,
-                                position: 'absolute',
-                                right: 0,
-                                left: activeDepth * depthWidth,
-                                top: `${overIndex * (itemHeight + gap)}px`,
-                            }}
-                        ></div>
-                    </div>
-                </div> */}
             </>
         )
     }
@@ -294,6 +270,7 @@ export const Tree: FC<TreeProps> = ({
                             innerElementType={innerElementType}
                             onScroll={e => {
                                 // console.log('Scroll')
+                                // console.log(myRef.current);
                             }}
                             style={{
                                 // backgroundColor: 'orangered',
