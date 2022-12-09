@@ -218,15 +218,15 @@ export const todosSlice = createSlice({
         },
         moveTodo: (
             state,
-            action: PayloadAction<{ id: string; overId: string; deltaX: number }>
+            action: PayloadAction<{ id: string; overId: string; actualDepth: number }>
         ) => {
             const todos = state.items
-            const { id, overId, deltaX } = action.payload
+            const { id, overId, actualDepth } = action.payload
 
             const activeIndex = todos.findIndex(todo => todo.id.toString() === id)
             const overIndex = todos.findIndex(todo => todo.id.toString() === overId)
 
-            const depth = getTodoDepth(todos, activeIndex, overIndex, deltaX, depthIndent)
+            const depth = getTodoDepth(todos, activeIndex, overIndex, actualDepth)
             const prevIndex = activeIndex >= overIndex ? overIndex - 1 : overIndex
 
             if (

@@ -33,16 +33,16 @@ export const SortableTodo: FC<SortableTodoPropsType> = ({ todo, remove, todos })
 
     const isActive = !!active && active.id === todo.id.toString()
 
-    if (isActive && typeof active?.data?.current?.deltaX === 'number') {
-        const actualDepth = getTodoDepth(
-            todos,
-            index,
-            overIndex,
-            active.data.current.deltaX,
-            depthIndent
-        )
-        todo = { ...todo, depth: actualDepth }
-    }
+    // if (isActive && typeof active?.data?.current?.deltaX === 'number') {
+    //     const actualDepth = getTodoDepth(
+    //         todos,
+    //         index,
+    //         overIndex,
+    //         active.data.current.deltaX,
+    //         depthIndent
+    //     )
+    //     todo = { ...todo, depth: actualDepth }
+    // }
 
     return (
         <div ref={setDroppableNodeRef} style={style}>

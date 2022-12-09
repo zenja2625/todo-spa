@@ -100,7 +100,7 @@ export const TodosList: FC<ITodosProps> = ({ categoryId, header, footer }) => {
                 }}
             >
                 <Tree
-                    depthWidth={50}
+                    depthWidth={40}
                     gap={10}
                     itemHeight={45}
                     items={todos.map(todo => ({
