@@ -118,7 +118,7 @@ export const Todos = () => {
     }
 
     const onDragEnd = ({ over, active, delta }: DragEndEvent) => {
-        if (over) dispatch(moveTodo({ id: active.id, overId: over.id, deltaX: delta.x }))
+        // if (over) dispatch(moveTodo({ id: active.id, overId: over.id, deltaX: delta.x }))
         if (active.data.current) active.data.current.deltaX = 0
         dispatch(stopDragTodo())
     }

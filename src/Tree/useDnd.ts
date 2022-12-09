@@ -3,6 +3,8 @@ import { Action, State } from './reducer'
 import { useListeners } from './useListeners'
 import { getCoordinates } from './getCoordinates'
 import { Coors } from './types'
+import { useAppDispatch } from '../store'
+import { moveTodo } from '../slices/todosSlice'
 
 const getRoundedValue = (delta: number, active: number, limit: number, max: number, min = 0) => {
     const value = active + (delta >= 0 ? Math.floor(delta + limit) : Math.ceil(delta - limit))
@@ -21,7 +23,7 @@ export const useDnd = (
     depthWidth: number
 ) => {
     const { activeIndex, overIndex, order, activeDepth } = state
-
+    const appDispath = useAppDispatch()
 
     const onMove = useCallback(
         ({ x, y }: Coors) => {
@@ -63,8 +65,10 @@ export const useDnd = (
     )
 
     const dragEnd = useCallback(() => {
+        appDispath(moveTodo({id: order[activeIndex].id, overId: order[overIndex].id, 
+        actualDepth: activeDepth}))
         dispath({ type: 'dragEnd' })
-    }, [dispath])
+    }, [dispath, appDispath, activeDepth, activeIndex, overIndex, order])
 
     useListeners(activeIndex !== -1, onMove, dragEnd)
 
