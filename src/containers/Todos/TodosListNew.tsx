@@ -6,12 +6,10 @@ import { createPortal } from 'react-dom'
 import { getTodos } from '../../selectors/getTodos'
 import { updateStatusesThunk, updatePositionsThunk, deleteTodoThunk } from '../../slices/todosSlice'
 import { useAppDispatch, useAppSelector } from '../../store'
-import { SortableTodo } from './SortableTodo'
 import confirm from 'antd/lib/modal/confirm'
 import { ExclamationCircleOutlined } from '@ant-design/icons'
 import { useDebounce } from '../../hooks/useDebounce'
 import { ITodosProps } from './types'
-import { TodoItem1 } from './TodoItem1'
 import { onUnload } from '../../utility/onUnload'
 import { Tree } from '../../Tree/Tree'
 
@@ -70,16 +68,7 @@ export const TodosList: FC<ITodosProps> = ({ categoryId, header, footer }) => {
         })
     }
 
-    const todoItems = todos.map(todo => {
-        return (
-            <SortableTodo
-                key={todo.id}
-                todos={todos}
-                todo={todo}
-                remove={() => openDeletePopup(todo.id, todo.value)}
-            />
-        )
-    })
+
 
     if (todosRequestId && !todos.length) {
         return <div>Загрузка...</div>

@@ -33,7 +33,6 @@ import { TodosList } from './TodosListNew'
 import { openCategoryEditor, toggleShowCompletedTodos } from '../../slices/categoriesSlice'
 
 import './Todos.css'
-import { TodoItems } from './TodoItems'
 import { Tree } from '../../Tree/Tree'
 
 export const Todos = () => {
