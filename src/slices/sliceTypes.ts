@@ -23,7 +23,7 @@ export interface TodoDTO {
     id: string
     value: string
     isDone: boolean
-    isHiddenSubTasks: boolean
+    isOpen: boolean
     depth: number
     taskEnd?: Moment
 }

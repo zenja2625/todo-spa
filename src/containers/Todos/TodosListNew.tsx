@@ -92,10 +92,7 @@ export const TodosList: FC<ITodosProps> = ({ categoryId, header, footer }) => {
                     depthWidth={40}
                     gap={10}
                     itemHeight={45}
-                    items={todos.map(todo => ({
-                        ...todo,
-                        isOpen: !todo.isHiddenSubTasks,
-                    }))}
+                    items={todos}
                     maxDepth={5}
                     setItems={() => {}}
                     header={header}

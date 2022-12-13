@@ -203,12 +203,12 @@ export const todosSlice = createSlice({
             const index = todos.findIndex(todo => todo.id === action.payload)
 
             if (index !== -1) {
-                const isHiddenSubTasks = !todos[index].isHiddenSubTasks
+                const isOpen = !todos[index].isOpen
 
-                todos[index].isHiddenSubTasks = isHiddenSubTasks
+                todos[index].isOpen = isOpen
                 state.todoStatusDTOs.push({
                     id: todos[index].id,
-                    isHiddenSubTasks,
+                    isOpen,
                 })
             }
         },

@@ -22,14 +22,14 @@ export const getTodos = createDraftSafeSelector(
                 continue
             }
 
-            if (todos[i].isHiddenSubTasks || todos[i].id === draggedTodoId) todoIndex = i
+            if (!todos[i].isOpen || todos[i].id === draggedTodoId) todoIndex = i
 
             if (newTodos.length && newTodos[newTodos.length - 1].depth < todos[i].depth)
                 newTodos[newTodos.length - 1].showHideButton = true
                 
             newTodos.push({
                 ...todos[i],
-                showHideButton: todos[i].isHiddenSubTasks,
+                showHideButton: !todos[i].isOpen,
             })
         }
 

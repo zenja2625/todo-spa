@@ -34,7 +34,10 @@ export const stringToMoment = (body: any) => {
     for (const key of Object.keys(body)) {
         const value = body[key]
 
-        if (key === 'id' && typeof value === 'number') {
+        if (key === 'isHiddenSubTasks' && typeof value === 'boolean') {
+            body[key] = value
+            body['isOpen'] = !value
+        } else if (key === 'id' && typeof value === 'number') {
             body[key] = value.toString()
         } else if (typeof value === 'string') {
             const date = moment(value, true)
@@ -51,7 +54,10 @@ export const momentToString = (body: any) => {
 
     for (const key of Object.keys(body)) {
         const value = body[key]
-        if (!!ids.find(x => x === key) && typeof value === 'string') {
+
+        if (key === 'isOpen' && typeof value === 'boolean') {
+            body['isHiddenSubTasks'] = !value
+        } else if (!!ids.find(x => x === key) && typeof value === 'string') {
             body[key] = Number(value)
         } else if (typeof value === 'object') {
             if (moment.isMoment(value)) {

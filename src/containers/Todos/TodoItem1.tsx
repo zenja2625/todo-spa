@@ -120,7 +120,7 @@ export const TodoItem1: FC<TodoItemPropsType> = memo(
                 </span>
                 {!todo.showHideButton || dragged ? (
                     <div className='empty-icon' />
-                ) : !todo.isHiddenSubTasks ? (
+                ) : !todo.isOpen ? (
                     <span
                         className='anticon anticon-right hidden-icon'
                         onClick={() => toggleIsOpen?.(todo.id)}

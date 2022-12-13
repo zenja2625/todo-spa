@@ -22,7 +22,7 @@ export type TodoPutDTO = {
 export type TodoStatusDTO = {
     id: string,
     isDone?: boolean,
-    isHiddenSubTasks?: boolean
+    isOpen?: boolean
 }
 export type TodoPositionDTO = {
     id: string,
