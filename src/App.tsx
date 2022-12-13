@@ -5,7 +5,7 @@ import { Register } from './containers/account/Register'
 import { useAppDispatch, useAppSelector } from './store'
 import './momentLocale'
 
-import 'antd/dist/antd.css'
+// import 'antd/dist/antd.css'
 import { Redirect, Route, Switch } from 'react-router-dom'
 import { AppHeader } from './containers/AppHeader'
 import { Main } from './containers/Main'

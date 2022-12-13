@@ -19,10 +19,11 @@ import { useDnd } from './useDnd'
 import { Overlay } from './Overlay'
 import { FixedSizeList as List, ListChildComponentProps, ReactElementType } from 'react-window'
 import ReactDOM from 'react-dom'
-import { TodoItem1 } from '../containers/Todos/TodoItem1'
+import { TodoItem } from '../containers/Todos/TodoItem'
 import { Todo } from '../slices/sliceTypes'
 import { useAppDispatch } from '../store'
 import { toggleTodoHiding, toggleTodoProgress } from '../slices/todosSlice'
+import { Checkbox } from 'antd'
 
 type ListData = {
     activeIndex: number
@@ -31,8 +32,6 @@ type ListData = {
     gap: number
     depthWidth: number
     order: Array<TreeItem>
-    toggleIsOpen: (id: string) => void
-    toggleIsCheck: (id: string) => void
     dragStart: (id: string) => (e: React.MouseEvent | React.TouchEvent) => void
 }
 
@@ -49,17 +48,7 @@ const contextIntitial = {
 const Context = createContext(contextIntitial)
 
 const Row = ({ index, style, data }: ListChildComponentProps<ListData>) => {
-    const {
-        dragStart,
-        toggleIsOpen,
-        toggleIsCheck,
-        order,
-        activeIndex,
-        overIndex,
-        gap,
-        itemHeight,
-        depthWidth,
-    } = data
+    const { dragStart, order, activeIndex, overIndex, gap, itemHeight, depthWidth } = data
 
     const handleProps = useMemo(
         () => ({
@@ -71,8 +60,6 @@ const Row = ({ index, style, data }: ListChildComponentProps<ListData>) => {
 
     //Remove
     let todo = order[index] as any
-
-    const toggle = useCallback((e: string) => toggleIsOpen(e), [toggleIsOpen])
 
     if (index === activeIndex) return null
 
@@ -89,19 +76,9 @@ const Row = ({ index, style, data }: ListChildComponentProps<ListData>) => {
 
     return (
         <div style={nStyle}>
-            <TodoItem1 handleProps={handleProps} toggleIsOpen={toggle} todo={todo} />
+            <TodoItem handleProps={handleProps} todo={todo} />
         </div>
     )
-}
-type Props = {
-    children?: React.ReactNode
-}
-const Comp: FC<Props> = r => {
-    console.log(r)
-
-    const { children } = r
-
-    return <div>{children}</div>
 }
 
 const innerElementType: ReactElementType = forwardRef<HTMLDivElement, { style: CSSProperties }>(
@@ -165,7 +142,6 @@ export const Tree: FC<TreeProps> = ({
     const wrapperRef = useRef<HTMLDivElement>(null)
 
     const [state, dispatch] = useReducer(reducer, initialState)
-    const appDispatch = useAppDispatch()
 
     const { activeDepth, activeIndex, initialDepth, initialPosition, order, overIndex } = state
 
@@ -198,20 +174,6 @@ export const Tree: FC<TreeProps> = ({
         depthWidth
     )
 
-    const toggleIsOpen = useCallback(
-        (id: string) => {
-            appDispatch(toggleTodoHiding(id))
-        },
-        [appDispatch]
-    )
-
-    const toggleIsCheck = useCallback(
-        (id: string) => {
-            appDispatch(toggleTodoProgress(id))
-        },
-        [appDispatch]
-    )
-
     const itemData: ListData = useMemo(
         () => ({
             activeIndex,
@@ -221,20 +183,8 @@ export const Tree: FC<TreeProps> = ({
             depthWidth,
             gap,
             dragStart,
-            toggleIsOpen,
-            toggleIsCheck,
         }),
-        [
-            order,
-            activeIndex,
-            overIndex,
-            itemHeight,
-            depthWidth,
-            gap,
-            dragStart,
-            toggleIsOpen,
-            toggleIsCheck,
-        ]
+        [order, activeIndex, overIndex, itemHeight, depthWidth, gap, dragStart]
     )
 
     const value = useMemo(
@@ -303,6 +253,7 @@ export const Tree: FC<TreeProps> = ({
             >
                 Click
             </button>
+
             {ReactDOM.createPortal(
                 activeIndex !== -1 && (
                     <Overlay
@@ -312,7 +263,7 @@ export const Tree: FC<TreeProps> = ({
                         shift={shift}
                         {...order[activeIndex]}
                     >
-                        <TodoItem1
+                        <TodoItem
                             dragged={true}
                             todo={{ ...state.order[state.activeIndex] } as any}
                         />

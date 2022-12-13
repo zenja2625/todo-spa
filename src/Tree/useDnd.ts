@@ -65,6 +65,7 @@ export const useDnd = (
     )
 
     const dragEnd = useCallback(() => {
+        document.body.style.cursor = ''
         appDispath(moveTodo({id: order[activeIndex].id, overId: order[overIndex].id, 
         actualDepth: activeDepth}))
         dispath({ type: 'dragEnd' })
@@ -75,6 +76,7 @@ export const useDnd = (
     const dragStart = useCallback(
         (id: string) => (e: React.MouseEvent | React.TouchEvent) => {
             e.preventDefault()
+            document.body.style.cursor = 'move'
             const { x, y } = getCoordinates(e.nativeEvent)
             dispath({
                 type: 'dragStart',

@@ -1,5 +1,3 @@
-import { DragOverlay } from '@dnd-kit/core'
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { Space, Row, Typography, Col } from 'antd'
 import { FC, useEffect } from 'react'
 import { createPortal } from 'react-dom'

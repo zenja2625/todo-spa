@@ -1,50 +1,60 @@
 body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
+        'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-size: 14px;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
 
-@media only screen and (max-width: 500px)  {
-  .header {
-    padding: 0 10px 0 20px !important;
-  }
+.ant-btn-text {
+    height: 100%;
+    border-radius: 0px;
+}
+
+
+
+.ant-menu-light {
+    border-inline-end: none !important;
+}
+
+@media only screen and (max-width: 500px) {
+    .header {
+        padding: 0 10px 0 20px !important;
+    }
 }
 
 .loading {
-  pointer-events: none;
-  opacity: 0.9;
+    pointer-events: none;
+    opacity: 0.9;
 }
 
 .ant-popover-inner-content {
-  padding: 12px 0 !important;
+    padding: 12px 0 !important;
 }
 
 .menuItem:active {
-  background-color: transparent !important;
+    background-color: transparent !important;
 }
 
 .menuItem {
-  padding: 0 0 0 8px !important;
+    padding: 0 0 0 8px !important;
 }
 
 .menuItemPopup {
-  color: #000000d9 !important;
+    color: #000000d9 !important;
 }
 .menuItemPopup:hover {
-  color: #1890ff !important;
+    color: #1890ff !important;
 }
 
 .collapse-sider {
-  flex: 0 0 0 !important;
-  max-width: 0 !important;
-  min-width: 0 !important;
-  width: 0 !important;
+    flex: 0 0 0 !important;
+    max-width: 0 !important;
+    min-width: 0 !important;
+    width: 0 !important;
 }

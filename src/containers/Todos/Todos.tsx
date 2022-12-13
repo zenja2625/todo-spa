@@ -11,17 +11,7 @@ import {
 } from '../../slices/todosSlice'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { useAppDispatch, useAppSelector } from '../../store'
-import {
-    closestCenter,
-    DndContext,
-    DragEndEvent,
-    DragMoveEvent,
-    DragStartEvent,
-    MouseSensor,
-    TouchSensor,
-    useSensor,
-    useSensors,
-} from '@dnd-kit/core'
+
 import { EllipsisOutlined } from '@ant-design/icons'
 
 import { Button, Col, Menu, Popover, Row, Space, Typography } from 'antd'
@@ -70,10 +60,7 @@ export const Todos = () => {
         }
     }, [selectedCategory, showCompletedTodos, dispatch])
 
-    const mouseSensor = useSensor(MouseSensor)
-    const touchSensor = useSensor(TouchSensor)
 
-    const sensors = useSensors(mouseSensor, touchSensor)
 
     const popoverMenu = () => {
         return (
@@ -107,23 +94,23 @@ export const Todos = () => {
         )
     }
 
-    const onDragStart = ({ active }: DragStartEvent) => {
-        if (selectedCategory) dispatch(updateStatusesThunk(selectedCategory.id))
-        dispatch(startDragTodo(active.id))
-    }
+    // const onDragStart = ({ active }: DragStartEvent) => {
+    //     if (selectedCategory) dispatch(updateStatusesThunk(selectedCategory.id))
+    //     dispatch(startDragTodo(active.id))
+    // }
 
-    const onDragMove = ({ delta, active }: DragMoveEvent) => {
-        if (active.data.current) active.data.current.deltaX = delta.x
-    }
+    // const onDragMove = ({ delta, active }: DragMoveEvent) => {
+    //     if (active.data.current) active.data.current.deltaX = delta.x
+    // }
 
-    const onDragEnd = ({ over, active, delta }: DragEndEvent) => {
-        // if (over) dispatch(moveTodo({ id: active.id, overId: over.id, deltaX: delta.x }))
-        if (active.data.current) active.data.current.deltaX = 0
-        dispatch(stopDragTodo())
-    }
+    // const onDragEnd = ({ over, active, delta }: DragEndEvent) => {
+    //     // if (over) dispatch(moveTodo({ id: active.id, overId: over.id, deltaX: delta.x }))
+    //     if (active.data.current) active.data.current.deltaX = 0
+    //     dispatch(stopDragTodo())
+    // }
 
     const onDragCancel = () => dispatch(stopDragTodo())
-
+//<Typography.Title level={3} style={{ margin: 0 }}>
     const Header = (
         <Row
             style={{
