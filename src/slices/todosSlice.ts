@@ -213,8 +213,7 @@ export const todosSlice = createSlice({
             }
         },
         startDragTodo: (state, action: PayloadAction<string>) => {
-            state.draggedTodoId =
-                state.items.find(todo => todo.id.toString() === action.payload)?.id || null
+            state.draggedTodoId = action.payload
         },
         moveTodo: (
             state,
@@ -261,6 +260,7 @@ export const todosSlice = createSlice({
             }
         },
         stopDragTodo: state => {
+            alert()
             state.draggedTodoId = null
         },
         openTodoEditor: (state, action: PayloadAction<OpenTodoEditorProps | undefined>) => {

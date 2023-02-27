@@ -21,7 +21,7 @@ import { FixedSizeList as List, ListChildComponentProps, ReactElementType } from
 import ReactDOM from 'react-dom'
 import { TodoItem } from '../containers/Todos/TodoItem'
 import { Todo } from '../slices/sliceTypes'
-import { useAppDispatch } from '../store'
+import { useAppDispatch, useAppSelector } from '../store'
 import { toggleTodoHiding, toggleTodoProgress } from '../slices/todosSlice'
 import { Checkbox } from 'antd'
 
@@ -141,9 +141,14 @@ export const Tree: FC<TreeProps> = ({
 }) => {
     const wrapperRef = useRef<HTMLDivElement>(null)
 
+
+    const draggedTodoId = useAppSelector(state => state.todos.draggedTodoId)
+
     const [state, dispatch] = useReducer(reducer, initialState)
 
-    const { activeDepth, activeIndex, initialDepth, initialPosition, order, overIndex } = state
+    const { activeDepth, activeIndex, initialDepth, initialPosition, overIndex } = state
+
+    const order = items
 
     const shift = useMemo((): Coors => {
         const { x = 0, y = 0 } = wrapperRef.current?.getBoundingClientRect() || {}
@@ -159,9 +164,9 @@ export const Tree: FC<TreeProps> = ({
             ? wrapperRef.current.clientWidth - order[activeIndex].depth * depthWidth
             : 0
 
-    useLayoutEffect(() => {
-        dispatch({ type: 'setOrder', payload: items })
-    }, [items])
+    // useLayoutEffect(() => {
+    //     dispatch({ type: 'setOrder', payload: items })
+    // }, [items])
 
     const dragStart = useDnd(
         state,

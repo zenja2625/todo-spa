@@ -4,7 +4,7 @@ import { useListeners } from './useListeners'
 import { getCoordinates } from './getCoordinates'
 import { Coors } from './types'
 import { useAppDispatch } from '../store'
-import { moveTodo } from '../slices/todosSlice'
+import { moveTodo, startDragTodo, stopDragTodo } from '../slices/todosSlice'
 
 const getRoundedValue = (delta: number, active: number, limit: number, max: number, min = 0) => {
     const value = active + (delta >= 0 ? Math.floor(delta + limit) : Math.ceil(delta - limit))
@@ -68,6 +68,7 @@ export const useDnd = (
         document.body.style.cursor = ''
         appDispath(moveTodo({id: order[activeIndex].id, overId: order[overIndex].id, 
         actualDepth: activeDepth}))
+        appDispath(stopDragTodo())
         dispath({ type: 'dragEnd' })
     }, [dispath, appDispath, activeDepth, activeIndex, overIndex, order])
 
@@ -78,6 +79,7 @@ export const useDnd = (
             e.preventDefault()
             document.body.style.cursor = 'move'
             const { x, y } = getCoordinates(e.nativeEvent)
+            appDispath(startDragTodo(id))
             dispath({
                 type: 'dragStart',
                 payload: {
@@ -86,7 +88,7 @@ export const useDnd = (
                 },
             })
         },
-        [dispath]
+        [dispath, appDispath]
     )
 
     return dragStart
