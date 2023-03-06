@@ -141,12 +141,20 @@ export const Tree: FC<TreeProps> = ({
 }) => {
     const wrapperRef = useRef<HTMLDivElement>(null)
 
+    const { dragId, todoShift, initialPosition } = useAppSelector(state => state.todos.draggedTodo)
 
-    const draggedTodoId = useAppSelector(state => state.todos.draggedTodoId)
+    const activeIndex = useMemo(() => items.findIndex(item => item.id === dragId), [items, dragId])
+    const initialDepth = useMemo(
+        () => (activeIndex != -1 ? items[activeIndex].depth : 0),
+        [items, activeIndex]
+    )
+    const { activeDepth, overIndex } = useMemo(
+        () => ({ activeDepth: initialDepth + todoShift.x, overIndex: activeIndex + todoShift.y }),
+        [todoShift, activeIndex, initialDepth]
+    )
 
     const [state, dispatch] = useReducer(reducer, initialState)
 
-    const { activeDepth, activeIndex, initialDepth, initialPosition, overIndex } = state
 
     const order = items
 

@@ -4,7 +4,7 @@ import { RootState } from '../store'
 
 export const getTodos = createDraftSafeSelector(
     (state: RootState) => state.todos.items,
-    state => state.todos.draggedTodoId,
+    state => state.todos.draggedTodo.dragId,
     state => state.categories.showCompletedTodos,
     (todos, draggedTodoId, showCompletedTodos) => {
         let newTodos: Array<Todo> = []

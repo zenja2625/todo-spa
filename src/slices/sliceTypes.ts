@@ -2,6 +2,7 @@ import { TodoPositionDTO, TodoStatusDTO } from '../api/apiTypes'
 import { TodoEditorValueType } from '../containers/containerTypes'
 import { RootState } from '../store'
 import { Moment } from 'moment'
+import { Coors } from '../Tree/types'
 
 export type AppType = {
     initialized: boolean
@@ -65,8 +66,17 @@ export type TodosType = {
     todoStatusDTOs: Array<TodoStatusDTO>
     todoPositionDTOs: Array<TodoPositionDTO>
     todoEditor: ITodoEditor
-    draggedTodoId: string | null ////////////////////////////?
+    draggedTodo: {
+        dragId: string | null
+        todoShift: Coors
+        initialPosition: Coors
+    }
     todosRequestId: string | null
+}
+
+export type DragStartType = {
+    dragId: string
+    initialPosition: Coors
 }
 
 export type openCategoryEditorProps = {

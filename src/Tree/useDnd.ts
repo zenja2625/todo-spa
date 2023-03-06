@@ -66,8 +66,13 @@ export const useDnd = (
 
     const dragEnd = useCallback(() => {
         document.body.style.cursor = ''
-        appDispath(moveTodo({id: order[activeIndex].id, overId: order[overIndex].id, 
-        actualDepth: activeDepth}))
+        appDispath(
+            moveTodo({
+                id: order[activeIndex].id,
+                overId: order[overIndex].id,
+                actualDepth: activeDepth,
+            })
+        )
         appDispath(stopDragTodo())
         dispath({ type: 'dragEnd' })
     }, [dispath, appDispath, activeDepth, activeIndex, overIndex, order])
@@ -78,17 +83,10 @@ export const useDnd = (
         (id: string) => (e: React.MouseEvent | React.TouchEvent) => {
             e.preventDefault()
             document.body.style.cursor = 'move'
-            const { x, y } = getCoordinates(e.nativeEvent)
-            appDispath(startDragTodo(id))
-            dispath({
-                type: 'dragStart',
-                payload: {
-                    id,
-                    initialPosition: { x, y },
-                },
-            })
+            const initialPosition = getCoordinates(e.nativeEvent)
+            appDispath(startDragTodo({ dragId: id, initialPosition }))
         },
-        [dispath, appDispath]
+        [appDispath]
     )
 
     return dragStart

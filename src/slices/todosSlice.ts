@@ -13,6 +13,7 @@ import {
     TodoDTO,
     TodosType,
     OpenTodoEditorProps,
+    DragStartType,
 } from './sliceTypes'
 
 const initialState: TodosType = {
@@ -23,7 +24,11 @@ const initialState: TodosType = {
         isOpen: false,
         value: { value: '' },
     },
-    draggedTodoId: null,
+    draggedTodo: {
+        dragId: null,
+        todoShift: { x: 0, y: 0 },
+        initialPosition: { x: 0, y: 0 },
+    },
     todosRequestId: null,
 }
 
@@ -43,7 +48,6 @@ type GetTodosProps = {
     withCompleted: boolean
 }
 
-
 export const depthIndent = 40
 
 export const getTodosThunk = createAsyncThunk(
@@ -51,7 +55,7 @@ export const getTodosThunk = createAsyncThunk(
     async (payload: GetTodosProps, { rejectWithValue }) => {
         try {
             const response = await API.todos.getTodos(payload.categoryId, payload.withCompleted)
-            
+
             return response.data as Array<TodoDTO>
         } catch (error: any) {
             return rejectWithValue(error.response?.status)
@@ -125,7 +129,7 @@ export const createTodoThunk = createAsyncThunk<void, CreateTodoProps, IState & 
                 taskEnd: payload.todoValue.taskEnd,
                 ...getTodoPosition(todos, prevIndex, depth),
             })
-            await dispatch(getTodosThunk({ categoryId: payload.categoryId, withCompleted}))
+            await dispatch(getTodosThunk({ categoryId: payload.categoryId, withCompleted }))
         } catch (error: any) {
             return rejectWithValue(error.response?.status)
         }
@@ -212,8 +216,11 @@ export const todosSlice = createSlice({
                 })
             }
         },
-        startDragTodo: (state, action: PayloadAction<string>) => {
-            state.draggedTodoId = action.payload
+        startDragTodo: (state, action: PayloadAction<DragStartType>) => {
+            state.draggedTodo = {
+                ...action.payload,
+                todoShift: { x: 0, y: 0 },
+            }
         },
         moveTodo: (
             state,
@@ -260,8 +267,7 @@ export const todosSlice = createSlice({
             }
         },
         stopDragTodo: state => {
-            alert()
-            state.draggedTodoId = null
+            state.draggedTodo.dragId = null
         },
         openTodoEditor: (state, action: PayloadAction<OpenTodoEditorProps | undefined>) => {
             const { value, ...payload } = action.payload || {}
