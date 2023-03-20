@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { API } from '../api/api'
 import { TodoPutDTO } from '../api/apiTypes'
+import { Coors } from '../Tree/types'
 import { getParentIndex } from '../utility/getParentIndex'
 import { getTodoChildCount } from '../utility/getTodoChildCount'
 import { getTodoDepth } from '../utility/getTodoDepth'
@@ -222,6 +223,12 @@ export const todosSlice = createSlice({
                 todoShift: { x: 0, y: 0 },
             }
         },
+        setDragShift: (state, action: PayloadAction<Coors>) => {
+            state.draggedTodo = {
+                ...state.draggedTodo,
+                todoShift: action.payload
+            }
+        },
         moveTodo: (
             state,
             action: PayloadAction<{ id: string; overId: string; actualDepth: number }>
@@ -322,6 +329,7 @@ export const {
     openTodoEditor,
     closeTodoEditor,
     startDragTodo,
+    setDragShift,
     stopDragTodo,
     clearTodoPositions,
     clearTodoStatuses,

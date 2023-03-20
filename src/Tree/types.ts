@@ -1,3 +1,5 @@
+import { Todo } from '../slices/sliceTypes'
+
 export type TreeItem = {
     id: string
     depth: number
@@ -5,7 +7,7 @@ export type TreeItem = {
 }
 
 export type TreeProps = {
-    items: Array<TreeItem>
+    items: Array<Todo>
     setItems: React.Dispatch<React.SetStateAction<TreeItem[]>>
     itemHeight: number
     gap: number

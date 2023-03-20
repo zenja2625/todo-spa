@@ -13,7 +13,7 @@ import React, {
 } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { Coors, TreeItem, TreeProps } from './types'
-import { reducer, initialState } from './reducer'
+import { reducer, initialState, State } from './reducer'
 // import { Item } from './Item'
 import { useDnd } from './useDnd'
 import { Overlay } from './Overlay'
@@ -31,11 +31,12 @@ type ListData = {
     itemHeight: number
     gap: number
     depthWidth: number
-    order: Array<TreeItem>
+    order: Array<Todo>
     dragStart: (id: string) => (e: React.MouseEvent | React.TouchEvent) => void
 }
 
 const contextIntitial = {
+    activeIndex: -1,
     overIndex: -1,
     activeDepth: 0,
     itemHeight: 0,
@@ -58,21 +59,25 @@ const Row = ({ index, style, data }: ListChildComponentProps<ListData>) => {
         [dragStart, order[index].id]
     )
 
-    //Remove
-    let todo = order[index] as any
+    let todo = order[index]
 
     if (index === activeIndex) return null
 
-    const top =
-        index > activeIndex && index <= overIndex
-            ? (index - 1) * (itemHeight + gap)
-            : index < activeIndex && index >= overIndex
-            ? (index + 1) * (itemHeight + gap)
-            : style.top
-    const left = order[index].depth * depthWidth
     const height = itemHeight
 
-    const nStyle = { ...style, top, left, height, right: 0, width: undefined }
+    const nStyle = { ...style, height, right: 0, width: undefined }
+
+    if (activeIndex != -1) {
+        nStyle.top =
+            index > activeIndex && index <= overIndex
+                ? (index - 1) * (itemHeight + gap)
+                : index < activeIndex && index >= overIndex
+                ? (index + 1) * (itemHeight + gap)
+                : style.top
+        nStyle.left = order[index].depth * depthWidth
+    } else {
+        nStyle.left = order[index].depth * depthWidth
+    }
 
     return (
         <div style={nStyle}>
@@ -85,7 +90,7 @@ const innerElementType: ReactElementType = forwardRef<HTMLDivElement, { style: C
     ({ children, ...rest }, ref) => {
         // console.log(rest.style)
 
-        const { overIndex, activeDepth, itemHeight, gap, depthWidth, header, footer } =
+        const { activeIndex, overIndex, activeDepth, itemHeight, gap, depthWidth, header, footer } =
             useContext(Context)
 
         rest = { ...rest, style: { ...rest.style, position: 'relative' } }
@@ -106,8 +111,9 @@ const innerElementType: ReactElementType = forwardRef<HTMLDivElement, { style: C
                         }}
                     >
                         {header}
+
                         <div ref={ref} {...rest}>
-                            {overIndex !== -1 && (
+                            {activeIndex !== -1 && (
                                 <div
                                     style={{
                                         position: 'absolute',
@@ -153,10 +159,9 @@ export const Tree: FC<TreeProps> = ({
         [todoShift, activeIndex, initialDepth]
     )
 
-    const [state, dispatch] = useReducer(reducer, initialState)
+        
 
-
-    const order = items
+    const [_state, dispatch] = useReducer(reducer, initialState)
 
     const shift = useMemo((): Coors => {
         const { x = 0, y = 0 } = wrapperRef.current?.getBoundingClientRect() || {}
@@ -168,13 +173,19 @@ export const Tree: FC<TreeProps> = ({
     }, [initialPosition, initialDepth, activeIndex, depthWidth, wrapperRef, itemHeight, gap])
 
     const activeItemWidth =
-        wrapperRef.current && activeIndex >= 0 && activeIndex < order.length
-            ? wrapperRef.current.clientWidth - order[activeIndex].depth * depthWidth
+        wrapperRef.current && activeIndex >= 0 && activeIndex < items.length
+            ? wrapperRef.current.clientWidth - items[activeIndex].depth * depthWidth
             : 0
 
-    // useLayoutEffect(() => {
-    //     dispatch({ type: 'setOrder', payload: items })
-    // }, [items])
+    const state: State = {
+        activeIndex,
+        overIndex,
+        order: items,
+        activeDepth,
+        activeChildren: [],
+        initialDepth: 0,
+        initialPosition: { x: 0, y: 0 },
+    }
 
     const dragStart = useDnd(
         state,
@@ -191,17 +202,18 @@ export const Tree: FC<TreeProps> = ({
         () => ({
             activeIndex,
             overIndex,
-            order,
+            order: items,
             itemHeight,
             depthWidth,
             gap,
             dragStart,
         }),
-        [order, activeIndex, overIndex, itemHeight, depthWidth, gap, dragStart]
+        [items, activeIndex, overIndex, itemHeight, depthWidth, gap, dragStart]
     )
 
     const value = useMemo(
         () => ({
+            activeIndex,
             overIndex,
             activeDepth,
             itemHeight,
@@ -210,7 +222,7 @@ export const Tree: FC<TreeProps> = ({
             header,
             footer,
         }),
-        [overIndex, activeDepth, itemHeight, gap, depthWidth, header, footer]
+        [activeIndex, overIndex, activeDepth, itemHeight, gap, depthWidth, header, footer]
     )
 
     const myRef = useRef<any>()
@@ -235,7 +247,7 @@ export const Tree: FC<TreeProps> = ({
                         <List
                             ref={myRef}
                             height={height}
-                            itemCount={order.length}
+                            itemCount={items.length}
                             itemSize={itemHeight + gap}
                             width={width}
                             itemData={itemData}
@@ -274,12 +286,9 @@ export const Tree: FC<TreeProps> = ({
                         itemHeight={itemHeight}
                         itemWidth={activeItemWidth}
                         shift={shift}
-                        {...order[activeIndex]}
+                        {...items[activeIndex]}
                     >
-                        <TodoItem
-                            dragged={true}
-                            todo={{ ...state.order[state.activeIndex] } as any}
-                        />
+                        <TodoItem dragged={true} todo={items[activeIndex]} />
                     </Overlay>
                 ),
                 document.body

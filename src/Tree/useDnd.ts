@@ -4,11 +4,11 @@ import { useListeners } from './useListeners'
 import { getCoordinates } from './getCoordinates'
 import { Coors } from './types'
 import { useAppDispatch } from '../store'
-import { moveTodo, startDragTodo, stopDragTodo } from '../slices/todosSlice'
+import { moveTodo, setDragShift, startDragTodo, stopDragTodo } from '../slices/todosSlice'
 
-const getRoundedValue = (delta: number, active: number, limit: number, max: number, min = 0) => {
+const getLimitValue = (delta: number, active: number, limit: number, max: number, min = 0) => {
     const value = active + (delta >= 0 ? Math.floor(delta + limit) : Math.ceil(delta - limit))
-
+    
     return value > max ? max : value < min ? min : value
 }
 
@@ -22,7 +22,8 @@ export const useDnd = (
     maxDepth: number,
     depthWidth: number
 ) => {
-    const { activeIndex, overIndex, order, activeDepth } = state
+    const { activeIndex, overIndex, order: items, activeDepth } = state
+
     const appDispath = useAppDispatch()
 
     const onMove = useCallback(
@@ -30,28 +31,31 @@ export const useDnd = (
             const { x: dx = 0, y: dy = 0 } = wrapper?.getBoundingClientRect() || {}
 
             const offsetY = y - dy - shift.y
-            const index = getRoundedValue(
+            const index = getLimitValue(
                 offsetY / (height + gap) - overIndex,
                 overIndex,
                 0.5 - gap / (height + gap) / 2,
-                order.length - 1
+                items.length - 1
             )
 
             const prevIndex = activeIndex >= index ? index - 1 : index
             const nextIndex = activeIndex <= index ? index + 1 : index
 
-            const prevDepth = order[prevIndex]?.depth + 1 || 0
+            const prevDepth = items[prevIndex]?.depth + 1 || 0
             const max = prevDepth > maxDepth ? maxDepth : prevDepth
-            const min = order[nextIndex]?.depth || 0
+            const min = items[nextIndex]?.depth || 0
 
             const offsetX = x - shift.x - dx
-            const depth = getRoundedValue(
+            const depth = getLimitValue(
                 offsetX / depthWidth - activeDepth,
                 activeDepth,
                 0.3,
                 max,
                 min
             )
+
+
+            appDispath(setDragShift({x: 0, y: index }))
 
             dispath({
                 type: 'move',
@@ -61,21 +65,21 @@ export const useDnd = (
                 },
             })
         },
-        [wrapper, shift, height, gap, maxDepth, activeDepth, activeIndex, overIndex, order, dispath]
+        [wrapper, shift, height, gap, maxDepth, activeDepth, activeIndex, overIndex, items, dispath]
     )
 
     const dragEnd = useCallback(() => {
         document.body.style.cursor = ''
         appDispath(
             moveTodo({
-                id: order[activeIndex].id,
-                overId: order[overIndex].id,
+                id: items[activeIndex].id,
+                overId: items[overIndex].id,
                 actualDepth: activeDepth,
             })
         )
         appDispath(stopDragTodo())
         dispath({ type: 'dragEnd' })
-    }, [dispath, appDispath, activeDepth, activeIndex, overIndex, order])
+    }, [dispath, appDispath, activeDepth, activeIndex, overIndex, items])
 
     useListeners(activeIndex !== -1, onMove, dragEnd)
 

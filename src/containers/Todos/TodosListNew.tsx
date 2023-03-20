@@ -16,8 +16,8 @@ export const TodosList: FC<ITodosProps> = ({ categoryId, header, footer }) => {
     const actualStatuses = useAppSelector(state => state.todos.todoStatusDTOs)
     const actualPosition = useAppSelector(state => state.todos.todoPositionDTOs)
     const todosRequestId = useAppSelector(state => state.todos.todosRequestId)
-    const draggedTodoId = useAppSelector(state => state.todos.draggedTodoId)
-    const draggedTodo = todos.find(todo => todo.id === draggedTodoId)
+    // const draggedTodoId = useAppSelector(state => state.todos.draggedTodoId)
+    // const draggedTodo = todos.find(todo => todo.id === draggedTodoId)
 
     const dispatch = useAppDispatch()
 
