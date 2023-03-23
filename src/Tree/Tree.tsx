@@ -67,7 +67,7 @@ const Row = ({ index, style, data }: ListChildComponentProps<ListData>) => {
 
     const nStyle = { ...style, height, right: 0, width: undefined }
 
-    if (activeIndex != -1) {
+    if (activeIndex !== -1) {
         nStyle.top =
             index > activeIndex && index <= overIndex
                 ? (index - 1) * (itemHeight + gap)
@@ -151,7 +151,7 @@ export const Tree: FC<TreeProps> = ({
 
     const activeIndex = useMemo(() => items.findIndex(item => item.id === dragId), [items, dragId])
     const initialDepth = useMemo(
-        () => (activeIndex != -1 ? items[activeIndex].depth : 0),
+        () => (activeIndex !== -1 ? items[activeIndex].depth : 0),
         [items, activeIndex]
     )
     const { activeDepth, overIndex } = useMemo(

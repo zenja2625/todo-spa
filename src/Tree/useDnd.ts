@@ -54,16 +54,19 @@ export const useDnd = (
                 min
             )
 
+            const initialDepth = items[activeIndex].depth
 
-            appDispath(setDragShift({x: 0, y: index }))
+            console.log(shift.y)
 
-            dispath({
-                type: 'move',
-                payload: {
-                    index,
-                    depth,
-                },
-            })
+            appDispath(setDragShift({x: depth - initialDepth, y: index - activeIndex }))
+
+            // dispath({
+            //     type: 'move',
+            //     payload: {
+            //         index,
+            //         depth,
+            //     },
+            // })
         },
         [wrapper, shift, height, gap, maxDepth, activeDepth, activeIndex, overIndex, items, dispath]
     )
