@@ -8,7 +8,7 @@ import { moveTodo, setDragShift, startDragTodo, stopDragTodo } from '../slices/t
 
 const getLimitValue = (delta: number, active: number, limit: number, max: number, min = 0) => {
     const value = active + (delta >= 0 ? Math.floor(delta + limit) : Math.ceil(delta - limit))
-    
+
     return value > max ? max : value < min ? min : value
 }
 
@@ -20,7 +20,8 @@ export const useDnd = (
     wrapper: HTMLElement | null,
     shift: Coors,
     maxDepth: number,
-    depthWidth: number
+    depthWidth: number,
+    initialPosition: Coors
 ) => {
     const { activeIndex, overIndex, order: items, activeDepth } = state
 
@@ -29,6 +30,11 @@ export const useDnd = (
     const onMove = useCallback(
         ({ x, y }: Coors) => {
             const { x: dx = 0, y: dy = 0 } = wrapper?.getBoundingClientRect() || {}
+
+            const overCenterY = (overIndex - activeIndex) * (height + gap)
+            const offsetY1 = y - initialPosition.y
+
+            console.log(`${overCenterY} ${offsetY1}`)
 
             const offsetY = y - dy - shift.y
             const index = getLimitValue(
@@ -56,9 +62,7 @@ export const useDnd = (
 
             const initialDepth = items[activeIndex].depth
 
-            console.log(shift.y)
-
-            appDispath(setDragShift({x: depth - initialDepth, y: index - activeIndex }))
+            appDispath(setDragShift({ x: depth - initialDepth, y: index - activeIndex }))
 
             // dispath({
             //     type: 'move',
@@ -68,7 +72,7 @@ export const useDnd = (
             //     },
             // })
         },
-        [wrapper, shift, height, gap, maxDepth, activeDepth, activeIndex, overIndex, items, dispath]
+        [wrapper, shift, height, gap, maxDepth, activeDepth, activeIndex, overIndex, items, initialPosition, dispath]
     )
 
     const dragEnd = useCallback(() => {

@@ -195,7 +195,8 @@ export const Tree: FC<TreeProps> = ({
         wrapperRef.current,
         shift,
         maxDepth,
-        depthWidth
+        depthWidth,
+        initialPosition
     )
 
     const itemData: ListData = useMemo(
