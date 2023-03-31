@@ -34,7 +34,28 @@ export const useDnd = (
             const overCenterY = (overIndex - activeIndex) * (height + gap)
             const offsetY1 = y - initialPosition.y
 
-            console.log(`${overCenterY} ${offsetY1}`)
+            const limit = 0.5 - gap / (height + gap) / 2
+
+            //Todo delta Y : delta >= 0
+
+            const value =
+                overCenterY > offsetY1
+                    ? Math.ceil((offsetY1 - height / 2) / (height + gap))
+                    : Math.floor((offsetY1 + height / 2) / (height + gap))
+
+
+            //${Math.ceil((offsetY1 - height / 2) / (height + gap))}
+
+            const overX = 
+            const depth1 = (x - initialPosition.x)
+
+
+            console.log(
+                `${offsetY1 / (height + gap) - limit} ${0.5 - gap / (height + gap) / 2} ${
+                    overCenterY > offsetY1
+                }  ${value} ${depth1}`
+            )
+
 
             const offsetY = y - dy - shift.y
             const index = getLimitValue(
@@ -62,7 +83,7 @@ export const useDnd = (
 
             const initialDepth = items[activeIndex].depth
 
-            appDispath(setDragShift({ x: depth - initialDepth, y: index - activeIndex }))
+            appDispath(setDragShift({ x: depth - initialDepth, y: value }))
 
             // dispath({
             //     type: 'move',
@@ -72,7 +93,19 @@ export const useDnd = (
             //     },
             // })
         },
-        [wrapper, shift, height, gap, maxDepth, activeDepth, activeIndex, overIndex, items, initialPosition, dispath]
+        [
+            wrapper,
+            shift,
+            height,
+            gap,
+            maxDepth,
+            activeDepth,
+            activeIndex,
+            overIndex,
+            items,
+            initialPosition,
+            dispath,
+        ]
     )
 
     const dragEnd = useCallback(() => {
