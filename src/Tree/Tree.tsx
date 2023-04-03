@@ -35,8 +35,19 @@ type ListData = {
     dragStart: (id: string) => (e: React.MouseEvent | React.TouchEvent) => void
 }
 
-const contextIntitial = {
-    activeIndex: -1,
+type ContextIntitialProps = {
+    active: Todo | null
+    overIndex: number
+    activeDepth: number
+    itemHeight: number
+    gap: number
+    depthWidth: number
+    header: JSX.Element
+    footer: JSX.Element
+}
+
+const contextIntitial: ContextIntitialProps = {
+    active: null,
     overIndex: -1,
     activeDepth: 0,
     itemHeight: 0,
@@ -90,7 +101,7 @@ const innerElementType: ReactElementType = forwardRef<HTMLDivElement, { style: C
     ({ children, ...rest }, ref) => {
         // console.log(rest.style)
 
-        const { activeIndex, overIndex, activeDepth, itemHeight, gap, depthWidth, header, footer } =
+        const { active, overIndex, activeDepth, itemHeight, gap, depthWidth, header, footer } =
             useContext(Context)
 
         rest = { ...rest, style: { ...rest.style, position: 'relative' } }
@@ -113,17 +124,31 @@ const innerElementType: ReactElementType = forwardRef<HTMLDivElement, { style: C
                         {header}
 
                         <div ref={ref} {...rest}>
-                            {activeIndex !== -1 && (
-                                <div
-                                    style={{
-                                        position: 'absolute',
-                                        backgroundColor: 'gray',
-                                        height: `${itemHeight}px`,
-                                        top: `${overIndex * (itemHeight + gap)}px`,
-                                        right: 0,
-                                        left: `${activeDepth * depthWidth}px`,
-                                    }}
-                                ></div>
+                            {active !== null && (
+                                <>
+                                    <div
+                                        style={{
+                                            position: 'absolute',
+                                            backgroundColor: 'gray',
+                                            height: `${itemHeight}px`,
+                                            top: `${overIndex * (itemHeight + gap)}px`,
+                                            right: 0,
+                                            left: `${activeDepth * depthWidth}px`,
+                                        }}
+                                    ></div>
+                                    {/* <Overlay
+                                        style={{
+                                            position: 'absolute',
+                                            backgroundColor: 'gray',
+                                            height: `${itemHeight}px`,
+                                            top: `${overIndex * (itemHeight + gap)}px`,
+                                            right: 0,
+                                            left: `${activeDepth * depthWidth}px`,
+                                        }}
+                                    >
+                                        <TodoItem dragged={true} todo={active} />
+                                    </Overlay> */}
+                                </>
                             )}
                             {children}
                         </div>
@@ -158,8 +183,6 @@ export const Tree: FC<TreeProps> = ({
         () => ({ activeDepth: initialDepth + todoShift.x, overIndex: activeIndex + todoShift.y }),
         [todoShift, activeIndex, initialDepth]
     )
-
-        
 
     const [_state, dispatch] = useReducer(reducer, initialState)
 
@@ -212,9 +235,9 @@ export const Tree: FC<TreeProps> = ({
         [items, activeIndex, overIndex, itemHeight, depthWidth, gap, dragStart]
     )
 
-    const value = useMemo(
+    const value: ContextIntitialProps = useMemo(
         () => ({
-            activeIndex,
+            active: items[activeIndex] || null,
             overIndex,
             activeDepth,
             itemHeight,
@@ -241,33 +264,45 @@ export const Tree: FC<TreeProps> = ({
             <Context.Provider value={value}>
                 <AutoSizer
                     style={{
-                        width: '100%',
+                        width: '100%'
                     }}
                 >
                     {({ width, height }) => (
-                        <List
-                            ref={myRef}
-                            height={height}
-                            itemCount={items.length}
-                            itemSize={itemHeight + gap}
-                            width={width}
-                            itemData={itemData}
-                            innerRef={wrapperRef}
-                            overscanCount={0}
-                            innerElementType={innerElementType}
-                            onScroll={e => {
-                                // console.log('Scroll')
-                                // console.log(myRef.current);
-                            }}
-                            style={{
-                                // backgroundColor: 'orangered',
-                                width: `100%`,
-                                willChange: 'auto',
-                                // overflow: undefined,
-                            }}
-                        >
-                            {Row}
-                        </List>
+                        <>
+                            <List
+                                ref={myRef}
+                                height={height}
+                                itemCount={items.length}
+                                itemSize={itemHeight + gap}
+                                width={width}
+                                itemData={itemData}
+                                innerRef={wrapperRef}
+                                overscanCount={0}
+                                innerElementType={innerElementType}
+                                onScroll={e => {
+                                    // console.log('Scroll')
+                                    // console.log(myRef.current);
+                                }}
+                                style={{
+                                    // backgroundColor: 'orangered',
+                                    width: `100%`,
+                                    willChange: 'auto',
+                                    // overflow: undefined,
+                                }}
+                            >
+                                {Row}
+                            </List>
+                            {activeIndex !== -1 && (
+                                <Overlay
+                                    initialCoors={{ x: 0, y: 0 }}
+                                    style={{}}
+                                    itemHeight={itemHeight}
+                                    itemWidth={activeItemWidth}
+                                >
+                                    <TodoItem dragged={true} todo={items[activeIndex]} />
+                                </Overlay>
+                            )}
+                        </>
                     )}
                 </AutoSizer>
             </Context.Provider>
@@ -280,20 +315,19 @@ export const Tree: FC<TreeProps> = ({
                 Click
             </button>
 
-            {ReactDOM.createPortal(
+            {/* {ReactDOM.createPortal(
                 activeIndex !== -1 && (
                     <Overlay
-                        initialPosition={initialPosition}
+                        initialCoors={{ x: 0, y: 0 }}
+                        style={{}}
                         itemHeight={itemHeight}
                         itemWidth={activeItemWidth}
-                        shift={shift}
-                        {...items[activeIndex]}
                     >
                         <TodoItem dragged={true} todo={items[activeIndex]} />
                     </Overlay>
                 ),
                 document.body
-            )}
+            )} */}
         </>
     )
 }

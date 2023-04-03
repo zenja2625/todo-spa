@@ -35,12 +35,16 @@ export type RowData = {
 export type ElementDictionary = { [key: string]: HTMLDivElement }
 
 export type OverlayProps = {
-    initialPosition: Coors
+    style: React.CSSProperties
+
+    initialCoors: Coors
+
     itemHeight: number
     itemWidth: number
-    shift: Coors
+
+    // shift: Coors
     children?: React.ReactNode
-} & TreeItem
+}
 
 export type ListElement = {
     value: HTMLElement

@@ -3,7 +3,7 @@ import { Action, State } from './reducer'
 import { useListeners } from './useListeners'
 import { getCoordinates } from './getCoordinates'
 import { Coors } from './types'
-import { useAppDispatch } from '../store'
+import { useAppDispatch, useAppSelector } from '../store'
 import { moveTodo, setDragShift, startDragTodo, stopDragTodo } from '../slices/todosSlice'
 
 const getLimitValue = (delta: number, active: number, limit: number, max: number, min = 0) => {
@@ -25,13 +25,15 @@ export const useDnd = (
 ) => {
     const { activeIndex, overIndex, order: items, activeDepth } = state
 
+    const { todoShift } = useAppSelector(state => state.todos.draggedTodo)
+
     const appDispath = useAppDispatch()
 
     const onMove = useCallback(
         ({ x, y }: Coors) => {
             const { x: dx = 0, y: dy = 0 } = wrapper?.getBoundingClientRect() || {}
 
-            const overCenterY = (overIndex - activeIndex) * (height + gap)
+            const overCenterY = todoShift.y * (height + gap)
             const offsetY1 = y - initialPosition.y
 
             const limit = 0.5 - gap / (height + gap) / 2
@@ -43,19 +45,21 @@ export const useDnd = (
                     ? Math.ceil((offsetY1 - height / 2) / (height + gap))
                     : Math.floor((offsetY1 + height / 2) / (height + gap))
 
-
             //${Math.ceil((offsetY1 - height / 2) / (height + gap))}
 
-            const overX = 
-            const depth1 = (x - initialPosition.x)
+            const overX = todoShift.x * depthWidth
+            const offsetX1 = x - initialPosition.x
 
+            const depthA1 =
+                overX > offsetX1
+                    ? Math.ceil((offsetX1 - depthWidth * 0.3) / depthWidth)
+                    : Math.floor((offsetX1 + depthWidth * 0.3) / depthWidth)
 
             console.log(
                 `${offsetY1 / (height + gap) - limit} ${0.5 - gap / (height + gap) / 2} ${
                     overCenterY > offsetY1
-                }  ${value} ${depth1}`
+                } ${value} ${depthA1}`
             )
-
 
             const offsetY = y - dy - shift.y
             const index = getLimitValue(
@@ -83,7 +87,7 @@ export const useDnd = (
 
             const initialDepth = items[activeIndex].depth
 
-            appDispath(setDragShift({ x: depth - initialDepth, y: value }))
+            appDispath(setDragShift({ x: depthA1, y: value }))
 
             // dispath({
             //     type: 'move',
@@ -104,6 +108,7 @@ export const useDnd = (
             overIndex,
             items,
             initialPosition,
+            todoShift,
             dispath,
         ]
     )
