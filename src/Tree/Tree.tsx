@@ -267,18 +267,19 @@ export const Tree: FC<TreeProps> = ({
         // console.log(ds)
     }, [])
 
-    const { y = 0, x = 0, width: wi = 0 } = wrapperRef.current?.getBoundingClientRect() || {}
-    const scrollTop = wrapperRef.current ? getScrollable(wrapperRef.current)?.scrollTop || 0 : 0
+    //const scrollTop = wrapperRef.current ? getScrollable(wrapperRef.current)?.scrollTop || 0 : 0
 
-    const yPos = useMemo(
-        () =>
-            activeIndex !== -1 ? (itemHeight + gap) * activeIndex - scrollTop + (y + scrollTop) : 0,
-        [activeIndex]
-    )
-    const xPos = useMemo(
-        () => (activeIndex !== -1 ? items[activeIndex].depth * depthWidth + x : 0),
-        [activeIndex, items]
-    )
+    const [xPos, yPos] = useMemo(() => {
+        if (activeIndex === -1) {
+            return [0, 0];
+        }
+        const { y = 0, x = 0, width: wi = 0 } = wrapperRef.current?.getBoundingClientRect() || {}
+        
+        
+        const yPos = (itemHeight + gap) * activeIndex + y;
+        const xPos = items[activeIndex].depth * depthWidth + x;
+        return [xPos, yPos];
+}, [activeIndex, itemHeight, gap, items, depthWidth]);
 
     console.log(yPos)
 
