@@ -269,17 +269,20 @@ export const Tree: FC<TreeProps> = ({
 
     //const scrollTop = wrapperRef.current ? getScrollable(wrapperRef.current)?.scrollTop || 0 : 0
 
-    const [xPos, yPos] = useMemo(() => {
+    const [xPos, yPos, todoWidth] = useMemo(() => {
         if (activeIndex === -1) {
-            return [0, 0];
+            return [0, 0, 0]
         }
-        const { y = 0, x = 0, width: wi = 0 } = wrapperRef.current?.getBoundingClientRect() || {}
+        const { y = 0, x = 0, width: todoWi = 0 } = wrapperRef.current?.getBoundingClientRect() || {}
         
+        const depthOffset = items[activeIndex].depth * depthWidth
         
-        const yPos = (itemHeight + gap) * activeIndex + y;
-        const xPos = items[activeIndex].depth * depthWidth + x;
-        return [xPos, yPos];
-}, [activeIndex, itemHeight, gap, items, depthWidth]);
+        const yPos = (itemHeight + gap) * activeIndex + y
+        const xPos = depthOffset + x
+        const todoWidth = todoWi - depthOffset
+        
+        return [xPos, yPos, todoWidth]
+}, [activeIndex, itemHeight, gap, items, depthWidth])
 
     console.log(yPos)
 
@@ -335,7 +338,7 @@ export const Tree: FC<TreeProps> = ({
                                         initialCoors={{ x: xPos, y: yPos }}
                                         style={{}}
                                         itemHeight={itemHeight}
-                                        itemWidth={activeItemWidth}
+                                        itemWidth={todoWidth}
                                     >
                                         <TodoItem dragged={true} todo={items[activeIndex]} />
                                     </Overlay>
