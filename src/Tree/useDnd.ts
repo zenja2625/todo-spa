@@ -31,19 +31,19 @@ export const useDnd = (
 
     const onMove = useCallback(
         ({ x, y }: Coors) => {
-            const { x: dx = 0, y: dy = 0 } = wrapper?.getBoundingClientRect() || {}
+            // const { x: dx = 0, y: dy = 0 } = wrapper?.getBoundingClientRect() || {}
 
             const overCenterY = todoShift.y * (height + gap)
             const offsetY1 = y - initialPosition.y
 
-            const limit = 0.5 - gap / (height + gap) / 2
+            // const limit = 0.5 - gap / (height + gap) / 2
 
             //Todo delta Y : delta >= 0
 
             const value =
                 overCenterY > offsetY1
-                    ? Math.ceil((offsetY1 - height / 2) / (height + gap))
-                    : Math.floor((offsetY1 + height / 2) / (height + gap))
+                    ? Math.ceil((offsetY1 - height * 0.5) / (height + gap))
+                    : Math.floor((offsetY1 + height * 0.5) / (height + gap))
 
             //${Math.ceil((offsetY1 - height / 2) / (height + gap))}
 
@@ -55,37 +55,37 @@ export const useDnd = (
                     ? Math.ceil((offsetX1 - depthWidth * 0.3) / depthWidth)
                     : Math.floor((offsetX1 + depthWidth * 0.3) / depthWidth)
 
-            console.log(
-                `${offsetY1 / (height + gap) - limit} ${0.5 - gap / (height + gap) / 2} ${
-                    overCenterY > offsetY1
-                } ${value} ${depthA1}`
-            )
+            // console.log(
+            //     `${offsetY1 / (height + gap) - limit} ${0.5 - gap / (height + gap) / 2} ${
+            //         overCenterY > offsetY1
+            //     } ${value} ${depthA1}`
+            // )
 
-            const offsetY = y - dy - shift.y
-            const index = getLimitValue(
-                offsetY / (height + gap) - overIndex,
-                overIndex,
-                0.5 - gap / (height + gap) / 2,
-                items.length - 1
-            )
+            // const offsetY = y - dy - shift.y
+            // const index = getLimitValue(
+            //     offsetY / (height + gap) - overIndex,
+            //     overIndex,
+            //     0.5 - gap / (height + gap) / 2,
+            //     items.length - 1
+            // )
 
-            const prevIndex = activeIndex >= index ? index - 1 : index
-            const nextIndex = activeIndex <= index ? index + 1 : index
+            // const prevIndex = activeIndex >= index ? index - 1 : index
+            // const nextIndex = activeIndex <= index ? index + 1 : index
 
-            const prevDepth = items[prevIndex]?.depth + 1 || 0
-            const max = prevDepth > maxDepth ? maxDepth : prevDepth
-            const min = items[nextIndex]?.depth || 0
+            // const prevDepth = items[prevIndex]?.depth + 1 || 0
+            // const max = prevDepth > maxDepth ? maxDepth : prevDepth
+            // const min = items[nextIndex]?.depth || 0
 
-            const offsetX = x - shift.x - dx
-            const depth = getLimitValue(
-                offsetX / depthWidth - activeDepth,
-                activeDepth,
-                0.3,
-                max,
-                min
-            )
+            // const offsetX = x - shift.x - dx
+            // const depth = getLimitValue(
+            //     offsetX / depthWidth - activeDepth,
+            //     activeDepth,
+            //     0.3,
+            //     max,
+            //     min
+            // )
 
-            const initialDepth = items[activeIndex].depth
+            // const initialDepth = items[activeIndex].depth
 
             appDispath(setDragShift({ x: depthA1, y: value }))
 
@@ -130,6 +130,8 @@ export const useDnd = (
 
     const dragStart = useCallback(
         (id: string) => (e: React.MouseEvent | React.TouchEvent) => {
+            // console.log(e);
+            
             e.preventDefault()
             document.body.style.cursor = 'move'
             const initialPosition = getCoordinates(e.nativeEvent)

@@ -42,7 +42,7 @@ export const TodoItem: FC<TodoItemPropsType> = memo(
         const dispatch = useAppDispatch()
 
         useEffect(() => {
-            console.log('todo.id')
+            // console.log('todo.id')
         })
 
         const dateClass =

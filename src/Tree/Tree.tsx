@@ -24,6 +24,8 @@ import { Todo } from '../slices/sliceTypes'
 import { useAppDispatch, useAppSelector } from '../store'
 import { toggleTodoHiding, toggleTodoProgress } from '../slices/todosSlice'
 import { Checkbox } from 'antd'
+import { useWrapperRect } from './useWrapperRect'
+import { getScrollable } from './getScrollable'
 
 type ListData = {
     activeIndex: number
@@ -36,7 +38,7 @@ type ListData = {
 }
 
 type ContextIntitialProps = {
-    active: Todo | null
+    activeIndex: number
     overIndex: number
     activeDepth: number
     itemHeight: number
@@ -47,7 +49,7 @@ type ContextIntitialProps = {
 }
 
 const contextIntitial: ContextIntitialProps = {
-    active: null,
+    activeIndex: -1,
     overIndex: -1,
     activeDepth: 0,
     itemHeight: 0,
@@ -101,7 +103,7 @@ const innerElementType: ReactElementType = forwardRef<HTMLDivElement, { style: C
     ({ children, ...rest }, ref) => {
         // console.log(rest.style)
 
-        const { active, overIndex, activeDepth, itemHeight, gap, depthWidth, header, footer } =
+        const { activeIndex, overIndex, activeDepth, itemHeight, gap, depthWidth, header, footer } =
             useContext(Context)
 
         rest = { ...rest, style: { ...rest.style, position: 'relative' } }
@@ -124,7 +126,7 @@ const innerElementType: ReactElementType = forwardRef<HTMLDivElement, { style: C
                         {header}
 
                         <div ref={ref} {...rest}>
-                            {active !== null && (
+                            {activeIndex !== -1 && (
                                 <>
                                     <div
                                         style={{
@@ -235,9 +237,14 @@ export const Tree: FC<TreeProps> = ({
         [items, activeIndex, overIndex, itemHeight, depthWidth, gap, dragStart]
     )
 
+    useLayoutEffect(() => {
+        // console.log('innerRef')
+        // console.log(wrapperRef.current?.getBoundingClientRect())
+    })
+
     const value: ContextIntitialProps = useMemo(
         () => ({
-            active: items[activeIndex] || null,
+            activeIndex,
             overIndex,
             activeDepth,
             itemHeight,
@@ -250,6 +257,7 @@ export const Tree: FC<TreeProps> = ({
     )
 
     const myRef = useRef<any>()
+    const outerRef = useRef<any>()
 
     useLayoutEffect(() => {
         const ds = document.getElementById('ds')
@@ -259,51 +267,81 @@ export const Tree: FC<TreeProps> = ({
         // console.log(ds)
     }, [])
 
+    const { y = 0, x = 0, width: wi = 0 } = wrapperRef.current?.getBoundingClientRect() || {}
+    const scrollTop = wrapperRef.current ? getScrollable(wrapperRef.current)?.scrollTop || 0 : 0
+
+    const yPos = useMemo(
+        () =>
+            activeIndex !== -1 ? (itemHeight + gap) * activeIndex - scrollTop + (y + scrollTop) : 0,
+        [activeIndex]
+    )
+    const xPos = useMemo(
+        () => (activeIndex !== -1 ? items[activeIndex].depth * depthWidth + x : 0),
+        [activeIndex, items]
+    )
+
+    console.log(yPos)
+
     return (
         <>
             <Context.Provider value={value}>
                 <AutoSizer
                     style={{
-                        width: '100%'
+                        width: '100%',
+                        height: '100%',
                     }}
                 >
-                    {({ width, height }) => (
-                        <>
-                            <List
-                                ref={myRef}
-                                height={height}
-                                itemCount={items.length}
-                                itemSize={itemHeight + gap}
-                                width={width}
-                                itemData={itemData}
-                                innerRef={wrapperRef}
-                                overscanCount={0}
-                                innerElementType={innerElementType}
-                                onScroll={e => {
-                                    // console.log('Scroll')
-                                    // console.log(myRef.current);
-                                }}
-                                style={{
-                                    // backgroundColor: 'orangered',
-                                    width: `100%`,
-                                    willChange: 'auto',
-                                    // overflow: undefined,
-                                }}
-                            >
-                                {Row}
-                            </List>
-                            {activeIndex !== -1 && (
-                                <Overlay
-                                    initialCoors={{ x: 0, y: 0 }}
-                                    style={{}}
-                                    itemHeight={itemHeight}
-                                    itemWidth={activeItemWidth}
+                    {({ width, height }) => {
+                        return (
+                            <>
+                                <div
+                                    style={{
+                                        width: '50px',
+                                        height: '50px',
+                                        backgroundColor: 'orange',
+                                        position: 'fixed',
+                                        zIndex: 1000,
+                                    }}
                                 >
-                                    <TodoItem dragged={true} todo={items[activeIndex]} />
-                                </Overlay>
-                            )}
-                        </>
-                    )}
+                                    {width}
+                                </div>
+                                <List
+                                    ref={myRef}
+                                    height={height}
+                                    itemCount={items.length}
+                                    itemSize={itemHeight + gap}
+                                    width={width}
+                                    itemData={itemData}
+                                    innerRef={wrapperRef}
+                                    overscanCount={0}
+                                    innerElementType={innerElementType}
+                                    onScroll={e => {
+                                        // console.log('Scroll')
+                                        // console.log(myRef.current);
+                                    }}
+                                    style={{
+                                        // backgroundColor: 'orangered',
+                                        width: `100%`,
+                                        willChange: 'auto',
+                                        // overflow: undefined,
+                                    }}
+                                    outerRef={outerRef}
+                                >
+                                    {Row}
+                                </List>
+                                {activeIndex !== -1 && (
+                                    <Overlay
+                                        initialCoors={{ x: xPos, y: yPos }}
+                                        style={{}}
+                                        itemHeight={itemHeight}
+                                        itemWidth={activeItemWidth}
+                                    >
+                                        <TodoItem dragged={true} todo={items[activeIndex]} />
+                                    </Overlay>
+                                )}
+                            </>
+                        )
+                    }}
                 </AutoSizer>
             </Context.Provider>
             <button

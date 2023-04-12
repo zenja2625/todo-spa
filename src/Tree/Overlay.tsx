@@ -8,14 +8,14 @@ export const Overlay: FC<OverlayProps> = ({ children, initialCoors, itemHeight, 
     const initialPosition = useAppSelector(state => state.todos.draggedTodo.initialPosition)
 
     const [coors, setCoors] = useState<Coors>(() => ({
-        x: initialPosition.x,
-        y: initialPosition.y,
+        x: 0,
+        y: 0,
     }))
 
     useEffect(() => {}, [coors])
 
     const getCoors = useCallback((coors: Coors) => {
-        setCoors({ x: coors.x, y: coors.y })
+        setCoors({ x: initialPosition.x - coors.x, y: initialPosition.y - coors.y })
     }, [])
 
     useListeners(true, getCoors)
@@ -23,8 +23,8 @@ export const Overlay: FC<OverlayProps> = ({ children, initialCoors, itemHeight, 
     const style: React.CSSProperties = useMemo(
         () => ({
             position: 'fixed',
-            top: initialCoors.y,
-            left: initialCoors.x,
+            top: initialCoors.y - coors.y,
+            left: initialCoors.x - coors.x,
             transform: `translate(${0}px, ${0}px)`,
             //backgroundColor: 'pink',
             width: `${itemWidth}px`,

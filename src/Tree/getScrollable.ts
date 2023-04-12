@@ -5,6 +5,8 @@ export const getScrollable = (element: HTMLElement): HTMLElement | null => {
     const isOverflowHidden = overflowYStyle.indexOf('hidden') !== -1
 
     if (hasScrollableContent && !isOverflowHidden) {
+        // console.log(element);
+        
         return element
     } else if (element.parentElement) {
         return getScrollable(element.parentElement)
