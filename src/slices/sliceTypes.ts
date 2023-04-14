@@ -67,15 +67,17 @@ export type TodosType = {
     todoPositionDTOs: Array<TodoPositionDTO>
     todoEditor: ITodoEditor
     draggedTodo: {
-        dragId: string | null
-        todoShift: Coors
+        activeIndex: number
+        overIndex: number
+        depth: number
         initialPosition: Coors
     }
     todosRequestId: string | null
 }
 
 export type DragStartType = {
-    dragId: string
+    activeIndex: number
+    depth: number
     initialPosition: Coors
 }
 

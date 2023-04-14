@@ -25,69 +25,49 @@ export const useDnd = (
 ) => {
     const { activeIndex, overIndex, order: items, activeDepth } = state
 
-    const { todoShift } = useAppSelector(state => state.todos.draggedTodo)
+    // const { todoShift } = useAppSelector(state => state.todos.draggedTodo)
 
     const appDispath = useAppDispatch()
 
     const onMove = useCallback(
         ({ x, y }: Coors) => {
-            // const { x: dx = 0, y: dy = 0 } = wrapper?.getBoundingClientRect() || {}
+            const { x: dx = 0, y: dy = 0 } = wrapper?.getBoundingClientRect() || {}
 
-            const overCenterY = todoShift.y * (height + gap)
-            const offsetY1 = y - initialPosition.y
 
-            // const limit = 0.5 - gap / (height + gap) / 2
+            const limit = 0.5 - gap / (height + gap) / 2
 
-            //Todo delta Y : delta >= 0
+            // Todo delta Y : delta >= 0
 
-            const value =
-                overCenterY > offsetY1
-                    ? Math.ceil((offsetY1 - height * 0.5) / (height + gap))
-                    : Math.floor((offsetY1 + height * 0.5) / (height + gap))
 
-            //${Math.ceil((offsetY1 - height / 2) / (height + gap))}
+   
 
-            const overX = todoShift.x * depthWidth
-            const offsetX1 = x - initialPosition.x
+            const offsetY = y - dy - shift.y
+            const index = getLimitValue(
+                offsetY / (height + gap) - overIndex,
+                overIndex,
+                0.5 - gap / (height + gap) / 2,
+                items.length - 1
+            )
 
-            const depthA1 =
-                overX > offsetX1
-                    ? Math.ceil((offsetX1 - depthWidth * 0.3) / depthWidth)
-                    : Math.floor((offsetX1 + depthWidth * 0.3) / depthWidth)
+            const prevIndex = activeIndex >= index ? index - 1 : index
+            const nextIndex = activeIndex <= index ? index + 1 : index
 
-            // console.log(
-            //     `${offsetY1 / (height + gap) - limit} ${0.5 - gap / (height + gap) / 2} ${
-            //         overCenterY > offsetY1
-            //     } ${value} ${depthA1}`
-            // )
+            const prevDepth = items[prevIndex]?.depth + 1 || 0
+            const max = prevDepth > maxDepth ? maxDepth : prevDepth
+            const min = items[nextIndex]?.depth || 0
 
-            // const offsetY = y - dy - shift.y
-            // const index = getLimitValue(
-            //     offsetY / (height + gap) - overIndex,
-            //     overIndex,
-            //     0.5 - gap / (height + gap) / 2,
-            //     items.length - 1
-            // )
+            const offsetX = x - shift.x - dx
+            const depth = getLimitValue(
+                offsetX / depthWidth - activeDepth,
+                activeDepth,
+                0.3,
+                max,
+                min
+            )
 
-            // const prevIndex = activeIndex >= index ? index - 1 : index
-            // const nextIndex = activeIndex <= index ? index + 1 : index
+            const initialDepth = items[activeIndex].depth
 
-            // const prevDepth = items[prevIndex]?.depth + 1 || 0
-            // const max = prevDepth > maxDepth ? maxDepth : prevDepth
-            // const min = items[nextIndex]?.depth || 0
-
-            // const offsetX = x - shift.x - dx
-            // const depth = getLimitValue(
-            //     offsetX / depthWidth - activeDepth,
-            //     activeDepth,
-            //     0.3,
-            //     max,
-            //     min
-            // )
-
-            // const initialDepth = items[activeIndex].depth
-
-            appDispath(setDragShift({ x: depthA1, y: value }))
+            appDispath(setDragShift({ overIndex: index, depth }))
 
             // dispath({
             //     type: 'move',
@@ -108,7 +88,6 @@ export const useDnd = (
             overIndex,
             items,
             initialPosition,
-            todoShift,
             dispath,
         ]
     )
@@ -129,13 +108,13 @@ export const useDnd = (
     useListeners(activeIndex !== -1, onMove, dragEnd)
 
     const dragStart = useCallback(
-        (id: string) => (e: React.MouseEvent | React.TouchEvent) => {
+        (activeIndex: number, depth: number) => (e: React.MouseEvent | React.TouchEvent) => {
             // console.log(e);
-            
+
             e.preventDefault()
             document.body.style.cursor = 'move'
             const initialPosition = getCoordinates(e.nativeEvent)
-            appDispath(startDragTodo({ dragId: id, initialPosition }))
+            appDispath(startDragTodo({ activeIndex, depth, initialPosition }))
         },
         [appDispath]
     )

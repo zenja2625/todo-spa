@@ -1,3 +1,5 @@
+//Todo Set over, active Index to Slice in dragStart
+
 import React, {
     FC,
     useCallback,
@@ -34,7 +36,10 @@ type ListData = {
     gap: number
     depthWidth: number
     order: Array<Todo>
-    dragStart: (id: string) => (e: React.MouseEvent | React.TouchEvent) => void
+    dragStart: (
+        activeIndex: number,
+        depth: number
+    ) => (e: React.MouseEvent | React.TouchEvent) => void
 }
 
 type ContextIntitialProps = {
@@ -61,15 +66,15 @@ const contextIntitial: ContextIntitialProps = {
 
 const Context = createContext(contextIntitial)
 
-const Row = ({ index, style, data }: ListChildComponentProps<ListData>) => {
+export const Row = ({ index, style, data }: ListChildComponentProps<ListData>) => {
     const { dragStart, order, activeIndex, overIndex, gap, itemHeight, depthWidth } = data
 
     const handleProps = useMemo(
         () => ({
-            onDragStart: dragStart(order[index].id),
-            onMouseDown: dragStart(order[index].id),
+            onDragStart: dragStart(index, order[index].depth),
+            onMouseDown: dragStart(index, order[index].depth),
         }),
-        [dragStart, order[index].id]
+        [dragStart, index, order[index].depth]
     )
 
     let todo = order[index]
@@ -174,16 +179,16 @@ export const Tree: FC<TreeProps> = ({
 }) => {
     const wrapperRef = useRef<HTMLDivElement>(null)
 
-    const { dragId, todoShift, initialPosition } = useAppSelector(state => state.todos.draggedTodo)
+    const {
+        activeIndex,
+        overIndex,
+        depth: activeDepth,
+        initialPosition,
+    } = useAppSelector(state => state.todos.draggedTodo)
 
-    const activeIndex = useMemo(() => items.findIndex(item => item.id === dragId), [items, dragId])
     const initialDepth = useMemo(
         () => (activeIndex !== -1 ? items[activeIndex].depth : 0),
         [items, activeIndex]
-    )
-    const { activeDepth, overIndex } = useMemo(
-        () => ({ activeDepth: initialDepth + todoShift.x, overIndex: activeIndex + todoShift.y }),
-        [todoShift, activeIndex, initialDepth]
     )
 
     const [_state, dispatch] = useReducer(reducer, initialState)
@@ -273,16 +278,20 @@ export const Tree: FC<TreeProps> = ({
         if (activeIndex === -1) {
             return [0, 0, 0]
         }
-        const { y = 0, x = 0, width: todoWi = 0 } = wrapperRef.current?.getBoundingClientRect() || {}
-        
+        const {
+            y = 0,
+            x = 0,
+            width: todoWi = 0,
+        } = wrapperRef.current?.getBoundingClientRect() || {}
+
         const depthOffset = items[activeIndex].depth * depthWidth
-        
+
         const yPos = (itemHeight + gap) * activeIndex + y
         const xPos = depthOffset + x
         const todoWidth = todoWi - depthOffset
-        
+
         return [xPos, yPos, todoWidth]
-}, [activeIndex, itemHeight, gap, items, depthWidth])
+    }, [activeIndex, itemHeight, gap, items, depthWidth])
 
     console.log(yPos)
 

@@ -26,8 +26,9 @@ const initialState: TodosType = {
         value: { value: '' },
     },
     draggedTodo: {
-        dragId: null,
-        todoShift: { x: 0, y: 0 },
+        activeIndex: -1,
+        overIndex: -1,
+        depth: 0,
         initialPosition: { x: 0, y: 0 },
     },
     todosRequestId: null,
@@ -220,19 +221,29 @@ export const todosSlice = createSlice({
         startDragTodo: (state, action: PayloadAction<DragStartType>) => {
             state.draggedTodo = {
                 ...action.payload,
-                todoShift: { x: 0, y: 0 },
+                overIndex: action.payload.activeIndex,
             }
         },
-        setDragShift: (state, action: PayloadAction<Coors>) => {
+        setDragShift: (state, action: PayloadAction<{ overIndex: number; depth: number }>) => {
             state.draggedTodo = {
                 ...state.draggedTodo,
-                todoShift: action.payload
+                ...action.payload,
             }
         },
         moveTodo: (
             state,
             action: PayloadAction<{ id: string; overId: string; actualDepth: number }>
         ) => {
+            /*
+            function moveElementInArray<T>(array: T[], fromIndex: number, toIndex: number): T[] {
+                const newArray = [...array];
+                const element = newArray[fromIndex];
+                newArray.splice(fromIndex, 1);
+                newArray.splice(toIndex, 0, element);
+                return newArray;
+}
+            */
+
             const todos = state.items
             const { id, overId, actualDepth } = action.payload
 
@@ -274,7 +285,7 @@ export const todosSlice = createSlice({
             }
         },
         stopDragTodo: state => {
-            state.draggedTodo.dragId = null
+            state.draggedTodo.activeIndex = -1
         },
         openTodoEditor: (state, action: PayloadAction<OpenTodoEditorProps | undefined>) => {
             const { value, ...payload } = action.payload || {}

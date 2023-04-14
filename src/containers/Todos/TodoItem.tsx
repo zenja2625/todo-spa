@@ -60,8 +60,20 @@ export const TodoItem: FC<TodoItemPropsType> = memo(
         const onClick: MenuProps['onClick'] = e => {
             switch (e.key as MenuKeys) {
                 case 'change':
-                    break
-            }
+                  // handle change
+                  break;
+                case 'up':
+                  // handle up
+                  break;
+                case 'down':
+                  // handle down
+                  break;
+                case 'remove':
+                  // handle remove
+                  break;
+                default:
+                  // handle default
+              }
         }
         const popoverMenu = () => {
             return <Menu theme='light' onClick={onClick} items={menuItems}></Menu>
