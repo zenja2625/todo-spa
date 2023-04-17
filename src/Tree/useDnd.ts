@@ -39,8 +39,6 @@ export const useDnd = (
             // Todo delta Y : delta >= 0
 
 
-   
-
             const offsetY = y - dy - shift.y
             const index = getLimitValue(
                 offsetY / (height + gap) - overIndex,
@@ -65,17 +63,9 @@ export const useDnd = (
                 min
             )
 
-            const initialDepth = items[activeIndex].depth
 
             appDispath(setDragShift({ overIndex: index, depth }))
 
-            // dispath({
-            //     type: 'move',
-            //     payload: {
-            //         index,
-            //         depth,
-            //     },
-            // })
         },
         [
             wrapper,
@@ -102,7 +92,7 @@ export const useDnd = (
             })
         )
         appDispath(stopDragTodo())
-        dispath({ type: 'dragEnd' })
+        //dispath({ type: 'dragEnd' })
     }, [dispath, appDispath, activeDepth, activeIndex, overIndex, items])
 
     useListeners(activeIndex !== -1, onMove, dragEnd)

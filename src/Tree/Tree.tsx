@@ -13,6 +13,7 @@ import React, {
     CSSProperties,
     useContext,
 } from 'react'
+import { useListeners } from './useListeners'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { Coors, TreeItem, TreeProps } from './types'
 import { reducer, initialState, State } from './reducer'
@@ -201,7 +202,7 @@ export const Tree: FC<TreeProps> = ({
             y: initialPosition.y - y - (itemHeight + gap) * activeIndex,
         }
     }, [initialPosition, initialDepth, activeIndex, depthWidth, wrapperRef, itemHeight, gap])
-
+    
     const activeItemWidth =
         wrapperRef.current && activeIndex >= 0 && activeIndex < items.length
             ? wrapperRef.current.clientWidth - items[activeIndex].depth * depthWidth
@@ -273,6 +274,11 @@ export const Tree: FC<TreeProps> = ({
     }, [])
 
     //const scrollTop = wrapperRef.current ? getScrollable(wrapperRef.current)?.scrollTop || 0 : 0
+
+
+    useListeners(activeIndex !== -1, ({ x, y }) => {
+    })
+    
 
     const [xPos, yPos, todoWidth] = useMemo(() => {
         if (activeIndex === -1) {

@@ -243,7 +243,6 @@ export const todosSlice = createSlice({
                 return newArray;
 }
             */
-
             const todos = state.items
             const { id, overId, actualDepth } = action.payload
 
