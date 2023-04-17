@@ -12,6 +12,7 @@ import React, {
     useEffect,
     CSSProperties,
     useContext,
+    useState,
 } from 'react'
 import { useListeners } from './useListeners'
 import AutoSizer from 'react-virtualized-auto-sizer'
@@ -179,7 +180,7 @@ export const Tree: FC<TreeProps> = ({
     header,
 }) => {
     const wrapperRef = useRef<HTMLDivElement>(null)
-
+    
     const {
         activeIndex,
         overIndex,
@@ -275,8 +276,34 @@ export const Tree: FC<TreeProps> = ({
 
     //const scrollTop = wrapperRef.current ? getScrollable(wrapperRef.current)?.scrollTop || 0 : 0
 
+    const [mode, setMode] = useState('None')
 
-    useListeners(activeIndex !== -1, ({ x, y }) => {
+    useListeners(activeIndex !== -1, ({ y }) => {
+        if (wrapperRef.current) {
+            const offset = 40
+            
+            const outerWrapper = myRef.current.props.outerRef.current
+            
+            const scrollTop = outerWrapper.scrollTop
+            const { y: dy } = wrapperRef.current.getBoundingClientRect()
+            
+            const top = dy + scrollTop + offset
+            const bottom = outerWrapper.getBoundingClientRect().bottom - offset
+            
+            
+            if (y < top) {
+                setMode('Top')
+            }
+            else if (y > bottom){
+                setMode('Bottom')
+            }
+            else {
+                setMode('None')
+            }
+            
+            //console.log(`bottom ${y} ${bottom}`)
+            //console.log(myRef.current.props.outerRef.current.getBoundingClientRect().height)
+        }
     })
     
 
@@ -322,7 +349,7 @@ export const Tree: FC<TreeProps> = ({
                                         zIndex: 1000,
                                     }}
                                 >
-                                    {width}
+                                    {mode}
                                 </div>
                                 <List
                                     ref={myRef}
