@@ -30,6 +30,8 @@ import { toggleTodoHiding, toggleTodoProgress } from '../slices/todosSlice'
 import { Checkbox } from 'antd'
 import { useWrapperRect } from './useWrapperRect'
 import { getScrollable } from './getScrollable'
+import { FixedSizeListProps } from 'react-window'
+import { useAutoScroll } from './useAutoScroll'
 
 type ListData = {
     activeIndex: number
@@ -179,7 +181,8 @@ export const Tree: FC<TreeProps> = ({
     footer,
     header,
 }) => {
-    const wrapperRef = useRef<HTMLDivElement>(null)
+    const innerRef = useRef<HTMLDivElement>(null)
+    const outerRef = useRef<HTMLDivElement>(null)
     
     const {
         activeIndex,
@@ -196,17 +199,17 @@ export const Tree: FC<TreeProps> = ({
     const [_state, dispatch] = useReducer(reducer, initialState)
 
     const shift = useMemo((): Coors => {
-        const { x = 0, y = 0 } = wrapperRef.current?.getBoundingClientRect() || {}
+        const { x = 0, y = 0 } = innerRef.current?.getBoundingClientRect() || {}
 
         return {
             x: initialPosition.x - x - initialDepth * depthWidth,
             y: initialPosition.y - y - (itemHeight + gap) * activeIndex,
         }
-    }, [initialPosition, initialDepth, activeIndex, depthWidth, wrapperRef, itemHeight, gap])
+    }, [initialPosition, initialDepth, activeIndex, depthWidth, innerRef, itemHeight, gap])
     
     const activeItemWidth =
-        wrapperRef.current && activeIndex >= 0 && activeIndex < items.length
-            ? wrapperRef.current.clientWidth - items[activeIndex].depth * depthWidth
+        innerRef.current && activeIndex >= 0 && activeIndex < items.length
+            ? innerRef.current.clientWidth - items[activeIndex].depth * depthWidth
             : 0
 
     const state: State = {
@@ -224,7 +227,7 @@ export const Tree: FC<TreeProps> = ({
         dispatch,
         itemHeight,
         gap,
-        wrapperRef.current,
+        innerRef.current,
         shift,
         maxDepth,
         depthWidth,
@@ -263,8 +266,7 @@ export const Tree: FC<TreeProps> = ({
         [activeIndex, overIndex, activeDepth, itemHeight, gap, depthWidth, header, footer]
     )
 
-    const myRef = useRef<any>()
-    const outerRef = useRef<any>()
+    const myRef = useRef<List<ListData> | null>(null)
 
     useLayoutEffect(() => {
         const ds = document.getElementById('ds')
@@ -278,32 +280,38 @@ export const Tree: FC<TreeProps> = ({
 
     const [mode, setMode] = useState('None')
 
-    useListeners(activeIndex !== -1, ({ y }) => {
-        if (wrapperRef.current) {
-            const offset = 40
+    useAutoScroll(true, 50, innerRef, outerRef, myRef)
+
+
+    useListeners(activeIndex === -1, ({ y }) => {
+        // console.log(myRef.current);
+        
+        // if (wrapperRef.current) {
+        //     const offset = 40
             
-            const outerWrapper = myRef.current.props.outerRef.current
+        //     const outerWrapper = myRef.current.props.outerRef.current
+        //     const outerWrapper1 = myRef.current?.props.outerRef
             
-            const scrollTop = outerWrapper.scrollTop
-            const { y: dy } = wrapperRef.current.getBoundingClientRect()
+        //     const scrollTop = outerWrapper.scrollTop
+        //     const { y: dy } = wrapperRef.current.getBoundingClientRect()
             
-            const top = dy + scrollTop + offset
-            const bottom = outerWrapper.getBoundingClientRect().bottom - offset
+        //     const top = dy + scrollTop + offset
+        //     const bottom = outerWrapper.getBoundingClientRect().bottom - offset
             
             
-            if (y < top) {
-                setMode('Top')
-            }
-            else if (y > bottom){
-                setMode('Bottom')
-            }
-            else {
-                setMode('None')
-            }
+        //     if (y < top) {
+        //         setMode('Top')
+        //     }
+        //     else if (y > bottom){
+        //         setMode('Bottom')
+        //     }
+        //     else {
+        //         setMode('None')
+        //     }
             
-            //console.log(`bottom ${y} ${bottom}`)
-            //console.log(myRef.current.props.outerRef.current.getBoundingClientRect().height)
-        }
+        //     //console.log(`bottom ${y} ${bottom}`)
+        //     //console.log(myRef.current.props.outerRef.current.getBoundingClientRect().height)
+        // }
     })
     
 
@@ -315,7 +323,7 @@ export const Tree: FC<TreeProps> = ({
             y = 0,
             x = 0,
             width: todoWi = 0,
-        } = wrapperRef.current?.getBoundingClientRect() || {}
+        } = innerRef.current?.getBoundingClientRect() || {}
 
         const depthOffset = items[activeIndex].depth * depthWidth
 
@@ -358,7 +366,7 @@ export const Tree: FC<TreeProps> = ({
                                     itemSize={itemHeight + gap}
                                     width={width}
                                     itemData={itemData}
-                                    innerRef={wrapperRef}
+                                    innerRef={innerRef}
                                     overscanCount={0}
                                     innerElementType={innerElementType}
                                     onScroll={e => {
@@ -393,7 +401,7 @@ export const Tree: FC<TreeProps> = ({
             <button
                 style={{ position: 'fixed' }}
                 onClick={() => {
-                    console.log(myRef.current.scrollTo(50000))
+                    // console.log(myRef.current.scrollTo(50000))
                 }}
             >
                 Click
