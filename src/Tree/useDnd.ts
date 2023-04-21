@@ -103,6 +103,7 @@ export const useDnd = (
 
             // e.preventDefault()
             document.body.style.cursor = 'move'
+            // document.body.style.scrollBehavior = 'hidden'
             const initialPosition = getCoordinates(e.nativeEvent)
             appDispath(startDragTodo({ activeIndex, depth, initialPosition }))
         },

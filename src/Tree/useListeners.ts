@@ -35,9 +35,10 @@ export const useListeners = (
 
     const touchStart = useCallback(
         (e: TouchEvent) => {
-
-            // alert('Touch STart')
             touchTargetRef.current = e.target
+            // e.target?.addEventListener("touchmove", function(event) {
+            //     event.preventDefault();
+            //   }, false);
             // e.target?.addEventListener('touchmove', onMove)
             // e.target?.addEventListener('touchend', touchEnd)
         },
@@ -52,20 +53,20 @@ export const useListeners = (
             // window.addEventListener('touchstart', touchStart)
             window.addEventListener('keydown', cancel)
             dragEnd && window.addEventListener('mouseup', dragEnd)
-            // if (touchTargetRef.current) {
-            //     touchTargetRef.current.addEventListener('touchmove', onMove)
-            //     touchTargetRef.current.addEventListener('touchend', touchEnd)
-            // }
+            if (touchTargetRef.current) {
+                touchTargetRef.current.addEventListener('touchmove', onMove)
+                touchTargetRef.current.addEventListener('touchend', touchEnd)
+            }
         }
         return () => {
             window.removeEventListener('mousemove', onMove)
             window.removeEventListener('touchstart', touchStart)
             window.removeEventListener('keydown', cancel)
             dragEnd && window.removeEventListener('mouseup', dragEnd)
-            // if (touchTargetRef.current) {
-            //     touchTargetRef.current.removeEventListener('touchmove', onMove)
-            //     touchTargetRef.current.removeEventListener('touchend', touchEnd)
-            // }
+            if (touchTargetRef.current) {
+                touchTargetRef.current.removeEventListener('touchmove', onMove)
+                touchTargetRef.current.removeEventListener('touchend', touchEnd)
+            }
         }
     }, [isActive, onMove, dragEnd, cancel, touchStart, touchEnd])
 }
