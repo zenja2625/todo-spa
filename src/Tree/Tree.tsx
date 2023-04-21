@@ -75,7 +75,7 @@ export const Row = ({ index, style, data }: ListChildComponentProps<ListData>) =
 
     const handleProps = useMemo(
         () => ({
-            onDragStart: dragStart(index, order[index].depth),
+            onTouchStart: dragStart(index, order[index].depth),
             onMouseDown: dragStart(index, order[index].depth),
         }),
         [dragStart, index, order[index].depth]
@@ -183,7 +183,7 @@ export const Tree: FC<TreeProps> = ({
 }) => {
     const innerRef = useRef<HTMLDivElement>(null)
     const outerRef = useRef<HTMLDivElement>(null)
-    
+
     const {
         activeIndex,
         overIndex,
@@ -206,7 +206,7 @@ export const Tree: FC<TreeProps> = ({
             y: initialPosition.y - y - (itemHeight + gap) * activeIndex,
         }
     }, [initialPosition, initialDepth, activeIndex, depthWidth, innerRef, itemHeight, gap])
-    
+
     const activeItemWidth =
         innerRef.current && activeIndex >= 0 && activeIndex < items.length
             ? innerRef.current.clientWidth - items[activeIndex].depth * depthWidth
@@ -280,50 +280,15 @@ export const Tree: FC<TreeProps> = ({
 
     const [mode, setMode] = useState('None')
 
-    useAutoScroll(true, 50, innerRef, outerRef, myRef)
+    const ref = useRef<HTMLDivElement>(null)
 
-
-    useListeners(activeIndex === -1, ({ y }) => {
-        // console.log(myRef.current);
-        
-        // if (wrapperRef.current) {
-        //     const offset = 40
-            
-        //     const outerWrapper = myRef.current.props.outerRef.current
-        //     const outerWrapper1 = myRef.current?.props.outerRef
-            
-        //     const scrollTop = outerWrapper.scrollTop
-        //     const { y: dy } = wrapperRef.current.getBoundingClientRect()
-            
-        //     const top = dy + scrollTop + offset
-        //     const bottom = outerWrapper.getBoundingClientRect().bottom - offset
-            
-            
-        //     if (y < top) {
-        //         setMode('Top')
-        //     }
-        //     else if (y > bottom){
-        //         setMode('Bottom')
-        //     }
-        //     else {
-        //         setMode('None')
-        //     }
-            
-        //     //console.log(`bottom ${y} ${bottom}`)
-        //     //console.log(myRef.current.props.outerRef.current.getBoundingClientRect().height)
-        // }
-    })
-    
+    // useAutoScroll(activeIndex !== -1, 50, innerRef, outerRef)
 
     const [xPos, yPos, todoWidth] = useMemo(() => {
         if (activeIndex === -1) {
             return [0, 0, 0]
         }
-        const {
-            y = 0,
-            x = 0,
-            width: todoWi = 0,
-        } = innerRef.current?.getBoundingClientRect() || {}
+        const { y = 0, x = 0, width: todoWi = 0 } = innerRef.current?.getBoundingClientRect() || {}
 
         const depthOffset = items[activeIndex].depth * depthWidth
 
@@ -338,6 +303,18 @@ export const Tree: FC<TreeProps> = ({
 
     return (
         <>
+            <div
+                ref={ref}
+                style={{
+                    width: '50px',
+                    height: '740px',
+                    backgroundColor: 'orangered',
+                    position: 'fixed',
+                    top: '64px',
+                    right: 0,
+                    zIndex: 10000,
+                }}
+            ></div>
             <Context.Provider value={value}>
                 <AutoSizer
                     style={{
@@ -357,7 +334,7 @@ export const Tree: FC<TreeProps> = ({
                                         zIndex: 1000,
                                     }}
                                 >
-                                    {mode}
+                                    {activeIndex}
                                 </div>
                                 <List
                                     ref={myRef}
@@ -383,7 +360,7 @@ export const Tree: FC<TreeProps> = ({
                                 >
                                     {Row}
                                 </List>
-                                {activeIndex !== -1 && (
+                                {/* {activeIndex !== -1 && (
                                     <Overlay
                                         initialCoors={{ x: xPos, y: yPos }}
                                         style={{}}
@@ -392,7 +369,7 @@ export const Tree: FC<TreeProps> = ({
                                     >
                                         <TodoItem dragged={true} todo={items[activeIndex]} />
                                     </Overlay>
-                                )}
+                                )} */}
                             </>
                         )
                     }}

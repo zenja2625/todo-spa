@@ -10,17 +10,20 @@ export const useAutoScroll = (
     offset: number,
     innerRef: RefObject<HTMLDivElement>,
     outerRef: RefObject<HTMLDivElement>,
-    ref: MutableRefObject<List | null>
 ) => {
     const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
     const directionRef = useRef<Direction>(0)
 
+    const stopScroll = useCallback(() => {
+        if (!intervalRef.current) return
+
+        clearInterval(intervalRef.current)
+        directionRef.current = 0
+    }, [])
+
     useEffect(() => {
-        if (!active && intervalRef.current) {
-            clearInterval(intervalRef.current)
-            directionRef.current = 0
-        }
-    }, [active])
+        if (!active) stopScroll()
+    }, [active, stopScroll])
 
     const scroll = useCallback(() => {
         console.log(directionRef.current)
@@ -28,42 +31,42 @@ export const useAutoScroll = (
         outerRef.current?.scrollBy(0, directionRef.current * 8)
     }, [outerRef])
 
-    const startScroll = useCallback((direction: Direction, delay: number) => {
-        if (directionRef.current !== direction) {
-            if (intervalRef.current !== null) {
-                clearInterval(intervalRef.current)
-            }
+    const startScroll = useCallback(
+        (direction: Direction, delay: number) => {
+            if (directionRef.current !== direction) {
+                if (intervalRef.current !== null) {
+                    clearInterval(intervalRef.current)
+                }
 
-            directionRef.current = direction
-            scroll()
-            intervalRef.current = setInterval(scroll, delay)
-        }
-    }, [])
+                directionRef.current = direction
+                scroll()
+                intervalRef.current = setInterval(scroll, delay)
+            }
+        },
+        [scroll]
+    )
 
     const onMove = useCallback(
         ({ y }: Coors) => {
-            if (!innerRef.current || !outerRef.current || !ref.current) return
+            if (!innerRef.current || !outerRef.current) return
 
             const scrollTop = outerRef.current.scrollTop
             const innerY = innerRef.current.getBoundingClientRect().y
             const outerBottom = outerRef.current.getBoundingClientRect().bottom
 
             const top = innerY + scrollTop + offset
-            const bottom = outerBottom - offset
+            const bottom = outerBottom - offset - window.outerHeight + window.innerHeight
 
             if (y < top) {
                 startScroll(-1, 10)
             } else if (y > bottom) {
                 startScroll(1, 10)
             } else {
-                if (intervalRef.current !== null) {
-                    clearInterval(intervalRef.current)
-                }
-                directionRef.current = 0
+                stopScroll()
             }
         },
-        [innerRef, outerRef, offset, scroll, startScroll]
+        [innerRef, outerRef, offset, scroll, startScroll, stopScroll]
     )
 
-    useListeners(active, onMove)
+    useListeners(active, onMove, () => {})
 }

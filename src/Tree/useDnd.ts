@@ -101,7 +101,7 @@ export const useDnd = (
         (activeIndex: number, depth: number) => (e: React.MouseEvent | React.TouchEvent) => {
             // console.log(e);
 
-            e.preventDefault()
+            // e.preventDefault()
             document.body.style.cursor = 'move'
             const initialPosition = getCoordinates(e.nativeEvent)
             appDispath(startDragTodo({ activeIndex, depth, initialPosition }))
